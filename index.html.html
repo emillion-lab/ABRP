@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Better Root Planting</title>
+<style>
+:root{--bg:#0a1929;--panel:#1a2942;--border:#2d3e55;--muted:#8b9eb8;--text:#e8f0f8;--accent:#4fc3f7;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#0a1929;color:var(--text);font-size:13px}
+header{position:sticky;top:0;background:rgba(10,25,41,0.95);border-bottom:2px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:12px;z-index:100}
+.logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#4fc3f7,#a78bfa);display:flex;align-items:center;justify-content:center;font-size:2rem}
+h1{font-size:1.2rem;font-weight:800;color:var(--accent)}
+button{background:var(--accent);color:#001830;border:none;padding:10px 18px;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.9rem}
+.ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.ghost:hover{background:var(--panel);color:var(--text)}
+.actions{margin-left:auto;display:flex;gap:8px;position:relative}
+.lang-dropdown{position:relative}
+.lang-btn{display:flex;align-items:center;gap:8px}
+.lang-menu{display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--panel);border:1px solid var(--border);border-radius:10px;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:200}
+.lang-menu.show{display:block}
+.lang-option{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;transition:all 0.2s;border-bottom:1px solid var(--border)}
+.lang-option:last-child{border-bottom:none}
+.lang-option:hover{background:rgba(79,195,247,0.1)}
+.lang-option.active{background:rgba(79,195,247,0.15)}
+.flag{width:24px;height:18px;object-fit:cover;border-radius:3px;display:inline-block}
+.main{display:grid;grid-template-columns:380px 1fr 440px;gap:20px;padding:20px;max-width:2400px;margin:0 auto}
+.col{display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 96px);overflow-y:auto}
+.card{background:#162030;border:1px solid var(--border);border-radius:12px;padding:16px}
+h3{color:var(--accent);font-size:0.9rem;margin-bottom:12px}.input-group{margin-bottom:16px}
+.input-head{display:flex;justify-content:space-between;margin-bottom:8px}.input-label{color:var(--muted);font-size:0.85rem}
+.val{color:var(--accent);font-weight:800}.val.neg{color:var(--bad)}
+input[type=range]{width:100%;height:14px;border-radius:8px;background:var(--panel);border:1px solid var(--border);margin:8px 0;cursor:pointer}
+.kpi{background:rgba(79,195,247,0.05);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px}
+.kpi .label{font-size:0.72rem;color:var(--muted);margin-bottom:6px}.kpi .big{font-size:1.2rem;font-weight:900;color:var(--accent)}
+.kpi .small{font-size:0.7rem;color:var(--muted);margin-top:4px}.kpi.pos .big{color:var(--ok)}.kpi.neg .big{color:var(--bad)}
+.cities{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+.city-chip{background:#1a2535;border:3px solid var(--border);padding:12px;border-radius:10px;cursor:pointer;transition:all 0.2s}
+.city-chip:hover{border-color:var(--accent)}.city-chip.active{border-color:var(--accent);background:rgba(79,195,247,0.1)}
+.city-chip.ok{border-color:var(--ok)}.city-chip.warn{border-color:var(--warn)}.city-chip.bad{border-color:var(--bad)}
+.city-name{font-weight:800;font-size:0.95rem;margin-bottom:6px;display:flex;align-items:center;gap:8px}.city-info{font-size:0.75rem;color:var(--muted);margin-top:3px}
+table{width:100%;border-collapse:collapse;font-size:0.85rem}thead{background:#1a2942;position:sticky;top:0;z-index:5}
+th{padding:12px 8px;text-align:left;color:var(--accent);border-bottom:2px solid var(--accent);font-size:0.72rem}
+td{padding:10px 8px;border-bottom:1px solid var(--border)}tbody tr{cursor:pointer;transition:all 0.2s}tbody tr:hover{background:rgba(79,195,247,0.05)}
+tr.sel{background:rgba(79,195,247,0.15)}tr.top{background:rgba(74,222,128,0.06)}
+.uber{display:block}.gen{display:none}body.gm .uber{display:none}body.gm .gen{display:block}
+.badge{background:rgba(79,195,247,0.3);color:var(--accent);font-size:0.65rem;padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px}
+.tog{display:flex;align-items:center;gap:10px;background:var(--panel);padding:10px;border-radius:8px;margin-bottom:12px}
+.tog input{width:44px;height:24px;appearance:none;background:var(--border);border-radius:12px;position:relative;cursor:pointer}
+.tog input:checked{background:linear-gradient(135deg,#a78bfa,#4fc3f7)}
+.tog input::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:all 0.3s}
+.tog input:checked::before{left:23px}.tog label{font-size:0.85rem;color:var(--text);cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">🌱</div>
+<div><h1>A Better Root Planting</h1></div>
+<div class="actions">
+<div class="lang-dropdown">
+<button id="lng" class="ghost lang-btn">
+<img src="https://flagcdn.com/w40/bg.png" class="flag" alt="BG" id="currentFlag">
+<span id="currentLang">Български</span>
+</button>
+<div class="lang-menu" id="langMenu">
+<div class="lang-option active" onclick="setLang(0, 'bg', 'Български')">
+<img src="https://flagcdn.com/w40/bg.png" class="flag" alt="BG">
+<span>Български</span>
+</div>
+<div class="lang-option" onclick="setLang(1, 'gb', 'English')">
+<img src="https://flagcdn.com/w40/gb.png" class="flag" alt="GB">
+<span>English</span>
+</div>
+<div class="lang-option" onclick="setLang(2, 'de', 'Deutsch')">
+<img src="https://flagcdn.com/w40/de.png" class="flag" alt="DE">
+<span>Deutsch</span>
+</div>
+<div class="lang-option" onclick="setLang(3, 'es', 'Español')">
+<img src="https://flagcdn.com/w40/es.png" class="flag" alt="ES">
+<span>Español</span>
+</div>
+<div class="lang-option" onclick="setLang(4, 'fr', 'Français')">
+<img src="https://flagcdn.com/w40/fr.png" class="flag" alt="FR">
+<span>Français</span>
+</div>
+</div>
+</div>
+<button id="bm" class="ghost" data-i18n="modeBtn">💼 Общ режим</button>
+<button onclick="location.reload()" class="ghost" data-i18n="reload">↻ Презареди</button>
+</div>
+</header>
+<div class="main">
+<div class="col">
+<div class="card"><h3 data-i18n="familyTitle">👨‍👩‍👧‍👦 Семейство</h3>
+<div class="input-group"><div class="input-head"><span data-i18n="adults">Възрастни</span><span class="val" id="va">2</span></div><input id="sa" type="range" min="1" max="4" value="2"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="children">Деца</span><span class="val" id="vk">3</span></div><input id="sk" type="range" min="0" max="6" value="3"/></div>
+</div>
+<div class="card"><h3 data-i18n="expensesTitle">💰 Разходи</h3>
+<div class="input-group"><div class="input-head"><span data-i18n="rent">Наем<span class="badge" id="ar" style="display:none">AUTO</span></span><span class="val neg" id="vr">-2000 €</span></div><input id="sr" type="range" min="0" max="12000" value="2000" step="50"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="household">Домакинство<span class="badge" id="ah" style="display:none">AUTO</span></span><span class="val neg" id="vh">-1500 €</span></div><input id="sh" type="range" min="0" max="8000" value="1500" step="50"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="healthAdults">Здравно осигуряване Възрастни<span class="badge" id="aha" style="display:none">AUTO</span></span><span class="val neg" id="vha">-0 €</span></div><input id="sha" type="range" min="0" max="800" value="0" step="10"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="healthChildren">Здравно осигуряване Деца<span class="badge" id="ahk" style="display:none">AUTO</span></span><span class="val neg" id="vhk">-0 €</span></div><input id="shk" type="range" min="0" max="400" value="0" step="10"/></div>
+</div>
+<div class="card uber"><h3 data-i18n="incomeUberTitle">💼 Доходи (Uber)</h3>
+<div class="input-group"><div class="input-head"><span data-i18n="salary">Заплата</span><span class="val" id="vsu">0 €</span></div><input id="ssu" type="range" min="0" max="10000" value="0" step="100"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="additional">Допълнителни приходи</span><span class="val" id="veu">0 €</span></div><input id="seu" type="range" min="0" max="5000" value="0" step="50"/></div>
+</div>
+<div class="card gen"><h3 data-i18n="incomeTitle">💼 Доходи</h3>
+<div class="input-group"><div class="input-head"><span data-i18n="salary">Заплата</span><span class="val" id="vs">5000 €</span></div><input id="ss" type="range" min="1000" max="20000" value="5000" step="100"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="additional">Допълнителни приходи</span><span class="val" id="ve">0 €</span></div><input id="se" type="range" min="0" max="5000" value="0" step="50"/></div>
+</div>
+<div class="card uber"><h3 data-i18n="uberTitle">🚗 Uber параметри</h3>
+<div class="tog"><input type="checkbox" id="tc"/><label for="tc" data-i18n="comfort">🌟 Uber Comfort (+30% тарифа)</label></div>
+<div class="input-group"><div class="input-head"><span data-i18n="workDays">Работни дни</span><span class="val" id="vw">22</span></div><input id="sw" type="range" min="16" max="26" value="22"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="kmDay">КМ/Ден</span><span class="val" id="vl">220 км</span></div><input id="sl" type="range" min="100" max="500" value="220" step="10"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="baseFare">Базова такса<span class="badge" id="abb" style="display:none">AUTO</span></span><span class="val" id="vbr">3.5 €</span></div><input id="sbr" type="range" min="1" max="10" value="3.5" step="0.1"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="euroKm">Евро/КМ (нето)<span class="badge" id="akm" style="display:none">AUTO</span></span><span class="val" id="vkr">1.8 €</span></div><input id="skr" type="range" min="0.5" max="5" value="1.8" step="0.1"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="tax">Данък (%)<span class="badge" id="at" style="display:none">AUTO</span></span><span class="val" id="vt">30 %</span></div><input id="st" type="range" min="0" max="50" value="30"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="emptyKm">Празни километри (%)<span class="badge" id="aem" style="display:none">AUTO</span></span><span class="val" id="vem">8 %</span></div><input id="sem" type="range" min="0" max="40" value="8"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="pension">Пенсионно осигуряване 2-ри стълб (%)<span class="badge" id="ap" style="display:none">AUTO</span></span><span class="val" id="vp">5 %</span></div><input id="sp" type="range" min="0" max="15" value="5"/></div>
+</div>
+</div>
+<div class="col">
+<div class="card"><h3 data-i18n="rankingTitle">📊 Класация градове</h3>
+<div style="overflow:auto;max-height:calc(100vh - 200px)"><table><thead><tr><th data-i18n="city">Град</th><th data-i18n="rentRange">Наем диапазон</th><th data-i18n="taxCol">Данък</th><th data-i18n="schools">Училища</th><th data-i18n="quality">Качество</th><th data-i18n="result">Резултат</th></tr></thead><tbody id="tb"></tbody></table></div>
+</div>
+</div>
+<div class="col">
+<div class="card"><h3 data-i18n="top3Title">🏆 Топ 3 града</h3><div id="t3"></div></div>
+<div class="card"><h3 data-i18n="allCitiesTitle">🌍 Всички градове</h3><div class="cities" id="ct"></div></div>
+<div class="card"><h3 data-i18n="summaryTitle">📊 Финансова сводка</h3>
+<div class="kpi"><div class="label" data-i18n="monthlyExpenses">Месечни разходи</div><div class="big" id="kex">—</div><div class="small" id="kexy">—</div></div>
+<div class="kpi uber"><div class="label" data-i18n="uberIncome">Uber приходи</div><div class="big" id="kui">—</div><div class="small" id="kuiy">—</div></div>
+<div class="kpi uber"><div class="label" data-i18n="totalIncomeUber">Общ доход (Uber режим)</div><div class="big" id="ktiu">—</div><div class="small" id="ktiuy">—</div></div>
+<div class="kpi gen"><div class="label" data-i18n="totalIncome">Общ доход</div><div class="big" id="kti">—</div><div class="small" id="ktiy">—</div></div>
+<div class="kpi"><div class="label" data-i18n="savings">💰 Спестявания</div><div class="big" id="ksav">—</div><div class="small" id="ksavy">—</div></div>
+<div class="kpi uber"><div class="label" data-i18n="netPerKm">Нето приход на километър</div><div class="big" id="knkm">—</div></div>
+<div class="kpi uber"><div class="label" data-i18n="requiredKm">Необходими КМ/Ден</div><div class="big" id="krq">—</div><div class="small" id="krqm">—</div></div>
+</div>
+</div>
+</div>
+<script>
+const T = {
+  bg: {
+    modeBtn: '💼 Общ режим', modeBtnAlt: '🚗 Uber режим', reload: '↻ Презареди',
+    familyTitle: '👨‍👩‍👧‍👦 Семейство', adults: 'Възрастни', children: 'Деца',
+    expensesTitle: '💰 Разходи', rent: 'Наем', household: 'Домакинство',
+    healthAdults: 'Здравно осигуряване Възрастни', healthChildren: 'Здравно осигуряване Деца',
+    incomeUberTitle: '💼 Доходи (Uber)', incomeTitle: '💼 Доходи',
+    salary: 'Заплата', additional: 'Допълнителни приходи',
+    uberTitle: '🚗 Uber параметри', comfort: '🌟 Uber Comfort (+30% тарифа)',
+    workDays: 'Работни дни', kmDay: 'КМ/Ден', baseFare: 'Базова такса',
+    euroKm: 'Евро/КМ (нето)', tax: 'Данък (%)', emptyKm: 'Празни километри (%)',
+    pension: 'Пенсионно осигуряване 2-ри стълб (%)',
+    rankingTitle: '📊 Класация градове', city: 'Град', rentRange: 'Наем диапазон',
+    taxCol: 'Данък', schools: 'Училища', quality: 'Качество', result: 'Резултат',
+    top3Title: '🏆 Топ 3 града', allCitiesTitle: '🌍 Всички градове',
+    summaryTitle: '📊 Финансова сводка', monthlyExpenses: 'Месечни разходи',
+    uberIncome: 'Uber приходи', totalIncomeUber: 'Общ доход (Uber режим)',
+    totalIncome: 'Общ доход', savings: '💰 Спестявания',
+    netPerKm: 'Нето приход на километър', requiredKm: 'Необходими КМ/Ден',
+    perYear: '/година', perMonth: '/месец'
+  },
+  en: {
+    modeBtn: '💼 General Mode', modeBtnAlt: '🚗 Uber Mode', reload: '↻ Reload',
+    familyTitle: '👨‍👩‍👧‍👦 Family', adults: 'Adults', children: 'Children',
+    expensesTitle: '💰 Expenses', rent: 'Rent', household: 'Household',
+    healthAdults: 'Health Insurance Adults', healthChildren: 'Health Insurance Children',
+    incomeUberTitle: '💼 Income (Uber)', incomeTitle: '💼 Income',
+    salary: 'Salary', additional: 'Additional Income',
+    uberTitle: '🚗 Uber Parameters', comfort: '🌟 Uber Comfort (+30% rate)',
+    workDays: 'Work Days', kmDay: 'KM/Day', baseFare: 'Base Fare',
+    euroKm: 'Euro/KM (net)', tax: 'Tax (%)', emptyKm: 'Empty KM (%)',
+    pension: 'Pension Insurance 2nd Pillar (%)',
+    rankingTitle: '📊 City Rankings', city: 'City', rentRange: 'Rent Range',
+    taxCol: 'Tax', schools: 'Schools', quality: 'Quality', result: 'Result',
+    top3Title: '🏆 Top 3 Cities', allCitiesTitle: '🌍 All Cities',
+    summaryTitle: '📊 Financial Summary', monthlyExpenses: 'Monthly Expenses',
+    uberIncome: 'Uber Income', totalIncomeUber: 'Total Income (Uber Mode)',
+    totalIncome: 'Total Income', savings: '💰 Savings',
+    netPerKm: 'Net Income per KM', requiredKm: 'Required KM/Day',
+    perYear: '/year', perMonth: '/month'
+  },
+  de: {
+    modeBtn: '💼 Allgemein Modus', modeBtnAlt: '🚗 Uber Modus', reload: '↻ Neuladen',
+    familyTitle: '👨‍👩‍👧‍👦 Familie', adults: 'Erwachsene', children: 'Kinder',
+    expensesTitle: '💰 Ausgaben', rent: 'Miete', household: 'Haushalt',
+    healthAdults: 'Krankenversicherung Erwachsene', healthChildren: 'Krankenversicherung Kinder',
+    incomeUberTitle: '💼 Einkommen (Uber)', incomeTitle: '💼 Einkommen',
+    salary: 'Gehalt', additional: 'Zusätzliches Einkommen',
+    uberTitle: '🚗 Uber Parameter', comfort: '🌟 Uber Comfort (+30% Tarif)',
+    workDays: 'Arbeitstage', kmDay: 'KM/Tag', baseFare: 'Grundgebühr',
+    euroKm: 'Euro/KM (netto)', tax: 'Steuer (%)', emptyKm: 'Leerkilometer (%)',
+    pension: 'Rentenversicherung 2. Säule (%)',
+    rankingTitle: '📊 Stadt-Rangliste', city: 'Stadt', rentRange: 'Mietbereich',
+    taxCol: 'Steuer', schools: 'Schulen', quality: 'Qualität', result: 'Ergebnis',
+    top3Title: '🏆 Top 3 Städte', allCitiesTitle: '🌍 Alle Städte',
+    summaryTitle: '📊 Finanzübersicht', monthlyExpenses: 'Monatliche Ausgaben',
+    uberIncome: 'Uber Einkommen', totalIncomeUber: 'Gesamteinkommen (Uber Modus)',
+    totalIncome: 'Gesamteinkommen', savings: '💰 Ersparnisse',
+    netPerKm: 'Nettoeinkommen pro KM', requiredKm: 'Erforderliche KM/Tag',
+    perYear: '/Jahr', perMonth: '/Monat'
+  },
+  es: {
+    modeBtn: '💼 Modo General', modeBtnAlt: '🚗 Modo Uber', reload: '↻ Recargar',
+    familyTitle: '👨‍👩‍👧‍👦 Familia', adults: 'Adultos', children: 'Niños',
+    expensesTitle: '💰 Gastos', rent: 'Alquiler', household: 'Hogar',
+    healthAdults: 'Seguro de Salud Adultos', healthChildren: 'Seguro de Salud Niños',
+    incomeUberTitle: '💼 Ingresos (Uber)', incomeTitle: '💼 Ingresos',
+    salary: 'Salario', additional: 'Ingresos Adicionales',
+    uberTitle: '🚗 Parámetros Uber', comfort: '🌟 Uber Comfort (+30% tarifa)',
+    workDays: 'Días Laborables', kmDay: 'KM/Día', baseFare: 'Tarifa Base',
+    euroKm: 'Euro/KM (neto)', tax: 'Impuesto (%)', emptyKm: 'KM Vacíos (%)',
+    pension: 'Seguro de Pensión 2º Pilar (%)',
+    rankingTitle: '📊 Clasificación de Ciudades', city: 'Ciudad', rentRange: 'Rango de Alquiler',
+    taxCol: 'Impuesto', schools: 'Escuelas', quality: 'Calidad', result: 'Resultado',
+    top3Title: '🏆 Top 3 Ciudades', allCitiesTitle: '🌍 Todas las Ciudades',
+    summaryTitle: '📊 Resumen Financiero', monthlyExpenses: 'Gastos Mensuales',
+    uberIncome: 'Ingresos Uber', totalIncomeUber: 'Ingreso Total (Modo Uber)',
+    totalIncome: 'Ingreso Total', savings: '💰 Ahorros',
+    netPerKm: 'Ingreso Neto por KM', requiredKm: 'KM Requeridos/Día',
+    perYear: '/año', perMonth: '/mes'
+  },
+  fr: {
+    modeBtn: '💼 Mode Général', modeBtnAlt: '🚗 Mode Uber', reload: '↻ Recharger',
+    familyTitle: '👨‍👩‍👧‍👦 Famille', adults: 'Adultes', children: 'Enfants',
+    expensesTitle: '💰 Dépenses', rent: 'Loyer', household: 'Ménage',
+    healthAdults: 'Assurance Santé Adultes', healthChildren: 'Assurance Santé Enfants',
+    incomeUberTitle: '💼 Revenus (Uber)', incomeTitle: '💼 Revenus',
+    salary: 'Salaire', additional: 'Revenus Supplémentaires',
+    uberTitle: '🚗 Paramètres Uber', comfort: '🌟 Uber Comfort (+30% tarif)',
+    workDays: 'Jours Ouvrables', kmDay: 'KM/Jour', baseFare: 'Tarif de Base',
+    euroKm: 'Euro/KM (net)', tax: 'Impôt (%)', emptyKm: 'KM à Vide (%)',
+    pension: 'Assurance Pension 2ème Pilier (%)',
+    rankingTitle: '📊 Classement des Villes', city: 'Ville', rentRange: 'Gamme de Loyer',
+    taxCol: 'Impôt', schools: 'Écoles', quality: 'Qualité', result: 'Résultat',
+    top3Title: '🏆 Top 3 Villes', allCitiesTitle: '🌍 Toutes les Villes',
+    summaryTitle: '📊 Résumé Financier', monthlyExpenses: 'Dépenses Mensuelles',
+    uberIncome: 'Revenus Uber', totalIncomeUber: 'Revenu Total (Mode Uber)',
+    totalIncome: 'Revenu Total', savings: '💰 Économies',
+    netPerKm: 'Revenu Net par KM', requiredKm: 'KM Requis/Jour',
+    perYear: '/an', perMonth: '/mois'
+  }
+};
+
+const LANGS = ['bg', 'en', 'de', 'es', 'fr'];
+const S={a:2,k:3,r:2000,h:1500,ha:0,hk:0,e:0,eu:0,s:5000,su:0,w:22,l:220,br:3.5,kr:1.8,t:30,em:8,p:5,cf:false,m:true,sel:null,lg:0};
+const D={
+Zurich:{n:'Zürich',c:'ch',rm:2500,rx:6000,ar:4000,hh:600,sc:5,bf:6,pk:3,tr:20,ek:3,ha:400,hk:200,pe:5},
+Zug:{n:'Zug',c:'ch',rm:2600,rx:6500,ar:4200,hh:620,sc:5,bf:6,pk:3,tr:18,ek:2,ha:400,hk:200,pe:5},
+Geneva:{n:'Geneva',c:'ch',rm:2400,rx:5500,ar:3800,hh:600,sc:4,bf:6,pk:3,tr:22,ek:4,ha:400,hk:200,pe:5},
+Oslo:{n:'Oslo',c:'no',rm:1900,rx:3600,ar:2600,hh:520,sc:5,bf:5,pk:2.5,tr:32,ek:7,ha:0,hk:0,pe:4},
+Berlin:{n:'Berlin',c:'de',rm:1500,rx:3200,ar:2200,hh:450,sc:4,bf:3.9,pk:2,tr:25,ek:9,ha:0,hk:0,pe:4},
+Munich:{n:'München',c:'de',rm:2000,rx:4500,ar:3000,hh:500,sc:5,bf:4.5,pk:2.3,tr:27,ek:7,ha:0,hk:0,pe:4},
+Vienna:{n:'Wien',c:'at',rm:1500,rx:3000,ar:2100,hh:450,sc:5,bf:3.4,pk:1.8,tr:30,ek:8,ha:0,hk:0,pe:5},
+Amsterdam:{n:'Amsterdam',c:'nl',rm:2200,rx:4000,ar:2900,hh:500,sc:4,bf:3.5,pk:2,tr:38,ek:9,ha:0,hk:0,pe:6},
+Paris:{n:'Paris',c:'fr',rm:1800,rx:4200,ar:2700,hh:480,sc:4,bf:3.8,pk:1.9,tr:32,ek:10,ha:0,hk:0,pe:5},
+London:{n:'London',c:'gb',rm:2800,rx:6000,ar:4000,hh:550,sc:4,bf:3.5,pk:1.8,tr:30,ek:12,ha:0,hk:0,pe:5},
+Madrid:{n:'Madrid',c:'es',rm:1200,rx:2600,ar:1800,hh:400,sc:4,bf:2.8,pk:1.4,tr:25,ek:11,ha:0,hk:0,pe:4},
+Barcelona:{n:'Barcelona',c:'es',rm:1400,rx:2900,ar:2000,hh:420,sc:4,bf:3,pk:1.5,tr:26,ek:10,ha:0,hk:0,pe:4},
+Lisbon:{n:'Lisboa',c:'pt',rm:1100,rx:2400,ar:1600,hh:380,sc:4,bf:2.5,pk:1.2,tr:28,ek:10,ha:0,hk:0,pe:4},
+Rome:{n:'Roma',c:'it',rm:1400,rx:3000,ar:2000,hh:420,sc:3,bf:3,pk:1.5,tr:32,ek:11,ha:0,hk:0,pe:4},
+Prague:{n:'Praha',c:'cz',rm:1200,rx:2400,ar:1700,hh:380,sc:4,bf:1.8,pk:1,tr:23,ek:8,ha:0,hk:0,pe:5},
+Warsaw:{n:'Warszawa',c:'pl',rm:1100,rx:2200,ar:1500,hh:350,sc:4,bf:2,pk:1,tr:17,ek:9,ha:0,hk:0,pe:6},
+Budapest:{n:'Budapest',c:'hu',rm:1000,rx:2100,ar:1400,hh:340,sc:4,bf:1.7,pk:0.85,tr:15,ek:10,ha:0,hk:0,pe:6},
+Sofia:{n:'София',c:'bg',rm:800,rx:1500,ar:1100,hh:300,sc:3,bf:1.5,pk:0.8,tr:10,ek:12,ha:0,hk:0,pe:5}
+};
+
+function translateUI() {
+    const lang = LANGS[S.lg];
+    const trans = T[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (trans[key]) {
+            if (el.tagName === 'LABEL') {
+                el.textContent = trans[key];
+            } else {
+                const badge = el.querySelector('.badge');
+                el.childNodes.forEach(node => {
+                    if (node.nodeType === 3) {
+                        node.textContent = trans[key];
+                    }
+                });
+            }
+        }
+    });
+    // Update mode button
+    const modeBtn = document.getElementById('bm');
+    modeBtn.textContent = S.m ? trans.modeBtn : trans.modeBtnAlt;
+}
+
+function setLang(idx, code, name) {
+    S.lg = idx;
+    document.getElementById('currentFlag').src = `https://flagcdn.com/w40/${code}.png`;
+    document.getElementById('currentLang').textContent = name;
+    document.querySelectorAll('.lang-option').forEach((el, i) => {
+        el.classList.toggle('active', i === idx);
+    });
+    document.getElementById('langMenu').classList.remove('show');
+    translateUI();
+    up();
+}
+
+document.getElementById('lng').onclick = (e) => {
+    e.stopPropagation();
+    document.getElementById('langMenu').classList.toggle('show');
+};
+
+document.addEventListener('click', () => {
+    document.getElementById('langMenu').classList.remove('show');
+});
+
+const fm=n=>Math.round(n).toLocaleString('bg-BG');
+function uv(p){const v=document.getElementById('v'+p);if(!v)return;
+if(p==='t'||p==='p'||p==='em')v.textContent=S[p]+' %';
+else if(p==='a'||p==='k'||p==='w')v.textContent=S[p];
+else if(p==='l')v.textContent=S[p]+' км';
+else if(p==='br'||p==='kr')v.textContent=S[p].toFixed(1)+' €';
+else if(p==='r'||p==='s'||p==='su'||p==='e'||p==='eu')v.textContent=fm(S[p])+' €';
+else v.textContent='-'+fm(S[p])+' €';}
+function ld(k){S.sel=k;const d=D[k];S.r=d.ar;S.h=d.hh*Math.max(S.a+S.k,1);S.br=d.bf;S.kr=d.pk;S.t=d.tr;S.ha=d.ha;S.hk=d.hk;S.p=d.pe;
+const pn=S.r<d.rm?Math.min(5,(d.rm-S.r)/d.rm*10):S.r>d.rx?Math.max(-3,(d.rx-S.r)/d.rx*5):0;S.em=Math.max(0,d.ek+pn);
+['r','h','br','kr','t','em','ha','hk','p'].forEach(p=>{const sl=document.getElementById('s'+p);if(sl)sl.value=S[p];uv(p);});
+['ar','ah','abb','akm','at','aem','aha','ahk','ap'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='inline-block';});up();}
+function up(){const trans=T[LANGS[S.lg]];const ex=S.r+S.h+S.ha*S.a+S.hk*S.k;
+document.getElementById('kex').textContent=fm(ex)+' €';
+document.getElementById('kexy').textContent=fm(ex*12)+' €'+trans.perYear;
+if(S.m){const cm=S.cf?1.3:1;const gr=(S.br+S.kr*3)/3*cm;const ne=gr*0.75*(1-S.t/100);const rn=ne*Math.max(0.5,1-S.em/100)*(1-S.p/100);const ui=rn*S.l*S.w;
+document.getElementById('kui').textContent=fm(ui)+' €';document.getElementById('kuiy').textContent=fm(ui*12)+' €'+trans.perYear;const ti=ui+S.su+S.eu;
+document.getElementById('ktiu').textContent=fm(ti)+' €';document.getElementById('ktiuy').textContent=fm(ti*12)+' €'+trans.perYear;const sv=ti-ex;
+document.getElementById('ksav').textContent=fm(sv)+' €';document.getElementById('ksavy').textContent=fm(sv*12)+' €'+trans.perYear;
+const sk=document.querySelector('.kpi:has(#ksav)');if(sv>0){sk.classList.add('pos');sk.classList.remove('neg');}else{sk.classList.add('neg');sk.classList.remove('pos');}
+document.getElementById('knkm').textContent=rn>0?rn.toFixed(2)+' €':'—';const rq=rn>0?ex/rn/S.w:999;
+document.getElementById('krq').textContent=rq<999?fm(rq)+' км':'>500 км';document.getElementById('krqm').textContent=rq<999?fm(rq*S.w)+' км'+trans.perMonth:'';}
+else{const ti=S.s+S.e;document.getElementById('kti').textContent=fm(ti)+' €';document.getElementById('ktiy').textContent=fm(ti*12)+' €'+trans.perYear;const sv=ti-ex;
+document.getElementById('ksav').textContent=fm(sv)+' €';document.getElementById('ksavy').textContent=fm(sv*12)+' €'+trans.perYear;
+const sk=document.querySelector('.kpi:has(#ksav)');if(sv>0){sk.classList.add('pos');sk.classList.remove('neg');}else{sk.classList.add('neg');sk.classList.remove('pos');}}
+const rs=Object.keys(D).map(k=>{const d=D[k];const ro=S.r>=d.rm&&S.r<=d.rx;const q=Math.round((d.sc/5)*100);let sc=q,km=0,st='ok';
+if(S.m){const cm=S.cf?1.3:1;const gr=(d.bf+d.pk*3)/3*cm;const ne=gr*0.75*(1-d.tr/100);const rn=ne*Math.max(0.5,1-S.em/100)*(1-d.pe/100);
+km=rn>0?ex/rn/S.w:999;const fe=km<=S.l;sc=fe?(100-km/S.l*30+q*0.3):q*0.5;st=fe&&ro?'ok':fe||ro?'warn':'bad';}
+else{const ti=S.s+S.e;const af=ex<=ti;sc=(q*0.5+(ro?50:0)+(af?50:0))/2;st=ro&&af?'ok':ro||af?'warn':'bad';}
+return{k,d,sc,km,st,q};});rs.sort((a,b)=>b.sc-a.sc);
+document.getElementById('t3').innerHTML=rs.slice(0,3).map((x,i)=>`<div style="background:rgba(79,195,247,0.05);border:2px solid ${i===0?'#ffd700':i===1?'#c0c0c0':'#cd7f32'};border-radius:10px;padding:12px;margin-bottom:10px"><strong><img src="https://flagcdn.com/w40/${x.d.c}.png" class="flag" style="vertical-align:middle;margin-right:6px"> ${x.d.n}</strong><div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.8rem"><span>${trans.result}: ${Math.round(x.sc)}</span><span>${trans.taxCol}: ${x.d.tr}%</span></div></div>`).join('');
+document.getElementById('ct').innerHTML=rs.map(x=>`<div class="city-chip ${x.st}${S.sel===x.k?' active':''}" onclick="ld('${x.k}')"><div class="city-name"><img src="https://flagcdn.com/w40/${x.d.c}.png" class="flag"> ${x.d.n}</div><div class="city-info">${trans.result}: ${Math.round(x.sc)}</div></div>`).join('');
+document.getElementById('tb').innerHTML=rs.map((x,i)=>`<tr class="${S.sel===x.k?'sel':''}${i<3?' top':''}" onclick="ld('${x.k}')"><td><strong><img src="https://flagcdn.com/w40/${x.d.c}.png" class="flag" style="vertical-align:middle;margin-right:6px"> ${x.d.n}</strong></td><td>${fm(x.d.rm)}-${fm(x.d.rx)} €</td><td>${x.d.tr}%</td><td>${x.d.sc}/5</td><td>${x.q}%</td><td><strong>${Math.round(x.sc)}</strong></td></tr>`).join('');}
+['a','k','r','h','ha','hk','e','eu','s','su','w','l','br','kr','t','em','p'].forEach(p=>{const sl=document.getElementById('s'+p);if(sl)sl.oninput=()=>{S[p]=+sl.value;uv(p);up();};});
+document.getElementById('bm').onclick=()=>{S.m=!S.m;document.body.classList.toggle('gm');const trans=T[LANGS[S.lg]];document.getElementById('bm').textContent=S.m?trans.modeBtn:trans.modeBtnAlt;up();};
+document.getElementById('tc').onchange=e=>{S.cf=e.target.checked;up();};
+window.ld=ld;window.setLang=setLang;up();
+</script>
+</body>
+</html>
