@@ -2,7 +2,7 @@
 <html lang="bg">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>A Better Root Planting</title>
 <style>
 :root{--bg:#0a1929;--panel:#1a2942;--border:#2d3e55;--muted:#8b9eb8;--text:#e8f0f8;--accent:#4fc3f7;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
@@ -26,10 +26,16 @@ button{background:var(--accent);color:#001830;border:none;padding:10px 18px;bord
 .main{display:grid;grid-template-columns:380px 1fr 440px;gap:20px;padding:20px;max-width:2400px;margin:0 auto}
 .col{display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 96px);overflow-y:auto}
 .card{background:#162030;border:1px solid var(--border);border-radius:12px;padding:16px}
-h3{color:var(--accent);font-size:0.9rem;margin-bottom:12px}.input-group{margin-bottom:16px}
+h3{color:var(--accent);font-size:0.9rem;margin-bottom:12px}.input-group{margin-bottom:16px;padding:4px 0}
+.input-group.active{background:rgba(79,195,247,0.05);border-radius:8px;padding:8px}
+.slider-wrapper{padding:12px 0;margin:8px -8px;position:relative}
+.slider-wrapper input[type=range]{margin:0}
 .input-head{display:flex;justify-content:space-between;margin-bottom:8px}.input-label{color:var(--muted);font-size:0.85rem}
 .val{color:var(--accent);font-weight:800}.val.neg{color:var(--bad)}
-input[type=range]{width:100%;height:14px;border-radius:8px;background:var(--panel);border:1px solid var(--border);margin:8px 0;cursor:pointer}
+input[type=range]{width:100%;height:14px;border-radius:8px;background:var(--panel);border:1px solid var(--border);margin:8px 0;cursor:pointer;touch-action:pan-y;pointer-events:auto}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:grab;border:2px solid #001830;touch-action:none}
+input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.1)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:grab;border:2px solid #001830;touch-action:none}
 .kpi{background:rgba(79,195,247,0.05);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px}
 .kpi .label{font-size:0.72rem;color:var(--muted);margin-bottom:6px}.kpi .big{font-size:1.2rem;font-weight:900;color:var(--accent)}
 .kpi .small{font-size:0.7rem;color:var(--muted);margin-top:4px}.kpi.pos .big{color:var(--ok)}.kpi.neg .big{color:var(--bad)}
@@ -49,6 +55,41 @@ tr.sel{background:rgba(79,195,247,0.15)}tr.top{background:rgba(74,222,128,0.06)}
 .tog input:checked{background:linear-gradient(135deg,#a78bfa,#4fc3f7)}
 .tog input::before{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:all 0.3s}
 .tog input:checked::before{left:23px}.tog label{font-size:0.85rem;color:var(--text);cursor:pointer;font-weight:600}
+
+/* Мобилни стилове */
+body.mobile-mode{font-size:16px}
+body.mobile-mode header{padding:12px 16px;flex-wrap:wrap}
+body.mobile-mode .logo{width:40px;height:40px}
+body.mobile-mode h1{font-size:1rem}
+body.mobile-mode .actions{width:100%;margin-top:10px;flex-wrap:wrap}
+body.mobile-mode .actions button{flex:1;min-width:calc(50% - 4px);font-size:0.85rem}
+body.mobile-mode .main{display:flex;flex-direction:column;padding:12px;gap:14px}
+body.mobile-mode .col{max-height:none;overflow-y:visible}
+body.mobile-mode .card{padding:16px}
+body.mobile-mode h3{font-size:1.05rem}
+body.mobile-mode .input-group{margin-bottom:18px}
+body.mobile-mode .input-head{font-size:0.95rem;margin-bottom:12px}
+body.mobile-mode .val{font-size:1.05rem}
+body.mobile-mode input[type=range]{height:40px;margin:10px 0;padding:8px 0}
+body.mobile-mode input[type=range]::-webkit-slider-thumb{width:28px;height:28px}
+body.mobile-mode input[type=range]::-moz-range-thumb{width:28px;height:28px}
+body.mobile-mode .kpi{padding:16px;margin-bottom:14px}
+body.mobile-mode .kpi .label{font-size:0.85rem;margin-bottom:8px}
+body.mobile-mode .kpi .big{font-size:1.6rem}
+body.mobile-mode .kpi .small{font-size:0.85rem}
+body.mobile-mode .cities{grid-template-columns:1fr 1fr;gap:12px}
+body.mobile-mode .city-chip{padding:14px;min-height:90px}
+body.mobile-mode .city-name{font-size:1rem}
+body.mobile-mode .city-info{font-size:0.85rem}
+body.mobile-mode table{font-size:0.9rem}
+body.mobile-mode th,body.mobile-mode td{padding:12px 10px}
+body.mobile-mode .tog{padding:14px;margin-bottom:14px}
+body.mobile-mode .tog input{width:52px;height:28px}
+body.mobile-mode .tog input::before{width:22px;height:22px}
+body.mobile-mode .tog input:checked::before{left:27px}
+body.mobile-mode .tog label{font-size:0.95rem}
+body.mobile-mode button{padding:12px 20px;font-size:0.95rem;min-height:48px}
+body.mobile-mode .ghost{padding:10px 16px}
 </style>
 </head>
 <body>
@@ -85,6 +126,7 @@ tr.sel{background:rgba(79,195,247,0.15)}tr.top{background:rgba(74,222,128,0.06)}
 </div>
 </div>
 <button id="bm" class="ghost" data-i18n="modeBtn">💼 Общ режим</button>
+<button id="mobBtn" class="ghost" data-i18n="mobileBtn">📱 Мобилен</button>
 <button onclick="location.reload()" class="ghost" data-i18n="reload">↻ Презареди</button>
 </div>
 </header>
@@ -101,7 +143,6 @@ tr.sel{background:rgba(79,195,247,0.15)}tr.top{background:rgba(74,222,128,0.06)}
 <div class="input-group"><div class="input-head"><span data-i18n="healthChildren">Здравно осигуряване Деца<span class="badge" id="ahk" style="display:none">AUTO</span></span><span class="val neg" id="vhk">-0 €</span></div><input id="shk" type="range" min="0" max="400" value="0" step="10"/></div>
 </div>
 <div class="card uber"><h3 data-i18n="incomeUberTitle">💼 Доходи (Uber)</h3>
-<div class="input-group"><div class="input-head"><span data-i18n="salary">Заплата</span><span class="val" id="vsu">0 €</span></div><input id="ssu" type="range" min="0" max="10000" value="0" step="100"/></div>
 <div class="input-group"><div class="input-head"><span data-i18n="additional">Допълнителни приходи</span><span class="val" id="veu">0 €</span></div><input id="seu" type="range" min="0" max="5000" value="0" step="50"/></div>
 </div>
 <div class="card gen"><h3 data-i18n="incomeTitle">💼 Доходи</h3>
@@ -109,14 +150,12 @@ tr.sel{background:rgba(79,195,247,0.15)}tr.top{background:rgba(74,222,128,0.06)}
 <div class="input-group"><div class="input-head"><span data-i18n="additional">Допълнителни приходи</span><span class="val" id="ve">0 €</span></div><input id="se" type="range" min="0" max="5000" value="0" step="50"/></div>
 </div>
 <div class="card uber"><h3 data-i18n="uberTitle">🚗 Uber параметри</h3>
-<div class="tog"><input type="checkbox" id="tc"/><label for="tc" data-i18n="comfort">🌟 Uber Comfort (+30% тарифа)</label></div>
+<div class="input-group"><div class="input-head"><span data-i18n="comfortPercent">🌟 Uber Comfort курсове (%)</span><span class="val" id="vcf">0 %</span></div><input id="scf" type="range" min="0" max="100" value="0" step="5"/></div>
 <div class="input-group"><div class="input-head"><span data-i18n="workDays">Работни дни</span><span class="val" id="vw">22</span></div><input id="sw" type="range" min="16" max="26" value="22"/></div>
 <div class="input-group"><div class="input-head"><span data-i18n="kmDay">КМ/Ден</span><span class="val" id="vl">220 км</span></div><input id="sl" type="range" min="100" max="500" value="220" step="10"/></div>
-<div class="input-group"><div class="input-head"><span data-i18n="baseFare">Базова такса<span class="badge" id="abb" style="display:none">AUTO</span></span><span class="val" id="vbr">3.5 €</span></div><input id="sbr" type="range" min="1" max="10" value="3.5" step="0.1"/></div>
-<div class="input-group"><div class="input-head"><span data-i18n="euroKm">Евро/КМ (нето)<span class="badge" id="akm" style="display:none">AUTO</span></span><span class="val" id="vkr">1.8 €</span></div><input id="skr" type="range" min="0.5" max="5" value="1.8" step="0.1"/></div>
-<div class="input-group"><div class="input-head"><span data-i18n="tax">Данък (%)<span class="badge" id="at" style="display:none">AUTO</span></span><span class="val" id="vt">30 %</span></div><input id="st" type="range" min="0" max="50" value="30"/></div>
-<div class="input-group"><div class="input-head"><span data-i18n="emptyKm">Празни километри (%)<span class="badge" id="aem" style="display:none">AUTO</span></span><span class="val" id="vem">8 %</span></div><input id="sem" type="range" min="0" max="40" value="8"/></div>
-<div class="input-group"><div class="input-head"><span data-i18n="pension">Пенсионно осигуряване 2-ри стълб (%)<span class="badge" id="ap" style="display:none">AUTO</span></span><span class="val" id="vp">5 %</span></div><input id="sp" type="range" min="0" max="15" value="5"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="euroKm">Нето €/КМ<span class="badge" id="akm" style="display:none">AUTO</span></span><span class="val" id="vkr">1.8 €</span></div><input id="skr" type="range" min="0.5" max="8" value="1.8" step="0.1"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="emptyKm">Празни км (%)<span class="badge" id="aem" style="display:none">AUTO</span></span><span class="val" id="vem">8 %</span></div><input id="sem" type="range" min="0" max="40" value="8"/></div>
+<div class="input-group"><div class="input-head"><span data-i18n="pension">Пенсия (%)<span class="badge" id="ap" style="display:none">AUTO</span></span><span class="val" id="vp">5 %</span></div><input id="sp" type="range" min="0" max="15" value="5"/></div>
 </div>
 </div>
 <div class="col">
@@ -142,15 +181,17 @@ tr.sel{background:rgba(79,195,247,0.15)}tr.top{background:rgba(74,222,128,0.06)}
 const T = {
   bg: {
     modeBtn: '💼 Общ режим', modeBtnAlt: '🚗 Uber режим', reload: '↻ Презареди',
+    mobileBtn: '📱 Мобилен', mobileBtnAlt: '🖥️ Desktop',
     familyTitle: '👨‍👩‍👧‍👦 Семейство', adults: 'Възрастни', children: 'Деца',
     expensesTitle: '💰 Разходи', rent: 'Наем', household: 'Домакинство',
     healthAdults: 'Здравно осигуряване Възрастни', healthChildren: 'Здравно осигуряване Деца',
     incomeUberTitle: '💼 Доходи (Uber)', incomeTitle: '💼 Доходи',
     salary: 'Заплата', additional: 'Допълнителни приходи',
     uberTitle: '🚗 Uber параметри', comfort: '🌟 Uber Comfort (+30% тарифа)',
+    comfortPercent: '🌟 Uber Comfort курсове (%)',
     workDays: 'Работни дни', kmDay: 'КМ/Ден', baseFare: 'Базова такса',
-    euroKm: 'Евро/КМ (нето)', tax: 'Данък (%)', emptyKm: 'Празни километри (%)',
-    pension: 'Пенсионно осигуряване 2-ри стълб (%)',
+    euroKm: 'Нето €/КМ', tax: 'Данък (%)', emptyKm: 'Празни км (%)',
+    pension: 'Пенсия (%)',
     rankingTitle: '📊 Класация градове', city: 'Град', rentRange: 'Наем диапазон',
     taxCol: 'Данък', schools: 'Училища', quality: 'Качество', result: 'Резултат',
     top3Title: '🏆 Топ 3 града', allCitiesTitle: '🌍 Всички градове',
@@ -162,15 +203,17 @@ const T = {
   },
   en: {
     modeBtn: '💼 General Mode', modeBtnAlt: '🚗 Uber Mode', reload: '↻ Reload',
+    mobileBtn: '📱 Mobile', mobileBtnAlt: '🖥️ Desktop',
     familyTitle: '👨‍👩‍👧‍👦 Family', adults: 'Adults', children: 'Children',
     expensesTitle: '💰 Expenses', rent: 'Rent', household: 'Household',
     healthAdults: 'Health Insurance Adults', healthChildren: 'Health Insurance Children',
     incomeUberTitle: '💼 Income (Uber)', incomeTitle: '💼 Income',
     salary: 'Salary', additional: 'Additional Income',
     uberTitle: '🚗 Uber Parameters', comfort: '🌟 Uber Comfort (+30% rate)',
+    comfortPercent: '🌟 Uber Comfort rides (%)',
     workDays: 'Work Days', kmDay: 'KM/Day', baseFare: 'Base Fare',
-    euroKm: 'Euro/KM (net)', tax: 'Tax (%)', emptyKm: 'Empty KM (%)',
-    pension: 'Pension Insurance 2nd Pillar (%)',
+    euroKm: 'Net €/KM', tax: 'Tax (%)', emptyKm: 'Empty KM (%)',
+    pension: 'Pension (%)',
     rankingTitle: '📊 City Rankings', city: 'City', rentRange: 'Rent Range',
     taxCol: 'Tax', schools: 'Schools', quality: 'Quality', result: 'Result',
     top3Title: '🏆 Top 3 Cities', allCitiesTitle: '🌍 All Cities',
@@ -182,15 +225,17 @@ const T = {
   },
   de: {
     modeBtn: '💼 Allgemein Modus', modeBtnAlt: '🚗 Uber Modus', reload: '↻ Neuladen',
+    mobileBtn: '📱 Mobil', mobileBtnAlt: '🖥️ Desktop',
     familyTitle: '👨‍👩‍👧‍👦 Familie', adults: 'Erwachsene', children: 'Kinder',
     expensesTitle: '💰 Ausgaben', rent: 'Miete', household: 'Haushalt',
     healthAdults: 'Krankenversicherung Erwachsene', healthChildren: 'Krankenversicherung Kinder',
     incomeUberTitle: '💼 Einkommen (Uber)', incomeTitle: '💼 Einkommen',
     salary: 'Gehalt', additional: 'Zusätzliches Einkommen',
     uberTitle: '🚗 Uber Parameter', comfort: '🌟 Uber Comfort (+30% Tarif)',
+    comfortPercent: '🌟 Uber Comfort Fahrten (%)',
     workDays: 'Arbeitstage', kmDay: 'KM/Tag', baseFare: 'Grundgebühr',
-    euroKm: 'Euro/KM (netto)', tax: 'Steuer (%)', emptyKm: 'Leerkilometer (%)',
-    pension: 'Rentenversicherung 2. Säule (%)',
+    euroKm: 'Netto €/KM', tax: 'Steuer (%)', emptyKm: 'Leer-KM (%)',
+    pension: 'Rente (%)',
     rankingTitle: '📊 Stadt-Rangliste', city: 'Stadt', rentRange: 'Mietbereich',
     taxCol: 'Steuer', schools: 'Schulen', quality: 'Qualität', result: 'Ergebnis',
     top3Title: '🏆 Top 3 Städte', allCitiesTitle: '🌍 Alle Städte',
@@ -202,15 +247,17 @@ const T = {
   },
   es: {
     modeBtn: '💼 Modo General', modeBtnAlt: '🚗 Modo Uber', reload: '↻ Recargar',
+    mobileBtn: '📱 Móvil', mobileBtnAlt: '🖥️ Desktop',
     familyTitle: '👨‍👩‍👧‍👦 Familia', adults: 'Adultos', children: 'Niños',
     expensesTitle: '💰 Gastos', rent: 'Alquiler', household: 'Hogar',
     healthAdults: 'Seguro de Salud Adultos', healthChildren: 'Seguro de Salud Niños',
     incomeUberTitle: '💼 Ingresos (Uber)', incomeTitle: '💼 Ingresos',
     salary: 'Salario', additional: 'Ingresos Adicionales',
     uberTitle: '🚗 Parámetros Uber', comfort: '🌟 Uber Comfort (+30% tarifa)',
+    comfortPercent: '🌟 Viajes Uber Comfort (%)',
     workDays: 'Días Laborables', kmDay: 'KM/Día', baseFare: 'Tarifa Base',
-    euroKm: 'Euro/KM (neto)', tax: 'Impuesto (%)', emptyKm: 'KM Vacíos (%)',
-    pension: 'Seguro de Pensión 2º Pilar (%)',
+    euroKm: 'Neto €/KM', tax: 'Impuesto (%)', emptyKm: 'KM Vacíos (%)',
+    pension: 'Pensión (%)',
     rankingTitle: '📊 Clasificación de Ciudades', city: 'Ciudad', rentRange: 'Rango de Alquiler',
     taxCol: 'Impuesto', schools: 'Escuelas', quality: 'Calidad', result: 'Resultado',
     top3Title: '🏆 Top 3 Ciudades', allCitiesTitle: '🌍 Todas las Ciudades',
@@ -222,15 +269,17 @@ const T = {
   },
   fr: {
     modeBtn: '💼 Mode Général', modeBtnAlt: '🚗 Mode Uber', reload: '↻ Recharger',
+    mobileBtn: '📱 Mobile', mobileBtnAlt: '🖥️ Desktop',
     familyTitle: '👨‍👩‍👧‍👦 Famille', adults: 'Adultes', children: 'Enfants',
     expensesTitle: '💰 Dépenses', rent: 'Loyer', household: 'Ménage',
     healthAdults: 'Assurance Santé Adultes', healthChildren: 'Assurance Santé Enfants',
     incomeUberTitle: '💼 Revenus (Uber)', incomeTitle: '💼 Revenus',
     salary: 'Salaire', additional: 'Revenus Supplémentaires',
     uberTitle: '🚗 Paramètres Uber', comfort: '🌟 Uber Comfort (+30% tarif)',
+    comfortPercent: '🌟 Courses Uber Comfort (%)',
     workDays: 'Jours Ouvrables', kmDay: 'KM/Jour', baseFare: 'Tarif de Base',
-    euroKm: 'Euro/KM (net)', tax: 'Impôt (%)', emptyKm: 'KM à Vide (%)',
-    pension: 'Assurance Pension 2ème Pilier (%)',
+    euroKm: 'Net €/KM', tax: 'Impôt (%)', emptyKm: 'KM à Vide (%)',
+    pension: 'Pension (%)',
     rankingTitle: '📊 Classement des Villes', city: 'Ville', rentRange: 'Gamme de Loyer',
     taxCol: 'Impôt', schools: 'Écoles', quality: 'Qualité', result: 'Résultat',
     top3Title: '🏆 Top 3 Villes', allCitiesTitle: '🌍 Toutes les Villes',
@@ -243,26 +292,26 @@ const T = {
 };
 
 const LANGS = ['bg', 'en', 'de', 'es', 'fr'];
-const S={a:2,k:3,r:2000,h:1500,ha:0,hk:0,e:0,eu:0,s:5000,su:0,w:22,l:220,br:3.5,kr:1.8,t:30,em:8,p:5,cf:false,m:true,sel:null,lg:0};
+const S={a:2,k:3,r:2000,h:1500,ha:0,hk:0,e:0,eu:0,s:5000,w:22,l:220,kr:0.8,em:8,p:5,cf:0,m:true,sel:null,lg:0,mob:false};
 const D={
-Zurich:{n:'Zürich',c:'ch',rm:2500,rx:6000,ar:4000,hh:600,sc:5,bf:6,pk:3,tr:20,ek:3,ha:400,hk:200,pe:5},
-Zug:{n:'Zug',c:'ch',rm:2600,rx:6500,ar:4200,hh:620,sc:5,bf:6,pk:3,tr:18,ek:2,ha:400,hk:200,pe:5},
-Geneva:{n:'Geneva',c:'ch',rm:2400,rx:5500,ar:3800,hh:600,sc:4,bf:6,pk:3,tr:22,ek:4,ha:400,hk:200,pe:5},
-Oslo:{n:'Oslo',c:'no',rm:1900,rx:3600,ar:2600,hh:520,sc:5,bf:5,pk:2.5,tr:32,ek:7,ha:0,hk:0,pe:4},
-Berlin:{n:'Berlin',c:'de',rm:1500,rx:3200,ar:2200,hh:450,sc:4,bf:3.9,pk:2,tr:25,ek:9,ha:0,hk:0,pe:4},
-Munich:{n:'München',c:'de',rm:2000,rx:4500,ar:3000,hh:500,sc:5,bf:4.5,pk:2.3,tr:27,ek:7,ha:0,hk:0,pe:4},
-Vienna:{n:'Wien',c:'at',rm:1500,rx:3000,ar:2100,hh:450,sc:5,bf:3.4,pk:1.8,tr:30,ek:8,ha:0,hk:0,pe:5},
-Amsterdam:{n:'Amsterdam',c:'nl',rm:2200,rx:4000,ar:2900,hh:500,sc:4,bf:3.5,pk:2,tr:38,ek:9,ha:0,hk:0,pe:6},
-Paris:{n:'Paris',c:'fr',rm:1800,rx:4200,ar:2700,hh:480,sc:4,bf:3.8,pk:1.9,tr:32,ek:10,ha:0,hk:0,pe:5},
-London:{n:'London',c:'gb',rm:2800,rx:6000,ar:4000,hh:550,sc:4,bf:3.5,pk:1.8,tr:30,ek:12,ha:0,hk:0,pe:5},
-Madrid:{n:'Madrid',c:'es',rm:1200,rx:2600,ar:1800,hh:400,sc:4,bf:2.8,pk:1.4,tr:25,ek:11,ha:0,hk:0,pe:4},
-Barcelona:{n:'Barcelona',c:'es',rm:1400,rx:2900,ar:2000,hh:420,sc:4,bf:3,pk:1.5,tr:26,ek:10,ha:0,hk:0,pe:4},
-Lisbon:{n:'Lisboa',c:'pt',rm:1100,rx:2400,ar:1600,hh:380,sc:4,bf:2.5,pk:1.2,tr:28,ek:10,ha:0,hk:0,pe:4},
-Rome:{n:'Roma',c:'it',rm:1400,rx:3000,ar:2000,hh:420,sc:3,bf:3,pk:1.5,tr:32,ek:11,ha:0,hk:0,pe:4},
-Prague:{n:'Praha',c:'cz',rm:1200,rx:2400,ar:1700,hh:380,sc:4,bf:1.8,pk:1,tr:23,ek:8,ha:0,hk:0,pe:5},
-Warsaw:{n:'Warszawa',c:'pl',rm:1100,rx:2200,ar:1500,hh:350,sc:4,bf:2,pk:1,tr:17,ek:9,ha:0,hk:0,pe:6},
-Budapest:{n:'Budapest',c:'hu',rm:1000,rx:2100,ar:1400,hh:340,sc:4,bf:1.7,pk:0.85,tr:15,ek:10,ha:0,hk:0,pe:6},
-Sofia:{n:'София',c:'bg',rm:800,rx:1500,ar:1100,hh:300,sc:3,bf:1.5,pk:0.8,tr:10,ek:12,ha:0,hk:0,pe:5}
+Zurich:{n:'Zürich',c:'ch',rm:2500,rx:6000,ar:4000,hh:600,sc:5,bf:6,pk:1.2,tr:20,ek:3,ha:400,hk:200,pe:5},
+Zug:{n:'Zug',c:'ch',rm:2600,rx:6500,ar:4200,hh:620,sc:5,bf:6,pk:1.2,tr:18,ek:2,ha:400,hk:200,pe:5},
+Geneva:{n:'Geneva',c:'ch',rm:2400,rx:5500,ar:3800,hh:600,sc:4,bf:6,pk:1.1,tr:22,ek:4,ha:400,hk:200,pe:5},
+Oslo:{n:'Oslo',c:'no',rm:1900,rx:3600,ar:2600,hh:520,sc:5,bf:5,pk:1.0,tr:32,ek:7,ha:0,hk:0,pe:4},
+Berlin:{n:'Berlin',c:'de',rm:1500,rx:3200,ar:2200,hh:450,sc:4,bf:3.9,pk:0.75,tr:25,ek:9,ha:0,hk:0,pe:4},
+Munich:{n:'München',c:'de',rm:2000,rx:4500,ar:3000,hh:500,sc:5,bf:4.5,pk:0.9,tr:27,ek:7,ha:0,hk:0,pe:4},
+Vienna:{n:'Wien',c:'at',rm:1500,rx:3000,ar:2100,hh:450,sc:5,bf:3.4,pk:0.7,tr:30,ek:8,ha:0,hk:0,pe:5},
+Amsterdam:{n:'Amsterdam',c:'nl',rm:2200,rx:4000,ar:2900,hh:500,sc:4,bf:3.5,pk:0.75,tr:38,ek:9,ha:0,hk:0,pe:6},
+Paris:{n:'Paris',c:'fr',rm:1800,rx:4200,ar:2700,hh:480,sc:4,bf:3.8,pk:0.7,tr:32,ek:10,ha:0,hk:0,pe:5},
+London:{n:'London',c:'gb',rm:2800,rx:6000,ar:4000,hh:550,sc:4,bf:3.5,pk:0.7,tr:30,ek:12,ha:0,hk:0,pe:5},
+Madrid:{n:'Madrid',c:'es',rm:1200,rx:2600,ar:1800,hh:400,sc:4,bf:2.8,pk:0.5,tr:25,ek:11,ha:0,hk:0,pe:4},
+Barcelona:{n:'Barcelona',c:'es',rm:1400,rx:2900,ar:2000,hh:420,sc:4,bf:3,pk:0.55,tr:26,ek:10,ha:0,hk:0,pe:4},
+Lisbon:{n:'Lisboa',c:'pt',rm:1100,rx:2400,ar:1600,hh:380,sc:4,bf:2.5,pk:0.45,tr:28,ek:10,ha:0,hk:0,pe:4},
+Rome:{n:'Roma',c:'it',rm:1400,rx:3000,ar:2000,hh:420,sc:3,bf:3,pk:0.55,tr:32,ek:11,ha:0,hk:0,pe:4},
+Prague:{n:'Praha',c:'cz',rm:1200,rx:2400,ar:1700,hh:380,sc:4,bf:1.8,pk:0.35,tr:23,ek:8,ha:0,hk:0,pe:5},
+Warsaw:{n:'Warszawa',c:'pl',rm:1100,rx:2200,ar:1500,hh:350,sc:4,bf:2,pk:0.35,tr:17,ek:9,ha:0,hk:0,pe:6},
+Budapest:{n:'Budapest',c:'hu',rm:1000,rx:2100,ar:1400,hh:340,sc:4,bf:1.7,pk:0.3,tr:15,ek:10,ha:0,hk:0,pe:6},
+Sofia:{n:'София',c:'bg',rm:800,rx:1500,ar:1100,hh:300,sc:3,bf:1.5,pk:0.28,tr:10,ek:12,ha:0,hk:0,pe:5}
 };
 
 function translateUI() {
@@ -283,9 +332,10 @@ function translateUI() {
             }
         }
     });
-    // Update mode button
     const modeBtn = document.getElementById('bm');
     modeBtn.textContent = S.m ? trans.modeBtn : trans.modeBtnAlt;
+    const mobBtn = document.getElementById('mobBtn');
+    mobBtn.textContent = S.mob ? trans.mobileBtnAlt : trans.mobileBtn;
 }
 
 function setLang(idx, code, name) {
@@ -311,21 +361,35 @@ document.addEventListener('click', () => {
 
 const fm=n=>Math.round(n).toLocaleString('bg-BG');
 function uv(p){const v=document.getElementById('v'+p);if(!v)return;
-if(p==='t'||p==='p'||p==='em')v.textContent=S[p]+' %';
+if(p==='t'||p==='p'||p==='em'||p==='cf')v.textContent=S[p]+' %';
 else if(p==='a'||p==='k'||p==='w')v.textContent=S[p];
 else if(p==='l')v.textContent=S[p]+' км';
-else if(p==='br'||p==='kr')v.textContent=S[p].toFixed(1)+' €';
-else if(p==='r'||p==='s'||p==='su'||p==='e'||p==='eu')v.textContent=fm(S[p])+' €';
+else if(p==='kr')v.textContent=S[p].toFixed(2)+' €';
+else if(p==='s'||p==='su'||p==='e'||p==='eu')v.textContent=fm(S[p])+' €';
 else v.textContent='-'+fm(S[p])+' €';}
-function ld(k){S.sel=k;const d=D[k];S.r=d.ar;S.h=d.hh*Math.max(S.a+S.k,1);S.br=d.bf;S.kr=d.pk;S.t=d.tr;S.ha=d.ha;S.hk=d.hk;S.p=d.pe;
-const pn=S.r<d.rm?Math.min(5,(d.rm-S.r)/d.rm*10):S.r>d.rx?Math.max(-3,(d.rx-S.r)/d.rx*5):0;S.em=Math.max(0,d.ek+pn);
-['r','h','br','kr','t','em','ha','hk','p'].forEach(p=>{const sl=document.getElementById('s'+p);if(sl)sl.value=S[p];uv(p);});
-['ar','ah','abb','akm','at','aem','aha','ahk','ap'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='inline-block';});up();}
+function ld(k){S.sel=k;const d=D[k];S.r=d.ar;S.h=d.hh*Math.max(S.a+S.k,1);S.t=d.tr;S.ha=d.ha;S.hk=d.hk;S.p=d.pe;
+// Колкото по-висок е наемът в диапазона за града, толкова по-близо до центъра сме
+const rng=d.rx-d.rm; // Диапазон на наема за града
+const rpos=(S.r-d.rm)/rng; // Позиция в диапазона (0=евтино/далече, 1=скъпо/център)
+const clamp=Math.max(0,Math.min(1,rpos)); // Ограничаваме между 0 и 1
+// В центъра: по-малко празни км (по-висока clamp -> по-малко ek)
+S.em=Math.round(d.ek*(1.5-clamp*0.8)); // От 150% до 70% от базовите празни км
+// В центъра: по-висока печалба на км (по-висока clamp -> по-висока pk)
+S.kr=+(d.pk*(0.5+clamp*1.2)).toFixed(2); // От 50% до 170% от базовата печалба
+['r','h','kr','em','ha','hk','p'].forEach(p=>{const sl=document.getElementById('s'+p);if(sl)sl.value=S[p];uv(p);});
+['ar','ah','akm','aem','aha','ahk','ap'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='inline-block';});up();}
 function up(){const trans=T[LANGS[S.lg]];const ex=S.r+S.h+S.ha*S.a+S.hk*S.k;
 document.getElementById('kex').textContent=fm(ex)+' €';
 document.getElementById('kexy').textContent=fm(ex*12)+' €'+trans.perYear;
-if(S.m){const cm=S.cf?1.3:1;const gr=(S.br+S.kr*3)/3*cm;const ne=gr*0.75*(1-S.t/100);const rn=ne*Math.max(0.5,1-S.em/100)*(1-S.p/100);const ui=rn*S.l*S.w;
-document.getElementById('kui').textContent=fm(ui)+' €';document.getElementById('kuiy').textContent=fm(ui*12)+' €'+trans.perYear;const ti=ui+S.su+S.eu;
+if(S.m){
+// S.kr вече е НЕТО приход на км след Uber такса (25%) и данъци
+// Uber Comfort курсовете носят 30% повече (средна стойност между 20-40%)
+const comfortBonus = 1 + (S.cf / 100) * 0.30; // Например: 50% Comfort = 1.15x (15% повече общо)
+const krAdjusted = S.kr * comfortBonus;
+// Трябва само да приложим празните км и пенсията
+const rn=krAdjusted*Math.max(0.5,1-S.em/100)*(1-S.p/100);  // Нето след празни км и пенсия
+const ui=rn*S.l*S.w;  // Месечен Uber доход = нето_км * км_ден * работни_дни
+document.getElementById('kui').textContent=fm(ui)+' €';document.getElementById('kuiy').textContent=fm(ui*12)+' €'+trans.perYear;const ti=ui+S.eu;
 document.getElementById('ktiu').textContent=fm(ti)+' €';document.getElementById('ktiuy').textContent=fm(ti*12)+' €'+trans.perYear;const sv=ti-ex;
 document.getElementById('ksav').textContent=fm(sv)+' €';document.getElementById('ksavy').textContent=fm(sv*12)+' €'+trans.perYear;
 const sk=document.querySelector('.kpi:has(#ksav)');if(sv>0){sk.classList.add('pos');sk.classList.remove('neg');}else{sk.classList.add('neg');sk.classList.remove('pos');}
@@ -335,16 +399,120 @@ else{const ti=S.s+S.e;document.getElementById('kti').textContent=fm(ti)+' €';d
 document.getElementById('ksav').textContent=fm(sv)+' €';document.getElementById('ksavy').textContent=fm(sv*12)+' €'+trans.perYear;
 const sk=document.querySelector('.kpi:has(#ksav)');if(sv>0){sk.classList.add('pos');sk.classList.remove('neg');}else{sk.classList.add('neg');sk.classList.remove('pos');}}
 const rs=Object.keys(D).map(k=>{const d=D[k];const ro=S.r>=d.rm&&S.r<=d.rx;const q=Math.round((d.sc/5)*100);let sc=q,km=0,st='ok';
-if(S.m){const cm=S.cf?1.3:1;const gr=(d.bf+d.pk*3)/3*cm;const ne=gr*0.75*(1-d.tr/100);const rn=ne*Math.max(0.5,1-S.em/100)*(1-d.pe/100);
-km=rn>0?ex/rn/S.w:999;const fe=km<=S.l;sc=fe?(100-km/S.l*30+q*0.3):q*0.5;st=fe&&ro?'ok':fe||ro?'warn':'bad';}
+if(S.m){
+const rn=d.pk*Math.max(0.5,1-S.em/100)*(1-d.pe/100);  // Нето на км за този град
+km=rn>0?ex/rn/S.w:999;
+const kmOk=km<=S.l; // Kilometrite са приемливи
+const budgetOk=S.l*S.w*rn-ex>0; // Бюджетът е положителен
+sc=kmOk?(100-km/S.l*30+q*0.3):q*0.5;
+st=kmOk&&budgetOk&&ro?'ok':(!kmOk||!budgetOk)?'bad':'warn';
+}
 else{const ti=S.s+S.e;const af=ex<=ti;sc=(q*0.5+(ro?50:0)+(af?50:0))/2;st=ro&&af?'ok':ro||af?'warn':'bad';}
 return{k,d,sc,km,st,q};});rs.sort((a,b)=>b.sc-a.sc);
 document.getElementById('t3').innerHTML=rs.slice(0,3).map((x,i)=>`<div style="background:rgba(79,195,247,0.05);border:2px solid ${i===0?'#ffd700':i===1?'#c0c0c0':'#cd7f32'};border-radius:10px;padding:12px;margin-bottom:10px"><strong><img src="https://flagcdn.com/w40/${x.d.c}.png" class="flag" style="vertical-align:middle;margin-right:6px"> ${x.d.n}</strong><div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.8rem"><span>${trans.result}: ${Math.round(x.sc)}</span><span>${trans.taxCol}: ${x.d.tr}%</span></div></div>`).join('');
 document.getElementById('ct').innerHTML=rs.map(x=>`<div class="city-chip ${x.st}${S.sel===x.k?' active':''}" onclick="ld('${x.k}')"><div class="city-name"><img src="https://flagcdn.com/w40/${x.d.c}.png" class="flag"> ${x.d.n}</div><div class="city-info">${trans.result}: ${Math.round(x.sc)}</div></div>`).join('');
 document.getElementById('tb').innerHTML=rs.map((x,i)=>`<tr class="${S.sel===x.k?'sel':''}${i<3?' top':''}" onclick="ld('${x.k}')"><td><strong><img src="https://flagcdn.com/w40/${x.d.c}.png" class="flag" style="vertical-align:middle;margin-right:6px"> ${x.d.n}</strong></td><td>${fm(x.d.rm)}-${fm(x.d.rx)} €</td><td>${x.d.tr}%</td><td>${x.d.sc}/5</td><td>${x.q}%</td><td><strong>${Math.round(x.sc)}</strong></td></tr>`).join('');}
-['a','k','r','h','ha','hk','e','eu','s','su','w','l','br','kr','t','em','p'].forEach(p=>{const sl=document.getElementById('s'+p);if(sl)sl.oninput=()=>{S[p]=+sl.value;uv(p);up();};});
+['a','k','h','ha','hk','e','eu','s','w','l','kr','em','p','cf'].forEach(p=>{const sl=document.getElementById('s'+p);if(sl)sl.oninput=()=>{S[p]=+sl.value;uv(p);up();};});
+// Когато потребителят променя наема ръчно, актуализираме празните км и печалбата на км
+document.getElementById('sr').oninput=()=>{
+S.r=+document.getElementById('sr').value;
+uv('r');
+if(S.sel&&D[S.sel]){
+const d=D[S.sel];const rng=d.rx-d.rm;const rpos=(S.r-d.rm)/rng;const clamp=Math.max(0,Math.min(1,rpos));
+// Евтин наем (далече от центъра) -> повече празни км, по-ниска печалба
+// Скъп наем (в центъра) -> по-малко празни км, по-висока печалба
+S.em=Math.round(d.ek*(1.5-clamp*0.8));S.kr=+(d.pk*(0.5+clamp*1.2)).toFixed(2);
+document.getElementById('sem').value=S.em;uv('em');
+document.getElementById('skr').value=S.kr;uv('kr');
+}
+up();
+};
 document.getElementById('bm').onclick=()=>{S.m=!S.m;document.body.classList.toggle('gm');const trans=T[LANGS[S.lg]];document.getElementById('bm').textContent=S.m?trans.modeBtn:trans.modeBtnAlt;up();};
-document.getElementById('tc').onchange=e=>{S.cf=e.target.checked;up();};
+
+// Мобилен бутон
+document.getElementById('mobBtn').onclick=()=>{
+    S.mob=!S.mob;
+    document.body.classList.toggle('mobile-mode');
+    const trans=T[LANGS[S.lg]];
+    document.getElementById('mobBtn').textContent=S.mob?trans.mobileBtnAlt:trans.mobileBtn;
+};
+
+// Защита срещу случайно активиране на плъзгачите при скролване
+let isScrolling = false;
+let scrollTimer = null;
+let activeSlider = null;
+
+window.addEventListener('scroll', () => {
+    isScrolling = true;
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+        isScrolling = false;
+    }, 150);
+}, true);
+
+document.querySelectorAll('input[type="range"]').forEach(slider => {
+    let isDragging = false;
+    let startValue = null;
+    let touchStartY = 0;
+    const parent = slider.closest('.input-group');
+    
+    slider.addEventListener('touchstart', (e) => {
+        if (isScrolling) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+        touchStartY = e.touches[0].clientY;
+        isDragging = true;
+        startValue = slider.value;
+        activeSlider = slider;
+        if(parent) parent.classList.add('active');
+    }, {passive: false});
+    
+    slider.addEventListener('touchmove', (e) => {
+        if (!isDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+        const touchMoveY = e.touches[0].clientY;
+        const deltaY = Math.abs(touchMoveY - touchStartY);
+        
+        // Ако движението е предимно вертикално (скролване), отменяме промяната
+        if (deltaY > 10 && !activeSlider) {
+            isDragging = false;
+            if(parent) parent.classList.remove('active');
+            return false;
+        }
+    }, {passive: false});
+    
+    slider.addEventListener('touchend', () => {
+        isDragging = false;
+        startValue = null;
+        activeSlider = null;
+        if(parent) parent.classList.remove('active');
+    });
+    
+    slider.addEventListener('mousedown', () => {
+        isDragging = true;
+        startValue = slider.value;
+        if(parent) parent.classList.add('active');
+    });
+    
+    slider.addEventListener('mouseup', () => {
+        isDragging = false;
+        startValue = null;
+        if(parent) parent.classList.remove('active');
+    });
+    
+    slider.addEventListener('mouseleave', () => {
+        if(isDragging) {
+            isDragging = false;
+            if(parent) parent.classList.remove('active');
+        }
+    });
+});
+
 window.ld=ld;window.setLang=setLang;up();
 </script>
 </body>
