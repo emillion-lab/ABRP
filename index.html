@@ -2,805 +2,819 @@
 <html lang="bg">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Root Planner 2026 PRO</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>A Better Root Planner</title>
 <style>
-:root{--bg:#0a1929;--panel:#1a2942;--border:#2d3e55;--muted:#8b9eb8;--text:#e8f0f8;--accent:#4fc3f7;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,sans-serif;background:#0a1929;color:var(--text);font-size:13px}
-header{position:sticky;top:0;background:rgba(10,25,41,0.95);border-bottom:2px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:12px;z-index:100;backdrop-filter:blur(10px)}
-.logo{font-size:2.8rem;line-height:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.4))}
-h1{font-size:1.2rem;font-weight:800;color:var(--accent)}
-button{background:var(--accent);color:#001830;border:none;padding:10px 18px;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.9rem;transition:all 0.2s}
-button:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(79,195,247,0.4)}
-.ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
-.ghost:hover{background:var(--panel);color:var(--text)}
-.actions{margin-left:auto;display:flex;gap:8px;position:relative}
-.lang-dropdown{position:relative}
-.lang-btn{display:flex;align-items:center;gap:8px}
-.lang-menu{display:none;position:absolute;top:100%;right:0;margin-top:8px;background:var(--panel);border:1px solid var(--border);border-radius:10px;min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:200}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:system-ui,sans-serif;background:#0a1929;color:#e8f0f8;
+font-size:14px;overflow-y:scroll;overflow-x:hidden;
+}
+
+header{
+background:#1a2942;border-bottom:2px solid #2d3e55;padding:16px;
+display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+}
+.logo-area{display:flex;align-items:center;gap:12px}
+.logo{font-size:2.5rem;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.5))}
+h1{font-size:1.2rem;font-weight:800;color:#4fc3f7}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button{
+background:#4fc3f7;color:#001830;border:none;padding:10px 16px;
+border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85rem;
+}
+button:hover{opacity:0.9}
+.ghost{background:transparent;border:2px solid #2d3e55;color:#e8f0f8}
+.ghost:hover{border-color:#4fc3f7}
+.ghost.on{background:#4fc3f7;color:#001830;border-color:#4fc3f7}
+
+.lang-wrap{position:relative}
+.lang-menu{
+display:none;position:absolute;top:calc(100% + 8px);right:0;
+background:#1a2942;border:2px solid #2d3e55;border-radius:10px;
+min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:9999;
+}
 .lang-menu.show{display:block}
-.lang-option{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;transition:all 0.2s;border-bottom:1px solid var(--border)}
-.lang-option:last-child{border-bottom:none}
-.lang-option:hover{background:rgba(79,195,247,0.1)}
-.lang-option.active{background:rgba(79,195,247,0.15)}
-.flag{width:24px;height:18px;object-fit:cover;border-radius:3px;display:inline-block}
-.main{display:grid;grid-template-columns:380px 1fr 440px;gap:20px;padding:20px;max-width:2400px;margin:0 auto}
-.col{display:flex;flex-direction:column;gap:16px;max-height:calc(100vh - 96px);overflow-y:auto}
-.card{background:#162030;border:1px solid var(--border);border-radius:12px;padding:16px}
-h3{color:var(--accent);font-size:0.9rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.input-group{margin-bottom:16px;padding:4px 0}
-.input-group.active{background:rgba(79,195,247,0.05);border-radius:8px;padding:8px}
-.input-head{display:flex;justify-content:space-between;margin-bottom:8px}
-.input-label{color:var(--muted);font-size:0.85rem}
-.val{color:var(--accent);font-weight:800}
-.val.neg{color:var(--bad)}
-input[type=range]{width:100%;height:14px;border-radius:8px;background:var(--panel);border:1px solid var(--border);margin:8px 0;cursor:pointer;touch-action:pan-y;pointer-events:auto}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:grab;border:2px solid #001830;touch-action:none}
-input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.1)}
-input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:grab;border:2px solid #001830;touch-action:none}
-.kpi{background:rgba(79,195,247,0.05);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px}
-.kpi .label{font-size:0.72rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.3px}
-.kpi .big{font-size:1.2rem;font-weight:900;color:var(--accent)}
-.kpi .small{font-size:0.7rem;color:var(--muted);margin-top:4px}
-.kpi.pos .big{color:var(--ok)}
-.kpi.neg .big{color:var(--bad)}
-.cities{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
-.city-chip{background:#1a2535;border:3px solid var(--border);padding:12px;border-radius:10px;cursor:pointer;transition:all 0.2s}
-.city-chip:hover{border-color:var(--accent);transform:translateY(-2px)}
-.city-chip.active{border-color:var(--accent);background:rgba(79,195,247,0.1)}
-.city-chip.ok{border-color:var(--ok)}
-.city-chip.warn{border-color:var(--warn)}
-.city-chip.bad{border-color:var(--bad)}
-.city-name{font-weight:800;font-size:0.95rem;margin-bottom:6px;display:flex;align-items:center;gap:8px}
-.city-info{font-size:0.75rem;color:var(--muted);margin-top:3px}
-.city-km{font-size:0.7rem;color:var(--ok);margin-top:2px;font-weight:600}
-table{width:100%;border-collapse:collapse;font-size:0.85rem}
-thead{background:#1a2942;position:sticky;top:0;z-index:5}
-th{padding:12px 8px;text-align:left;color:var(--accent);border-bottom:2px solid var(--accent);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.3px}
-td{padding:10px 8px;border-bottom:1px solid var(--border)}
-tbody tr{cursor:pointer;transition:all 0.2s}
-tbody tr:hover{background:rgba(79,195,247,0.05)}
-tr.sel{background:rgba(79,195,247,0.15)}
-tr.top{background:rgba(74,222,128,0.06)}
+.lang-opt{
+padding:12px 16px;cursor:pointer;transition:0.2s;
+border-bottom:1px solid #2d3e55;display:flex;align-items:center;gap:10px;
+}
+.lang-opt:last-child{border-bottom:none}
+.lang-opt:hover{background:rgba(79,195,247,0.1)}
+.lang-opt.active{background:rgba(79,195,247,0.2);font-weight:800}
+.flag{font-size:1.3rem}
+
+.main{
+max-width:1800px;margin:0 auto;padding:20px;
+display:grid;grid-template-columns:400px 1fr 440px;gap:20px;
+}
+.col{display:flex;flex-direction:column;gap:16px}
+
+.card{background:#1a2942;border:1px solid #2d3e55;border-radius:12px;padding:18px}
+h3{color:#4fc3f7;font-size:1rem;margin-bottom:14px;display:flex;align-items:center;gap:8px;font-weight:800}
+
+.toggle-card{
+background:#1a2942;border:3px solid #2d3e55;border-radius:12px;padding:16px;
+cursor:pointer;display:flex;align-items:center;gap:16px;
+}
+.toggle-card:hover{border-color:#4fc3f7}
+.sw{
+width:64px;height:34px;background:#2d3e55;border-radius:17px;
+position:relative;transition:0.3s;flex-shrink:0;
+}
+.sw.on{background:linear-gradient(135deg,#f87171,#dc2626)}
+.sw.on.gen{background:linear-gradient(135deg,#a78bfa,#4fc3f7)}
+.sw::before{
+content:'';position:absolute;width:28px;height:28px;background:#fff;
+border-radius:50%;top:3px;left:3px;transition:0.3s;
+box-shadow:0 2px 6px rgba(0,0,0,0.4);
+}
+.sw.on::before{left:33px}
+.sw-txt{flex:1}
+.sw-main{font-size:1.15rem;font-weight:900;color:#4fc3f7;margin-bottom:4px}
+.sw-hint{font-size:0.8rem;color:#8b9eb8}
+
+.inp{margin-bottom:14px}
+.inp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.lbl{color:#8b9eb8;font-size:0.9rem;font-weight:600}
+.val{color:#4fc3f7;font-weight:900;font-size:1.05rem}
+.val.neg{color:#f87171}
+.val.pos{color:#4ade80}
+
+.auto-btn{
+display:inline-flex;align-items:center;gap:6px;
+background:#4ade80;color:#001830;border:2px solid #4ade80;
+border-radius:8px;padding:4px 10px;font-size:0.7rem;
+cursor:pointer;font-weight:900;text-transform:uppercase;
+}
+.auto-btn:hover{transform:scale(1.05)}
+.auto-btn.man{background:#fbbf24;border-color:#fbbf24}
+
+input[type=range]{
+width:100%;height:20px;border-radius:10px;background:#2d3e55;
+border:1px solid #2d3e55;margin:10px 0;cursor:pointer;
+-webkit-appearance:none;appearance:none;
+pointer-events:auto;
+}
+input[type=range]:focus{outline:none}
+input[type=range]::-webkit-slider-thumb{
+-webkit-appearance:none;width:26px;height:26px;border-radius:50%;
+background:#4fc3f7;cursor:grab;border:3px solid #001830;
+box-shadow:0 2px 8px rgba(0,0,0,0.4);
+pointer-events:auto;
+}
+input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.15)}
+input[type=range]::-moz-range-thumb{
+width:26px;height:26px;border-radius:50%;background:#4fc3f7;
+cursor:grab;border:3px solid #001830;box-shadow:0 2px 8px rgba(0,0,0,0.4);
+pointer-events:auto;
+}
+input[type=range]:disabled{opacity:0.4;cursor:not-allowed}
+
+.cities{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.city{
+background:#0f1a2a;border:3px solid #2d3e55;padding:14px;
+border-radius:10px;cursor:pointer;transition:0.2s;
+}
+.city:hover{border-color:#4fc3f7;transform:translateY(-2px)}
+.city.sel{border-color:#4fc3f7;background:#1a2942}
+.city.ok{border-color:#4ade80}
+.city.bad{border-color:#f87171}
+.city-name{font-weight:900;font-size:1.05rem;margin-bottom:10px}
+.city-row{display:flex;justify-content:space-between;margin-top:6px;font-size:0.85rem}
+.city-lbl{color:#8b9eb8}
+.city-val{font-weight:800;color:#4fc3f7}
+.city-val.pos{color:#4ade80}
+.city-val.neg{color:#f87171}
+
+.kpi{
+background:rgba(79,195,247,0.08);border:2px solid #2d3e55;
+border-radius:10px;padding:16px;margin-bottom:12px;
+}
+.kpi:hover{border-color:#4fc3f7}
+.kpi-lbl{
+font-size:0.75rem;color:#8b9eb8;text-transform:uppercase;
+letter-spacing:0.5px;margin-bottom:8px;font-weight:700;
+}
+.kpi-big{font-size:1.6rem;font-weight:900;color:#4fc3f7}
+.kpi-sub{font-size:0.8rem;color:#8b9eb8;margin-top:8px;line-height:1.5}
+.kpi.good{background:rgba(74,222,128,0.08);border-color:#4ade80}
+.kpi.good .kpi-big{color:#4ade80}
+.kpi.bad{background:rgba(248,113,113,0.08);border-color:#f87171}
+.kpi.bad .kpi-big{color:#f87171}
+
+.tax-sum{
+background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(79,195,247,0.15));
+border:3px solid #4ade80;border-radius:14px;padding:20px;
+text-align:center;box-shadow:0 6px 20px rgba(74,222,128,0.25);
+margin-bottom:16px;
+}
+.tax-sum .lbl{font-size:0.85rem;color:#4ade80;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;font-weight:800}
+.tax-sum .big{font-size:2.2rem;font-weight:900;color:#4ade80;margin-bottom:8px}
+.tax-sum .sub{font-size:0.9rem;color:#8b9eb8;font-weight:600}
+
+.tax-breakdown{
+margin-top:14px;font-size:0.85rem;color:#8b9eb8;
+border-top:1px solid #2d3e55;padding-top:14px;
+}
+.tax-line{
+display:flex;justify-content:space-between;padding:8px 0;
+border-bottom:1px solid rgba(45,62,85,0.5);
+}
+.tax-line:last-child{border-bottom:none}
+.tax-line strong{color:#4ade80;font-weight:800}
+
 .uber{display:block}
 .gen{display:none}
 body.gm .uber{display:none}
 body.gm .gen{display:block}
-.badge{background:rgba(79,195,247,0.3);color:var(--accent);font-size:0.65rem;padding:2px 6px;border-radius:4px;font-weight:700;margin-left:6px}
-.tog{display:flex;align-items:center;gap:10px;background:var(--panel);padding:12px;border-radius:8px;margin-bottom:16px;cursor:pointer;border:2px solid var(--border)}
-.tog:hover{background:rgba(79,195,247,0.05);border-color:var(--accent)}
-.tog input{width:50px;height:26px;appearance:none;background:var(--border);border-radius:13px;position:relative;cursor:pointer;transition:all 0.3s}
-.tog input:checked{background:linear-gradient(135deg,#a78bfa,#4fc3f7)}
-.tog input::before{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:all 0.3s;box-shadow:0 2px 4px rgba(0,0,0,0.3)}
-.tog input:checked::before{left:27px}
-.tog label{font-size:0.9rem;color:var(--text);cursor:pointer;font-weight:700}
-.tax-card{background:rgba(74,222,128,0.05);border:1.5px solid rgba(74,222,128,0.3);border-radius:10px;padding:12px;margin-bottom:10px;transition:all 0.2s}
-.tax-card:hover{border-color:var(--ok);background:rgba(74,222,128,0.08)}
-.tax-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
-.tax-title{font-size:0.85rem;font-weight:700;color:var(--ok);display:flex;align-items:center;gap:6px}
-.tax-badge{background:var(--ok);color:#001830;font-size:0.65rem;padding:3px 8px;border-radius:6px;font-weight:800;text-transform:uppercase}
-.tax-detail{font-size:0.75rem;color:var(--muted);margin:3px 0;line-height:1.4}
-.tax-amount{font-size:1.05rem;font-weight:800;color:var(--ok);margin-top:8px;padding-top:8px;border-top:1px solid rgba(74,222,128,0.2)}
-.tax-saved{font-size:0.7rem;color:var(--muted);margin-top:2px}
-.tax-saved strong{color:var(--ok)}
-.tax-summary{background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,165,0,0.15));border:2px solid #fbbf24;border-radius:12px;padding:18px;margin-top:14px;text-align:center;box-shadow:0 4px 16px rgba(251,191,36,0.2)}
-.tax-summary .sum-label{font-size:0.75rem;color:#d97706;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.8px;font-weight:700}
-.tax-summary .sum-value{font-size:2.2rem;font-weight:900;color:#fbbf24;margin-bottom:6px;text-shadow:0 2px 4px rgba(0,0,0,0.2)}
-.tax-summary .sum-desc{font-size:0.8rem;color:var(--muted);font-weight:500}
-.tax-breakdown{background:rgba(139,158,184,0.05);border-radius:8px;padding:10px;margin-top:10px;font-size:0.75rem}
-.tax-breakdown-item{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(139,158,184,0.1)}
-.tax-breakdown-item:last-child{border-bottom:none}
-.tax-breakdown-label{color:var(--muted)}
-.tax-breakdown-value{color:var(--text);font-weight:700}
 
-/* Mobile styles */
-body.mobile-mode{font-size:16px}
-body.mobile-mode header{padding:12px 16px;flex-wrap:wrap}
-body.mobile-mode .logo{font-size:2.4rem}
-body.mobile-mode h1{font-size:1rem}
-body.mobile-mode .actions{width:100%;margin-top:10px;flex-wrap:wrap}
-body.mobile-mode .actions button{flex:1;min-width:calc(50% - 4px);font-size:0.85rem}
-body.mobile-mode .main{display:flex;flex-direction:column;padding:12px;gap:14px}
-body.mobile-mode .col{max-height:none;overflow-y:visible}
-body.mobile-mode .card{padding:16px}
-body.mobile-mode h3{font-size:1.05rem}
-body.mobile-mode .input-group{margin-bottom:18px}
-body.mobile-mode .input-head{font-size:0.95rem;margin-bottom:12px}
-body.mobile-mode .val{font-size:1.05rem}
-body.mobile-mode input[type=range]{height:40px;margin:10px 0;padding:8px 0}
-body.mobile-mode input[type=range]::-webkit-slider-thumb{width:28px;height:28px}
-body.mobile-mode input[type=range]::-moz-range-thumb{width:28px;height:28px}
-body.mobile-mode .kpi{padding:16px;margin-bottom:14px}
-body.mobile-mode .kpi .label{font-size:0.85rem;margin-bottom:8px}
-body.mobile-mode .kpi .big{font-size:1.6rem}
-body.mobile-mode .kpi .small{font-size:0.85rem}
-body.mobile-mode .cities{grid-template-columns:1fr 1fr;gap:12px}
-body.mobile-mode .city-chip{padding:14px;min-height:90px}
-body.mobile-mode .city-name{font-size:1rem}
-body.mobile-mode .city-info{font-size:0.85rem}
-body.mobile-mode table{font-size:0.9rem}
-body.mobile-mode th,body.mobile-mode td{padding:12px 10px}
-body.mobile-mode .tog{padding:16px;margin-bottom:16px}
-body.mobile-mode .tog input{width:58px;height:30px}
-body.mobile-mode .tog input::before{width:24px;height:24px}
-body.mobile-mode .tog input:checked::before{left:31px}
-body.mobile-mode .tog label{font-size:1rem}
-body.mobile-mode button{padding:12px 20px;font-size:0.95rem;min-height:48px}
-body.mobile-mode .ghost{padding:10px 16px}
-body.mobile-mode .tax-card{padding:14px}
-body.mobile-mode .tax-title{font-size:0.95rem}
-body.mobile-mode .tax-amount{font-size:1.25rem}
-body.mobile-mode .tax-summary .sum-value{font-size:2.6rem}
+@media(max-width:1200px){
+.main{grid-template-columns:1fr;padding:16px}
+.cities{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
+
 <header>
-<div class="logo">🌳</div>
-<div><h1>Root Planner 2026 PRO</h1></div>
-<div class="actions">
-<div class="lang-dropdown">
-<button class="lang-btn ghost" onclick="toggleLang()">
-<span class="flag" id="currentFlag">🇧🇬</span>
-<span id="currentLang">Български</span>
+<div class="logo-area">
+<svg class="logo" width="50" height="50" viewBox="0 0 120 140">
+  <!-- Soil/Ground -->
+  <ellipse cx="60" cy="110" rx="55" ry="12" fill="#8b6f47" opacity="0.6"/>
+  <ellipse cx="60" cy="108" rx="50" ry="10" fill="#6b5333"/>
+  
+  <!-- Roots spreading in soil -->
+  <path d="M60,85 Q50,95 35,105 M60,85 Q55,98 45,108 M60,85 Q60,98 60,110 M60,85 Q65,98 75,108 M60,85 Q70,95 85,105" 
+        stroke="#4a3422" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- Main root tips -->
+  <circle cx="35" cy="105" r="2" fill="#4a3422"/>
+  <circle cx="45" cy="108" r="2" fill="#4a3422"/>
+  <circle cx="60" cy="110" r="2" fill="#4a3422"/>
+  <circle cx="75" cy="108" r="2" fill="#4a3422"/>
+  <circle cx="85" cy="105" r="2" fill="#4a3422"/>
+  
+  <!-- Tree trunk -->
+  <path d="M55,85 Q54,60 52,40 Q50,20 55,10 Q58,5 60,5 Q62,5 65,10 Q70,20 68,40 Q66,60 65,85 Z" 
+        fill="#5d4a3a" stroke="#3d2a1a" stroke-width="1"/>
+  
+  <!-- Foliage layers (bushy tree) -->
+  <ellipse cx="60" cy="45" rx="25" ry="20" fill="#6ba54a" opacity="0.8"/>
+  <ellipse cx="60" cy="35" rx="28" ry="22" fill="#7dbf5a" opacity="0.85"/>
+  <ellipse cx="60" cy="25" rx="24" ry="18" fill="#8dd86d" opacity="0.9"/>
+  
+  <!-- Light highlights on leaves -->
+  <ellipse cx="55" cy="22" rx="8" ry="6" fill="#a8eb8d" opacity="0.4"/>
+  <ellipse cx="68" cy="30" rx="10" ry="7" fill="#a8eb8d" opacity="0.3"/>
+  
+  <!-- Trunk texture -->
+  <path d="M57,50 Q58,55 57,60" stroke="#3d2a1a" stroke-width="0.5" fill="none" opacity="0.5"/>
+  <path d="M63,45 Q62,50 63,55" stroke="#3d2a1a" stroke-width="0.5" fill="none" opacity="0.5"/>
+</svg>
+<h1>A Better Root Planting</h1>
+</div>
+<div class="btns">
+<div class="lang-wrap">
+<button class="ghost" id="lang" onclick="toggleLang()">
+<span class="flag" id="curFlag">馃嚙馃嚞</span>
+<span id="curLang">袘褗谢谐邪褉褋泻懈</span>
 </button>
 <div class="lang-menu" id="langMenu">
-<div class="lang-option active" onclick="setLang(0)"><span class="flag">🇧🇬</span><span>Български</span></div>
-<div class="lang-option" onclick="setLang(1)"><span class="flag">🇬🇧</span><span>English</span></div>
-<div class="lang-option" onclick="setLang(2)"><span class="flag">🇩🇪</span><span>Deutsch</span></div>
-<div class="lang-option" onclick="setLang(3)"><span class="flag">🇪🇸</span><span>Español</span></div>
-<div class="lang-option" onclick="setLang(4)"><span class="flag">🇫🇷</span><span>Français</span></div>
+<div class="lang-opt active" onclick="setLang(0)"><span class="flag">馃嚙馃嚞</span>袘褗谢谐邪褉褋泻懈</div>
+<div class="lang-opt" onclick="setLang(1)"><span class="flag">馃嚞馃嚙</span>English</div>
+<div class="lang-opt" onclick="setLang(2)"><span class="flag">馃嚛馃嚜</span>Deutsch</div>
+<div class="lang-opt" onclick="setLang(3)"><span class="flag">馃嚜馃嚫</span>Espa帽ol</div>
+<div class="lang-opt" onclick="setLang(4)"><span class="flag">馃嚝馃嚪</span>Fran莽ais</div>
 </div>
 </div>
-<button class="ghost" onclick="toggleMobile()" id="mobBtn">
-<span class="uber">💻 Desktop</span>
-<span class="gen">📱 Мобилен</span>
-</button>
-<button onclick="location.reload()" data-t="reset">🔄 Презареди</button>
+<button class="ghost" id="view" onclick="chView()">馃捇 Desktop</button>
+<button onclick="location.reload()">馃攧</button>
 </div>
 </header>
 
 <div class="main">
-<!-- LEFT COLUMN -->
 <div class="col">
-<!-- Mode Toggle - FIRST! -->
-<div class="card">
-<div class="tog" onclick="toggleMode()">
-<input type="checkbox" id="togMode">
-<label for="togMode">
-<span class="uber" data-t="mode_uber">🚗 Uber режим</span>
-<span class="gen" data-t="mode_gen">💼 Общ режим</span>
-</label>
+
+<!-- MODE -->
+<div class="toggle-card" onclick="chMode()">
+<div class="sw on" id="modeSw"></div>
+<div class="sw-txt">
+<div class="sw-main" id="modeTxt">馃殫 Uber Mode</div>
+<div class="sw-hint" id="modeHint">Switch to: 馃捈 General</div>
 </div>
 </div>
 
-<!-- Household -->
+<!-- FAMILY -->
 <div class="card">
-<h3 data-t="hh">👨‍👩‍👧‍👦 Домакинство</h3>
-<div class="input-group">
-<div class="input-head">
-<span class="input-label" data-t="adults">Възрастни</span>
-<span class="val" id="vAdults">2</span>
+<h3>馃懆鈥嶐煈┾€嶐煈р€嶐煈� Family</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Adults</span>
+<span class="val" id="va">2</span>
 </div>
-<input type="range" id="sAdults" min="1" max="4" value="2" oninput="S.a=+this.value;calc()">
+<input type="range" min="1" max="4" value="2" oninput="S.a=+this.value;calc()">
 </div>
-<div class="input-group">
-<div class="input-head">
-<span class="input-label" data-t="kids">Деца</span>
-<span class="val" id="vKids">3</span>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Children</span>
+<span class="val" id="vk">3</span>
 </div>
-<input type="range" id="sKids" min="0" max="6" value="3" oninput="S.k=+this.value;calc()">
+<input type="range" min="0" max="6" value="3" oninput="S.k=+this.value;calc()">
 </div>
 </div>
 
-<!-- Insurance -->
+<!-- RENT -->
+<div class="card">
+<h3>馃彔 Rent</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Budget (鈧�/mo)</span>
+<span class="val neg" id="vr">-1500</span>
+</div>
+<input type="range" min="500" max="6000" value="1500" step="50" oninput="S.r=+this.value;calc()">
+<div style="font-size:0.75rem;color:#8b9eb8;margin-top:6px">馃挕 Higher rent = closer to center = less empty km</div>
+</div>
+</div>
+
+<!-- HEALTH (Uber) -->
 <div class="card uber">
-<h3 data-t="health">🏥 Здравно осигуряване</h3>
-<div class="input-group">
-<div class="input-head">
-<span class="input-label" data-t="hlth_ins_ad">За възрастен (€/мес)</span>
-<span class="val neg" id="vHealthA">-400</span>
+<h3>馃彞 Health Insurance</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Adult (鈧�/mo)</span>
+<span class="val neg" id="vha">-300</span>
 </div>
-<input type="range" id="sHealthA" min="0" max="800" value="400" step="10" oninput="S.ha=+this.value;calc()">
+<input type="range" min="0" max="800" value="300" step="10" oninput="S.ha=+this.value;calc()">
 </div>
-<div class="input-group">
-<div class="input-head">
-<span class="input-label" data-t="hlth_ins_kid">За дете (€/мес)</span>
-<span class="val neg" id="vHealthK">-200</span>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Child (鈧�/mo)</span>
+<span class="val neg" id="vhk">-150</span>
 </div>
-<input type="range" id="sHealthK" min="0" max="400" value="200" step="10" oninput="S.hk=+this.value;calc()">
-</div>
-</div>
-
-<!-- Budget -->
-<div class="card">
-<h3 data-t="rent">🏠 Месечен наем</h3>
-<div class="input-group active">
-<div class="input-head">
-<span class="input-label" data-t="rent_budget">Бюджет за наем</span>
-<span class="val neg" id="vRent">-2000</span>
-</div>
-<input type="range" id="sRent" min="500" max="6000" value="2000" step="50" oninput="S.r=+this.value;calc()">
+<input type="range" min="0" max="400" value="150" step="10" oninput="S.hk=+this.value;calc()">
 </div>
 </div>
 
-<!-- Tips/Additional -->
-<div class="card">
-<h3 data-t="tips">💶 Бакшиш / Допълнителни</h3>
-<div class="input-group">
-<div class="input-head">
-<span class="input-label" data-t="add_income">На месец</span>
-<span class="val" id="vExtra">0</span>
+<!-- UBER PARAMS -->
+<div class="card uber">
+<h3>馃殫 Uber Parameters</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Work days/mo</span>
+<span class="val" id="vw">22</span>
 </div>
-<input type="range" id="sExtra" min="0" max="2000" value="0" step="50" oninput="S.e=+this.value;calc()">
+<input type="range" min="10" max="30" value="22" oninput="S.w=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Km per day</span>
+<span class="val" id="vl">220</span>
+</div>
+<input type="range" min="50" max="400" value="220" step="10" oninput="S.l=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Comfort %</span>
+<span class="val" id="vcf">45%</span>
+</div>
+<input type="range" min="0" max="100" value="45" step="5" oninput="S.cf=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Food (鈧�/day)</span>
+<span class="val neg" id="vem">-8</span>
+</div>
+<input type="range" min="0" max="30" value="8" oninput="S.em=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Pension %</span>
+<span class="val neg" id="vp">-5%</span>
+</div>
+<input type="range" min="0" max="15" value="5" oninput="S.p=+this.value;calc()">
 </div>
 </div>
 
-<!-- General Mode Salary -->
+<!-- NET PER KM (Uber) -->
+<div class="card uber">
+<h3>馃挵 Expected Net 鈧�/km</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Target net (鈧�/km)</span>
+<span class="val pos" id="vnetpkm">1.10</span>
+</div>
+<input type="range" min="0.30" max="3.00" value="1.10" step="0.05" oninput="S.netpkm=+this.value;calc()">
+<div style="font-size:0.75rem;color:#8b9eb8;margin-top:6px;line-height:1.5">
+馃挕 0.50-0.70 = average 鈥� 0.80-1.20 = good location 鈥� 1.50-3.00 = city center
+</div>
+</div>
+</div>
+
+<!-- SALARY (General) -->
 <div class="card gen">
-<h3 data-t="emp">💼 Заплата</h3>
-<div class="input-group">
-<div class="input-head">
-<span class="input-label" data-t="sal">Брутна заплата (€/мес)</span>
-<span class="val" id="vSalary">5000</span>
+<h3>馃捈 Salary</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Gross (鈧�/mo)</span>
+<span class="val pos" id="vs">5000</span>
 </div>
-<input type="range" id="sSalary" min="1000" max="12000" value="5000" step="100" oninput="S.s=+this.value;calc()">
+<input type="range" min="1000" max="12000" value="5000" step="100" oninput="S.s=+this.value;calc()">
 </div>
 </div>
 
-<!-- Uber Parameters -->
+<!-- CHILD BENEFITS -->
+<div class="card">
+<h3>馃挐 Child Benefits</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Per month (鈧�)</span>
+<div style="display:flex;align-items:center;gap:10px">
+<span class="auto-btn" id="cbBtn" onclick="togAuto('cb')">AUTO</span>
+<span class="val pos" id="vcb">0</span>
+</div>
+</div>
+<input type="range" id="sCb" min="0" max="500" value="0" step="5" disabled oninput="S.cbm=+this.value;calc()">
+</div>
+</div>
+
+<!-- TAX DEDUCTIONS (Uber) -->
 <div class="card uber">
-<h3 data-t="uber_par">🚗 Uber параметри</h3>
-<div class="input-group">
-<div class="input-head">
-<span class="input-label" data-t="comfort">☀️ Uber Comfort курсове (%)</span>
-<span class="val" id="vComfort">45</span>
+<h3>馃搲 Tax Deductions</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">馃挾 Rate (鈧�/km)</span>
+<div style="display:flex;align-items:center;gap:10px">
+<span class="auto-btn" id="rateBtn" onclick="togAuto('rate')">AUTO</span>
+<span class="val pos" id="vrate">0.70</span>
 </div>
-<input type="range" id="sComfort" min="0" max="100" value="45" step="5" oninput="S.cf=+this.value;calc()">
 </div>
-<div class="input-group">
-<div class="input-head">
-<span class="input-label" data-t="work_days">Работни дни</span>
-<span class="val" id="vDays">22</span>
+<input type="range" id="sRate" min="0.30" max="1.50" value="0.70" step="0.05" disabled oninput="S.rate=+this.value;calc()">
+<div style="font-size:0.75rem;color:#8b9eb8;margin-top:6px" id="rateHint">0.70鈧�/km (Switzerland standard)</div>
 </div>
-<input type="range" id="sDays" min="10" max="30" value="22" oninput="S.w=+this.value;calc()">
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">馃搷 Km total (鈧�/year)</span>
+<div style="display:flex;align-items:center;gap:10px">
+<span class="auto-btn" id="kmBtn" onclick="togAuto('km')">AUTO</span>
+<span class="val pos" id="vkmd">0</span>
 </div>
-<div class="input-group active">
-<div class="input-head">
-<span class="input-label" data-t="km_day">Километри на ден</span>
-<span class="val" id="vKmDay">220</span>
 </div>
-<input type="range" id="sKmDay" min="50" max="400" value="220" step="10" oninput="S.l=+this.value;calc()">
+<input type="range" id="sKm" min="0" max="100000" value="0" step="500" disabled oninput="S.kmd=+this.value;calc()">
+<div style="font-size:0.75rem;color:#8b9eb8;margin-top:6px" id="kmFrm">0 km 脳 0.70鈧�</div>
 </div>
-<div class="input-group">
-<div class="input-head">
-<span class="input-label" data-t="meals">Храна на ден (€)</span>
-<span class="val neg" id="vMeals">-8</span>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">馃懚 Child (鈧�/year)</span>
+<div style="display:flex;align-items:center;gap:10px">
+<span class="auto-btn" id="cdBtn" onclick="togAuto('cd')">AUTO</span>
+<span class="val pos" id="vcdd">0</span>
 </div>
-<input type="range" id="sMeals" min="0" max="30" value="8" oninput="S.em=+this.value;calc()">
 </div>
-<div class="input-group">
-<div class="input-head">
-<span class="input-label" data-t="pension">Пенсия (%)</span>
-<span class="val neg" id="vPension">-5</span>
-</div>
-<input type="range" id="sPension" min="0" max="15" value="5" oninput="S.p=+this.value;calc()">
-</div>
+<input type="range" id="sCd" min="0" max="50000" value="0" step="500" disabled oninput="S.cdd=+this.value;calc()">
+<div style="font-size:0.75rem;color:#8b9eb8;margin-top:6px" id="cdFrm">0 脳 0鈧�</div>
 </div>
 </div>
 
-<!-- MIDDLE COLUMN -->
+<!-- TIPS -->
+<div class="card">
+<h3>馃挾 Tips / Extra</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Per month (鈧�)</span>
+<span class="val pos" id="ve">0</span>
+</div>
+<input type="range" min="0" max="2000" value="0" step="50" oninput="S.e=+this.value;calc()">
+</div>
+</div>
+
+</div>
+
 <div class="col">
-<!-- Cities Grid -->
 <div class="card">
-<h3 data-t="cities">🌍 Всички градове</h3>
-<div class="cities" id="cityGrid"></div>
-</div>
-
-<!-- Rankings Table -->
-<div class="card">
-<h3 data-t="rank">📊 Класация</h3>
-<div style="max-height:600px;overflow-y:auto">
-<table>
-<thead>
-<tr>
-<th data-t="th_city">Град</th>
-<th data-t="th_score">Резултат</th>
-<th class="uber" data-t="th_savings">Спестявания</th>
-<th class="gen" data-t="th_net">Нетен доход</th>
-</tr>
-</thead>
-<tbody id="rankTable"></tbody>
-</table>
-</div>
+<h3>馃實 Cities</h3>
+<div class="cities" id="grid"></div>
 </div>
 </div>
 
-<!-- RIGHT COLUMN -->
 <div class="col">
-<!-- Selected City KPIs -->
 <div class="card">
-<h3 id="selCityName" data-t="sel_city">🎯 Избери град</h3>
-<div id="kpiContainer"></div>
+<h3 id="selTit">馃幆 Select city</h3>
+<div id="kpis"></div>
 </div>
 
-<!-- Tax Optimizations (Uber mode only) -->
 <div class="card uber">
-<h3 data-t="tax_opt">💰 Данъчни оптимизации</h3>
-<div id="taxOptContainer"></div>
-<div class="tax-summary">
-<div class="sum-label" data-t="tax_saved_yr">💵 Спестени данъци годишно</div>
-<div class="sum-value" id="taxSavedTotal">0 €</div>
-<div class="sum-desc" id="taxSavedMonth">0 € на месец</div>
+<h3>馃挵 Tax Savings</h3>
+<div id="taxBox"></div>
 </div>
 </div>
-</div>
+
 </div>
 
 <script>
-const T={
-bg:{mob:'💻 Desktop',reset:'🔄 Презареди',hh:'👨‍👩‍👧‍👦 Домакинство',adults:'Възрастни',kids:'Деца',
-health:'🏥 Здравно осигуряване',hlth_ins_ad:'За възрастен (€/мес)',hlth_ins_kid:'За дете (€/мес)',
-rent:'🏠 Месечен наем',rent_budget:'Бюджет за наем',tips:'💶 Бакшиш / Допълнителни',add_income:'На месец',
-emp:'💼 Заплата',sal:'Брутна заплата (€/мес)',uber_par:'🚗 Uber параметри',comfort:'☀️ Uber Comfort курсове (%)',
-work_days:'Работни дни',km_day:'Километри на ден',meals:'Храна на ден (€)',
-pension:'Пенсия (%)',mode_uber:'🚗 Uber режим',mode_gen:'💼 Общ режим',cities:'🌍 Всички градове',rank:'📊 Класация',
-th_city:'Град',th_score:'Резултат',th_savings:'Спестявания',th_net:'Нетен доход',sel_city:'🎯 Избери град',
-tax_opt:'💰 Данъчни оптимизации',tax_saved_yr:'💵 Спестени данъци годишно',
-km_ded:'📍 Километраж',km_auto:'АВТО',km_calc:'км × дни × 12 мес',
-km_total:'приспадане',km_saved:'Спестени',child_ded:'👶 Детски приспадания',child_auto:'АВТО',
-child_per:'деца ×',child_total:'приспадане',child_saved:'Спестени',
-child_ben:'💝 Детски надбавки',child_ben_mo:'на месец',child_ben_yr:'годишно',
-kpi_gross:'📊 Брутен доход',kpi_net:'💰 Нетен доход',kpi_savings:'💵 Спестявания',
-kpi_rent:'🏠 Наем',kpi_qol:'⭐ Качество на живот',
-km_needed:'🎯 Нужни км/ден',profit_at:'💰 Печалба при'},
-en:{mob:'💻 Desktop',reset:'🔄 Reload',hh:'👨‍👩‍👧‍👦 Household',adults:'Adults',kids:'Children',
-health:'🏥 Health Insurance',hlth_ins_ad:'Per Adult (€/mo)',hlth_ins_kid:'Per Child (€/mo)',
-rent:'🏠 Monthly Rent',rent_budget:'Rent Budget',tips:'💶 Tips / Additional',add_income:'Per month',
-emp:'💼 Salary',sal:'Gross Salary (€/mo)',uber_par:'🚗 Uber Parameters',comfort:'☀️ Uber Comfort rides (%)',
-work_days:'Working days',km_day:'Kilometers per day',meals:'Meals per day (€)',
-pension:'Pension (%)',mode_uber:'🚗 Uber Mode',mode_gen:'💼 General Mode',cities:'🌍 All Cities',rank:'📊 Rankings',
-th_city:'City',th_score:'Score',th_savings:'Savings',th_net:'Net Income',sel_city:'🎯 Select City',
-tax_opt:'💰 Tax Optimizations',tax_saved_yr:'💵 Tax saved yearly',
-km_ded:'📍 Mileage',km_auto:'AUTO',km_calc:'km × days × 12 mo',
-km_total:'deduction',km_saved:'Saved',child_ded:'👶 Child Deductions',child_auto:'AUTO',
-child_per:'children ×',child_total:'deduction',child_saved:'Saved',
-child_ben:'💝 Child Benefits',child_ben_mo:'per month',child_ben_yr:'per year',
-kpi_gross:'📊 Gross Income',kpi_net:'💰 Net Income',kpi_savings:'💵 Savings',
-kpi_rent:'🏠 Rent',kpi_qol:'⭐ Quality of Life',
-km_needed:'🎯 Needed km/day',profit_at:'💰 Profit at'},
-de:{mob:'💻 Desktop',reset:'🔄 Neu laden',hh:'👨‍👩‍👧‍👦 Haushalt',adults:'Erwachsene',kids:'Kinder',
-health:'🏥 Krankenversicherung',hlth_ins_ad:'Pro Erwachsener (€/Mo)',hlth_ins_kid:'Pro Kind (€/Mo)',
-rent:'🏠 Monatsmiete',rent_budget:'Mietbudget',tips:'💶 Trinkgeld / Zusätzlich',add_income:'Pro Monat',
-emp:'💼 Gehalt',sal:'Bruttogehalt (€/Mo)',uber_par:'🚗 Uber Parameter',comfort:'☀️ Uber Comfort Fahrten (%)',
-work_days:'Arbeitstage',km_day:'Kilometer pro Tag',meals:'Essen pro Tag (€)',
-pension:'Rente (%)',mode_uber:'🚗 Uber Modus',mode_gen:'💼 Allgemein',cities:'🌍 Alle Städte',rank:'📊 Rangliste',
-th_city:'Stadt',th_score:'Punktzahl',th_savings:'Ersparnisse',th_net:'Nettoeinkommen',sel_city:'🎯 Stadt wählen',
-tax_opt:'💰 Steueroptimierungen',tax_saved_yr:'💵 Jährlich gesparte Steuern',
-km_ded:'📍 Kilometerpauschale',km_auto:'AUTO',km_calc:'km × Tage × 12 Mo',
-km_total:'Abzug',km_saved:'Gespart',child_ded:'👶 Kinderabzüge',child_auto:'AUTO',
-child_per:'Kinder ×',child_total:'Abzug',child_saved:'Gespart',
-child_ben:'💝 Kindergeld',child_ben_mo:'pro Monat',child_ben_yr:'pro Jahr',
-kpi_gross:'📊 Bruttoeinkommen',kpi_net:'💰 Nettoeinkommen',kpi_savings:'💵 Ersparnisse',
-kpi_rent:'🏠 Miete',kpi_qol:'⭐ Lebensqualität',
-km_needed:'🎯 Benötigt km/Tag',profit_at:'💰 Gewinn bei'},
-es:{mob:'💻 Escritorio',reset:'🔄 Recargar',hh:'👨‍👩‍👧‍👦 Hogar',adults:'Adultos',kids:'Niños',
-health:'🏥 Seguro Médico',hlth_ins_ad:'Por Adulto (€/mes)',hlth_ins_kid:'Por Niño (€/mes)',
-rent:'🏠 Alquiler Mensual',rent_budget:'Presupuesto',tips:'💶 Propinas / Adicional',add_income:'Por mes',
-emp:'💼 Salario',sal:'Salario Bruto (€/mes)',uber_par:'🚗 Parámetros Uber',comfort:'☀️ Viajes Uber Comfort (%)',
-work_days:'Días laborables',km_day:'Kilómetros por día',meals:'Comida por día (€)',
-pension:'Pensión (%)',mode_uber:'🚗 Modo Uber',mode_gen:'💼 Modo General',cities:'🌍 Todas las Ciudades',rank:'📊 Clasificación',
-th_city:'Ciudad',th_score:'Puntuación',th_savings:'Ahorros',th_net:'Ingreso Neto',sel_city:'🎯 Seleccionar Ciudad',
-tax_opt:'💰 Optimizaciones Fiscales',tax_saved_yr:'💵 Impuestos ahorrados',
-km_ded:'📍 Kilometraje',km_auto:'AUTO',km_calc:'km × días × 12',
-km_total:'deducción',km_saved:'Ahorrado',child_ded:'👶 Deducciones por Hijos',child_auto:'AUTO',
-child_per:'niños ×',child_total:'deducción',child_saved:'Ahorrado',
-child_ben:'💝 Prestaciones por Hijos',child_ben_mo:'por mes',child_ben_yr:'por año',
-kpi_gross:'📊 Ingreso Bruto',kpi_net:'💰 Ingreso Neto',kpi_savings:'💵 Ahorros',
-kpi_rent:'🏠 Alquiler',kpi_qol:'⭐ Calidad de Vida',
-km_needed:'🎯 km/día necesarios',profit_at:'💰 Ganancia con'},
-fr:{mob:'💻 Bureau',reset:'🔄 Recharger',hh:'👨‍👩‍👧‍👦 Ménage',adults:'Adultes',kids:'Enfants',
-health:'🏥 Assurance Maladie',hlth_ins_ad:'Par Adulte (€/mois)',hlth_ins_kid:'Par Enfant (€/mois)',
-rent:'🏠 Loyer Mensuel',rent_budget:'Budget loyer',tips:'💶 Pourboires / Supplément',add_income:'Par mois',
-emp:'💼 Salaire',sal:'Salaire Brut (€/mois)',uber_par:'🚗 Paramètres Uber',comfort:'☀️ Courses Uber Comfort (%)',
-work_days:'Jours travaillés',km_day:'Kilomètres par jour',meals:'Repas par jour (€)',
-pension:'Pension (%)',mode_uber:'🚗 Mode Uber',mode_gen:'💼 Mode Général',cities:'🌍 Toutes les Villes',rank:'📊 Classement',
-th_city:'Ville',th_score:'Score',th_savings:'Économies',th_net:'Revenu Net',sel_city:'🎯 Sélectionner',
-tax_opt:'💰 Optimisations Fiscales',tax_saved_yr:'💵 Impôts économisés',
-km_ded:'📍 Kilométrage',km_auto:'AUTO',km_calc:'km × jours × 12',
-km_total:'déduction',km_saved:'Économisé',child_ded:'👶 Déductions Enfants',child_auto:'AUTO',
-child_per:'enfants ×',child_total:'déduction',child_saved:'Économisé',
-child_ben:'💝 Allocations Familiales',child_ben_mo:'par mois',child_ben_yr:'par an',
-kpi_gross:'📊 Revenu Brut',kpi_net:'💰 Revenu Net',kpi_savings:'💵 Économies',
-kpi_rent:'🏠 Loyer',kpi_qol:'⭐ Qualité de Vie',
-km_needed:'🎯 km/jour nécessaires',profit_at:'💰 Bénéfice à'}
+const S={
+a:2,k:3,r:1500,ha:300,hk:150,e:0,s:5000,
+w:22,l:220,em:8,p:5,cf:45,netpkm:1.10,
+m:true,sel:null,lg:0,mob:false,
+cbAuto:true,kmAuto:true,cdAuto:true,rateAuto:true,
+cbm:0,kmd:0,cdd:0,rate:0.70
 };
-
-const S={a:2,k:3,r:2000,ha:400,hk:200,e:0,s:5000,w:22,l:220,em:8,p:5,cf:45,m:true,sel:null,lg:0,mob:false};
 
 const D={
-Zurich:{n:'Zürich',c:'ch',rm:2500,rx:6000,ar:4000,hh:600,sc:5,bf:6,pk:1.2,tr:20,ek:3,cb:215,cd:9000},
-Zug:{n:'Zug',c:'ch',rm:2600,rx:6500,ar:4200,hh:620,sc:5,bf:6,pk:1.2,tr:18,ek:2,cb:215,cd:9000},
-Geneva:{n:'Geneva',c:'ch',rm:2400,rx:5500,ar:3800,hh:600,sc:4,bf:6,pk:1.1,tr:22,ek:4,cb:311,cd:11000},
-Oslo:{n:'Oslo',c:'no',rm:1900,rx:3600,ar:2600,hh:520,sc:5,bf:5,pk:1.0,tr:32,ek:7,cb:150,cd:7000},
-Berlin:{n:'Berlin',c:'de',rm:1500,rx:3200,ar:2200,hh:450,sc:4,bf:3.9,pk:0.75,tr:25,ek:9,cb:255,cd:9000},
-Munich:{n:'München',c:'de',rm:2000,rx:4500,ar:3000,hh:500,sc:5,bf:4.5,pk:0.9,tr:27,ek:7,cb:255,cd:9000},
-Vienna:{n:'Wien',c:'at',rm:1600,rx:3000,ar:2200,hh:480,sc:4,bf:4,pk:0.7,tr:28,ek:8,cb:148,cd:6500},
-Amsterdam:{n:'Amsterdam',c:'nl',rm:2200,rx:4000,ar:2800,hh:500,sc:4,bf:4.2,pk:0.75,tr:30,ek:8,cb:130,cd:6000},
-Paris:{n:'Paris',c:'fr',rm:1800,rx:3800,ar:2500,hh:480,sc:4,bf:4,pk:0.7,tr:30,ek:9,cb:142,cd:7500},
-London:{n:'London',c:'gb',rm:2400,rx:5000,ar:3200,hh:520,sc:4,bf:4.5,pk:0.7,tr:32,ek:10,cb:102,cd:5500},
-Brussels:{n:'Brussels',c:'be',rm:1400,rx:2800,ar:2000,hh:440,sc:3,bf:3.5,pk:0.65,tr:28,ek:9,cb:180,cd:7000},
-Barcelona:{n:'Barcelona',c:'es',rm:1400,rx:2600,ar:1800,hh:400,sc:4,bf:3.5,pk:0.55,tr:24,ek:10,cb:58,cd:3500},
-Madrid:{n:'Madrid',c:'es',rm:1300,rx:2400,ar:1700,hh:380,sc:4,bf:3.3,pk:0.5,tr:24,ek:10,cb:58,cd:3500},
-Lisbon:{n:'Lisboa',c:'pt',rm:1200,rx:2200,ar:1600,hh:360,sc:4,bf:3.2,pk:0.45,tr:22,ek:11,cb:63,cd:3200},
-Rome:{n:'Roma',c:'it',rm:1400,rx:2600,ar:1800,hh:380,sc:3,bf:3.3,pk:0.55,tr:26,ek:10,cb:50,cd:3000},
-Prague:{n:'Praha',c:'cz',rm:1200,rx:2000,ar:1400,hh:320,sc:3,bf:3,pk:0.35,tr:20,ek:12,cb:30,cd:2500},
-Warsaw:{n:'Warszawa',c:'pl',rm:1000,rx:1800,ar:1200,hh:300,sc:3,bf:2.8,pk:0.35,tr:18,ek:12,cb:30,cd:2000},
-Budapest:{n:'Budapest',c:'hu',rm:900,rx:1600,ar:1100,hh:280,sc:3,bf:2.5,pk:0.3,tr:16,ek:13,cb:25,cd:1800},
-Sofia:{n:'София',c:'bg',rm:700,rx:1200,ar:800,hh:200,sc:2,bf:2,pk:0.28,tr:10,ek:15,cb:20,cd:1500}
+Zurich:{n:'Z眉rich',c:'馃嚚馃嚟',rm:2500,rx:6000,pk:1.2,tr:20,cb:215,cd:9000,rate:0.70},
+Zug:{n:'Zug',c:'馃嚚馃嚟',rm:2600,rx:6500,pk:1.2,tr:18,cb:215,cd:9000,rate:0.70},
+Geneva:{n:'Geneva',c:'馃嚚馃嚟',rm:2400,rx:5500,pk:1.1,tr:22,cb:311,cd:11000,rate:0.70},
+Oslo:{n:'Oslo',c:'馃嚦馃嚧',rm:1900,rx:3600,pk:1.0,tr:32,cb:150,cd:7000,rate:0.50},
+Berlin:{n:'Berlin',c:'馃嚛馃嚜',rm:1500,rx:3200,pk:0.75,tr:25,cb:255,cd:9000,rate:0.30},
+Munich:{n:'M眉nchen',c:'馃嚛馃嚜',rm:2000,rx:4500,pk:0.9,tr:27,cb:255,cd:9000,rate:0.30},
+Vienna:{n:'Wien',c:'馃嚘馃嚬',rm:1600,rx:3000,pk:0.7,tr:28,cb:148,cd:6500,rate:0.42},
+Amsterdam:{n:'Amsterdam',c:'馃嚦馃嚤',rm:2200,rx:4000,pk:0.75,tr:30,cb:130,cd:6000,rate:0.19},
+Paris:{n:'Paris',c:'馃嚝馃嚪',rm:1800,rx:3800,pk:0.7,tr:30,cb:142,cd:7500,rate:0.50},
+London:{n:'London',c:'馃嚞馃嚙',rm:2400,rx:5000,pk:0.7,tr:32,cb:102,cd:5500,rate:0.45},
+Brussels:{n:'Brussels',c:'馃嚙馃嚜',rm:1400,rx:2800,pk:0.65,tr:28,cb:180,cd:7000,rate:0.35},
+Barcelona:{n:'Barcelona',c:'馃嚜馃嚫',rm:1400,rx:2600,pk:0.55,tr:24,cb:58,cd:3500,rate:0.19},
+Madrid:{n:'Madrid',c:'馃嚜馃嚫',rm:1300,rx:2400,pk:0.5,tr:24,cb:58,cd:3500,rate:0.19},
+Lisbon:{n:'Lisboa',c:'馃嚨馃嚬',rm:1200,rx:2200,pk:0.45,tr:22,cb:63,cd:3200,rate:0.36},
+Rome:{n:'Roma',c:'馃嚠馃嚬',rm:1400,rx:2600,pk:0.55,tr:26,cb:50,cd:3000,rate:0.20},
+Prague:{n:'Praha',c:'馃嚚馃嚳',rm:1200,rx:2000,pk:0.35,tr:20,cb:30,cd:2500,rate:0.28},
+Warsaw:{n:'Warszawa',c:'馃嚨馃嚤',rm:1000,rx:1800,pk:0.35,tr:18,cb:30,cd:2000,rate:0.30},
+Budapest:{n:'Budapest',c:'馃嚟馃嚭',rm:900,rx:1600,pk:0.3,tr:16,cb:25,cd:1800,rate:0.25},
+Sofia:{n:'小芯褎懈褟',c:'馃嚙馃嚞',rm:700,rx:1200,pk:0.28,tr:10,cb:20,cd:1500,rate:0.35},
 };
 
-const CF={'ch':'🇨🇭','no':'🇳🇴','de':'🇩🇪','at':'🇦🇹','nl':'🇳🇱','fr':'🇫🇷','gb':'🇬🇧','be':'🇧🇪','es':'🇪🇸','pt':'🇵🇹','it':'🇮🇹','cz':'🇨🇿','pl':'🇵🇱','hu':'🇭🇺','bg':'🇧🇬'};
+const T={
+  adults:['袙褗蟹褉邪褋褌薪懈','Adults','Erwachsene','Adultos','Adultes'],
+  children:['袛械褑邪','Children','Kinder','Ni帽os','Enfants'],
+  rent:['袧邪械屑','Rent','Miete','Alquiler','Loyer'],
+  budget:['袘褞写卸械褌 (鈧�/屑械褋)','Budget (鈧�/mo)','Budget (鈧�/Mon)','Presupuesto (鈧�/mes)','Budget (鈧�/mois)'],
+};
 
-function toggleLang(){document.getElementById('langMenu').classList.toggle('show')}
+function toggleLang(){
+const menu=document.getElementById('langMenu');
+menu.classList.toggle('show');
+}
 
 function setLang(i){
 S.lg=i;
-const langs=['🇧🇬','🇬🇧','🇩🇪','🇪🇸','🇫🇷'];
-const names=['Български','English','Deutsch','Español','Français'];
-document.getElementById('currentFlag').textContent=langs[i];
-document.getElementById('currentLang').textContent=names[i];
-document.querySelectorAll('.lang-option').forEach((el,idx)=>{
+const flags=['馃嚙馃嚞','馃嚞馃嚙','馃嚛馃嚜','馃嚜馃嚫','馃嚝馃嚪'];
+const names=['袘褗谢谐邪褉褋泻懈','English','Deutsch','Espa帽ol','Fran莽ais'];
+document.getElementById('curFlag').textContent=flags[i];
+document.getElementById('curLang').textContent=names[i];
+document.querySelectorAll('.lang-opt').forEach((el,idx)=>{
 el.classList.toggle('active',idx===i);
 });
 document.getElementById('langMenu').classList.remove('show');
-updateLang();
-calc();
 }
 
-function toggleMode(){
-S.m=!S.m;
-document.getElementById('togMode').checked=!S.m;
-document.body.classList.toggle('gm');
-calc();
-}
-
-function toggleMobile(){
+function chView(){
 S.mob=!S.mob;
+document.body.classList.toggle('mob');
+const b=document.getElementById('view');
 if(S.mob){
-document.body.classList.add('mobile-mode');
+b.innerHTML='馃摫 Mobile';
+b.classList.add('on');
 }else{
-document.body.classList.remove('mobile-mode');
+b.innerHTML='馃捇 Desktop';
+b.classList.remove('on');
+}
+}
+
+function chMode(){
+S.m=!S.m;
+document.body.classList.toggle('gm');
+const sw=document.getElementById('modeSw');
+sw.classList.toggle('gen');
+if(S.m){
+document.getElementById('modeTxt').innerHTML='馃殫 Uber Mode';
+document.getElementById('modeHint').innerHTML='Switch to: 馃捈 General';
+}else{
+document.getElementById('modeTxt').innerHTML='馃捈 General Mode';
+document.getElementById('modeHint').innerHTML='Switch to: 馃殫 Uber';
 }
 calc();
 }
 
-function updateLang(){
-const lang=['bg','en','de','es','fr'][S.lg];
-const trans=T[lang];
-document.querySelectorAll('[data-t]').forEach(el=>{
-const key=el.dataset.t;
-if(trans[key]){
-if(el.tagName==='LABEL'||el.tagName==='SPAN'||el.tagName==='BUTTON'){
-const oldText=el.textContent;
-el.textContent=trans[key];
+function togAuto(t){
+if(t==='cb'){
+S.cbAuto=!S.cbAuto;
+document.getElementById('cbBtn').textContent=S.cbAuto?'AUTO':'MANUAL';
+document.getElementById('cbBtn').classList.toggle('man');
+document.getElementById('sCb').disabled=S.cbAuto;
+}else if(t==='rate'){
+S.rateAuto=!S.rateAuto;
+document.getElementById('rateBtn').textContent=S.rateAuto?'AUTO':'MANUAL';
+document.getElementById('rateBtn').classList.toggle('man');
+document.getElementById('sRate').disabled=S.rateAuto;
+}else if(t==='km'){
+S.kmAuto=!S.kmAuto;
+document.getElementById('kmBtn').textContent=S.kmAuto?'AUTO':'MANUAL';
+document.getElementById('kmBtn').classList.toggle('man');
+document.getElementById('sKm').disabled=S.kmAuto;
+}else if(t==='cd'){
+S.cdAuto=!S.cdAuto;
+document.getElementById('cdBtn').textContent=S.cdAuto?'AUTO':'MANUAL';
+document.getElementById('cdBtn').classList.toggle('man');
+document.getElementById('sCd').disabled=S.cdAuto;
+}
+calc();
+}
+
+// Calculate empty km % based on rent
+function calcEmptyPct(city,rent){
+const {rm,rx}=city;
+// Base empty km for this city
+let base=city.ek||10;
+// Adjust based on rent position
+if(rent<rm){
+// Low rent = far from center = more empty km
+return base+10;
+}else if(rent>rx){
+// Very high rent = very close to center = less empty km
+return Math.max(base-8,2);
 }else{
-el.childNodes.forEach(node=>{
-if(node.nodeType===3)node.textContent=trans[key];
-});
+// Within range: linear interpolation
+const pct=(rent-rm)/(rx-rm);
+return base+10-(pct*18); // from +10 to -8
 }
-}
-});
 }
 
 function calc(){
-const c=D;
-const results=[];
-const lang=['bg','en','de','es','fr'][S.lg];
-const trans=T[lang];
+const sc=S.sel?D[S.sel]:null;
+let autoCb=0,autoKm=0,autoCd=0,autoRate=0.70;
+if(sc){
+autoCb=sc.cb*S.k;
+autoRate=sc.rate||0.70;
+if(S.m){
+const tk=S.l*S.w*12;
+const currentRate=S.rateAuto?autoRate:S.rate;
+autoKm=Math.round(tk*currentRate);
+autoCd=sc.cd*S.k;
+}
+}
 
-// Update input displays
-document.getElementById('vAdults').textContent=S.a;
-document.getElementById('vKids').textContent=S.k;
-document.getElementById('vRent').textContent='-'+S.r;
-document.getElementById('vExtra').textContent=S.e;
-document.getElementById('vHealthA').textContent='-'+S.ha;
-document.getElementById('vHealthK').textContent='-'+S.hk;
-document.getElementById('vSalary').textContent=S.s;
-document.getElementById('vComfort').textContent=S.cf+' %';
-document.getElementById('vDays').textContent=S.w;
-document.getElementById('vKmDay').textContent=S.l;
-document.getElementById('vMeals').textContent='-'+S.em;
-document.getElementById('vPension').textContent='-'+S.p+' %';
-
-Object.keys(c).forEach(key=>{
-const ct=c[key];
-let score,savings,netIncome,kmNeeded;
+const cbVal=S.cbAuto?autoCb:S.cbm;
+document.getElementById('vcb').textContent=cbVal;
+if(!S.cbAuto)document.getElementById('sCb').value=S.cbm;
 
 if(S.m){
-// Uber mode calculations
-const baseKm=S.l;
-const totalKm=baseKm*S.w*12;
-const emptyPct=ct.ek+(S.r<ct.rm?10:S.r>ct.rx?-5:((S.r-ct.rm)/(ct.rx-ct.rm))*(-15)+10);
-const effKm=totalKm*(1-emptyPct/100);
-const comfortKm=effKm*(S.cf/100);
-const normalKm=effKm-comfortKm;
-const comfortRate=ct.pk*1.3;
-const yearGross=(normalKm*ct.pk+comfortKm*comfortRate)+S.e*12;
-const childBen=ct.cb*S.k*12;
-const totalGross=yearGross+childBen;
+const currentRate=S.rateAuto?autoRate:S.rate;
+document.getElementById('vrate').textContent=currentRate.toFixed(2);
+if(!S.rateAuto)document.getElementById('sRate').value=S.rate;
+document.getElementById('rateHint').textContent=S.rateAuto&&sc?`${currentRate.toFixed(2)}鈧�/km (${sc.n})`:'Manual rate';
 
-// Tax deductions
-const kmDeduction=totalKm*0.70;
-const childDeduction=ct.cd*S.k;
-const totalDeductions=kmDeduction+childDeduction;
-const taxableIncome=Math.max(0,yearGross-totalDeductions);
-const tax=taxableIncome*(ct.tr/100);
+const kmVal=S.kmAuto?autoKm:S.kmd;
+const cdVal=S.cdAuto?autoCd:S.cdd;
+document.getElementById('vkmd').textContent=kmVal.toLocaleString();
+document.getElementById('vcdd').textContent=cdVal.toLocaleString();
+document.getElementById('kmFrm').textContent=S.kmAuto?`${S.l*S.w*12} km 脳 ${currentRate.toFixed(2)}鈧琡:'Manual';
+document.getElementById('cdFrm').textContent=S.cdAuto&&sc?`${S.k} 脳 ${sc.cd}鈧琡:'Manual';
+if(!S.kmAuto)document.getElementById('sKm').value=S.kmd;
+if(!S.cdAuto)document.getElementById('sCd').value=S.cdd;
+document.getElementById('vnetpkm').textContent=S.netpkm.toFixed(2);
+}
 
-const yearExpenses=(S.r+(S.ha*S.a+S.hk*S.k)+S.em*S.w)*12;
-const pension=yearGross*(S.p/100);
-netIncome=totalGross-tax-yearExpenses-pension;
-savings=netIncome-S.r*12;
+document.getElementById('va').textContent=S.a;
+document.getElementById('vk').textContent=S.k;
+document.getElementById('vr').textContent='-'+S.r;
+document.getElementById('ve').textContent=S.e;
+document.getElementById('vha').textContent='-'+S.ha;
+document.getElementById('vhk').textContent='-'+S.hk;
+document.getElementById('vs').textContent=S.s;
+document.getElementById('vcf').textContent=S.cf+'%';
+document.getElementById('vw').textContent=S.w;
+document.getElementById('vl').textContent=S.l;
+document.getElementById('vem').textContent='-'+S.em;
+document.getElementById('vp').textContent='-'+S.p+'%';
 
-// Calculate km needed for break-even
-const targetSavings=0;
-const targetNet=S.r*12+yearExpenses+pension+targetSavings+childBen;
-const targetTaxable=targetNet/(1-(ct.tr/100));
-const targetGross=targetTaxable+kmDeduction+childDeduction;
-const avgRate=(ct.pk*(1-S.cf/100)+ct.pk*1.3*(S.cf/100));
-const targetEffKm=targetGross/avgRate;
-const targetTotalKm=targetEffKm/(1-emptyPct/100);
-kmNeeded=Math.ceil(targetTotalKm/(S.w*12));
+const res=[];
+Object.keys(D).forEach(k=>{
+const ct=D[k];
+let profitMo,profitYr,netMo,netPerKm;
+const ccb=(S.cbAuto?ct.cb*S.k:S.cbm)*12;
 
-const qolPts=ct.sc*10+ct.bf*5+ct.hh/10;
-const rentFit=S.r>=ct.rm&&S.r<=ct.rx?20:S.r<ct.rm?10:5;
-const kmOverLimit=baseKm>(ct.pk*280)?-20:0;
-score=Math.round(savings/100+qolPts+rentFit+kmOverLimit+(childBen/1000));
+if(S.m){
+// Calculate based on expected net 鈧�/km
+const monthlyKm=S.l*S.w;
+const yearlyKm=monthlyKm*12;
+
+// Empty km based on rent
+const emptyPct=calcEmptyPct(ct,S.r);
+const paidKm=yearlyKm*(1-emptyPct/100);
+
+// Net income from driving (before expenses)
+const netFromDriving=S.netpkm*paidKm;
+
+// Tax deductions - use city rate or manual rate
+const cityRate=ct.rate||0.70;
+const currentRate=S.rateAuto?cityRate:S.rate;
+const kmd=S.kmAuto?yearlyKm*currentRate:S.kmd;
+const cdd=S.cdAuto?ct.cd*S.k:S.cdd;
+const taxSavings=(kmd+cdd)*(ct.tr/100);
+
+// Total income
+const totalIncome=netFromDriving+taxSavings+ccb+S.e*12;
+
+// Expenses
+const monthlyExp=S.r+(S.ha*S.a+S.hk*S.k)+S.em*S.w;
+const yearlyExp=monthlyExp*12;
+
+// Pension (deducted from gross, but we approximate)
+const pensionCost=(netFromDriving+S.e*12)*(S.p/100);
+
+// Net after all
+const netYearly=totalIncome-yearlyExp-pensionCost;
+netMo=Math.round(netYearly/12);
+
+// Pure profit = what you have left (net already has rent deducted)
+profitMo=netMo;
+profitYr=Math.round(netYearly);
+
+netPerKm=S.netpkm;
 }else{
-// General mode
-const yearGross=S.s*12;
-const childBen=ct.cb*S.k*12;
-const totalGross=yearGross+childBen;
-const tax=yearGross*(ct.tr/100);
-const yearExpenses=(S.r+(S.ha*S.a+S.hk*S.k))*12;
-netIncome=totalGross-tax-yearExpenses;
-savings=netIncome-S.r*12;
-kmNeeded=0;
-
-const qolPts=ct.sc*10+ct.bf*5+ct.hh/10;
-const rentFit=S.r>=ct.rm&&S.r<=ct.rx?20:S.r<ct.rm?10:5;
-score=Math.round(netIncome/100+qolPts+rentFit+(childBen/1000));
+const yg=S.s*12;
+const tg=yg+ccb;
+const tx=yg*(ct.tr/100);
+const ye=(S.r+(S.ha*S.a+S.hk*S.k))*12;
+const net=tg-tx-ye;
+netMo=Math.round(net/12);
+profitYr=Math.round(net);
+profitMo=netMo;
+netPerKm=0;
 }
 
-results.push({key,score,savings:Math.round(savings),net:Math.round(netIncome/12),city:ct,kmNeeded});
+res.push({k,ct,profitMo,profitYr,netMo,netPerKm});
 });
 
-results.sort((a,b)=>b.score-a.score);
+res.sort((a,b)=>b.profitYr-a.profitYr);
 
-// Update city grid
-const grid=document.getElementById('cityGrid');
-grid.innerHTML='';
-results.forEach((r,i)=>{
-const chip=document.createElement('div');
-chip.className='city-chip';
-if(r.key===S.sel)chip.classList.add('active');
-const budgetOk=S.r>=r.city.rm&&S.r<=r.city.rx;
-const kmOk=!S.m||S.l<=r.city.pk*280;
-if(budgetOk&&kmOk&&r.savings>=0)chip.classList.add('ok');
-else if(!budgetOk||!kmOk||r.savings<0)chip.classList.add('bad');
-else chip.classList.add('warn');
+const gr=document.getElementById('grid');
+gr.innerHTML='';
+res.forEach(r=>{
+const d=document.createElement('div');
+d.className='city';
+if(r.k===S.sel)d.classList.add('sel');
+if(r.profitYr>=0)d.classList.add('ok');
+else d.classList.add('bad');
 
-let kmInfo='';
-if(S.m){
-kmInfo=`<div class="city-km">${trans.km_needed}: ${r.kmNeeded} км | ${trans.profit_at} ${S.l}км: ${r.savings>=0?'+':''}${r.savings.toLocaleString()}€</div>`;
-}
-
-chip.innerHTML=`
-<div class="city-name">${CF[r.city.c]} ${r.city.n}</div>
-<div class="city-info">${trans.th_score}: ${r.score}</div>
-${kmInfo}
+d.innerHTML=`
+<div class="city-name">${r.ct.c} ${r.ct.n}</div>
+<div class="city-row">
+<span class="city-lbl">Net profit:</span>
+<span class="city-val ${r.profitMo>=0?'pos':'neg'}">${r.profitMo>=0?'+':''}${r.profitMo.toLocaleString()}鈧�/mo</span>
+</div>
+<div class="city-row">
+<span class="city-lbl">Per year:</span>
+<span class="city-val ${r.profitYr>=0?'pos':'neg'}">${r.profitYr>=0?'+':''}${r.profitYr.toLocaleString()}鈧�</span>
+</div>
 `;
-chip.onclick=()=>{S.sel=r.key;calc()};
-grid.appendChild(chip);
+d.onclick=()=>{S.sel=r.k;calc();};
+gr.appendChild(d);
 });
 
-// Update rankings table
-const tbody=document.getElementById('rankTable');
-tbody.innerHTML='';
-results.forEach((r,i)=>{
-const tr=document.createElement('tr');
-if(r.key===S.sel)tr.classList.add('sel');
-if(i<3)tr.classList.add('top');
-tr.innerHTML=`
-<td>${CF[r.city.c]} ${r.city.n}</td>
-<td><strong>${r.score}</strong></td>
-<td class="uber">${r.savings>=0?'+':''}<strong>${r.savings.toLocaleString()}</strong> €</td>
-<td class="gen"><strong>${r.net.toLocaleString()}</strong> €</td>
-`;
-tr.onclick=()=>{S.sel=r.key;calc()};
-tbody.appendChild(tr);
-});
-
-// Update selected city details
 if(S.sel){
-const sel=results.find(r=>r.key===S.sel);
-if(sel){
-document.getElementById('selCityName').innerHTML=`🎯 ${CF[sel.city.c]} ${sel.city.n}`;
-updateKPIs(sel,trans);
-if(S.m)updateTaxOpt(sel,trans);
-}
-}else{
-document.getElementById('selCityName').innerHTML=`🎯 ${trans.sel_city}`;
-document.getElementById('kpiContainer').innerHTML=`<p style="color:var(--muted);text-align:center;padding:40px 0">${trans.sel_city}</p>`;
-document.getElementById('taxOptContainer').innerHTML='';
-document.getElementById('taxSavedTotal').textContent='0 €';
-document.getElementById('taxSavedMonth').textContent='0 € '+trans.child_ben_mo;
-}
-}
+const sl=res.find(r=>r.k===S.sel);
+document.getElementById('selTit').innerHTML=`馃幆 ${sl.ct.c} ${sl.ct.n}`;
 
-function updateKPIs(sel,trans){
-const ct=sel.city;
-let html='';
+const emptyPct=S.m?calcEmptyPct(sl.ct,S.r):0;
+
+let h='';
+h+=`
+<div class="kpi ${sl.profitYr>=0?'good':'bad'}">
+<div class="kpi-lbl">馃挵 Pure profit (Savings)</div>
+<div class="kpi-big">${sl.profitMo>=0?'+':''}${sl.profitMo.toLocaleString()} 鈧�</div>
+<div class="kpi-sub">Per month 鈥� ${sl.profitYr>=0?'+':''}${sl.profitYr.toLocaleString()}鈧� per year</div>
+</div>
+<div class="kpi">
+<div class="kpi-lbl">馃搳 Net income</div>
+<div class="kpi-big">${sl.netMo.toLocaleString()} 鈧�</div>
+<div class="kpi-sub">Per month after ALL expenses (rent, health, food, pension)</div>
+</div>
+`;
 
 if(S.m){
-// Uber KPIs
-const baseKm=S.l;
-const totalKm=baseKm*S.w*12;
-const emptyPct=ct.ek+(S.r<ct.rm?10:S.r>ct.rx?-5:((S.r-ct.rm)/(ct.rx-ct.rm))*(-15)+10);
-const effKm=totalKm*(1-emptyPct/100);
-const comfortKm=effKm*(S.cf/100);
-const normalKm=effKm-comfortKm;
-const comfortRate=ct.pk*1.3;
-const yearGross=(normalKm*ct.pk+comfortKm*comfortRate)+S.e*12;
-const childBen=ct.cb*S.k*12;
-const totalGross=yearGross+childBen;
+h+=`
+<div class="kpi">
+<div class="kpi-lbl">馃挵 Net 鈧�/km (paid km)</div>
+<div class="kpi-big">${sl.netPerKm.toFixed(2)} 鈧�</div>
+<div class="kpi-sub">Set via slider 鈥� Empty km: ${emptyPct.toFixed(1)}%</div>
+</div>
+`;
+}
 
-html+=`
+if(S.k>0){
+const cb=S.cbAuto?sl.ct.cb*S.k:S.cbm;
+h+=`
 <div class="kpi">
-<div class="label">${trans.kpi_gross}</div>
-<div class="big">${Math.round(totalGross/12).toLocaleString()} €</div>
-<div class="small">${Math.round(totalGross).toLocaleString()} € ${trans.child_ben_yr}</div>
+<div class="kpi-lbl">馃挐 Child benefits</div>
+<div class="kpi-big">+${cb} 鈧�</div>
+<div class="kpi-sub">Per month 鈥� +${(cb*12).toLocaleString()}鈧� per year</div>
 </div>
-<div class="kpi pos">
-<div class="label">${trans.kpi_net}</div>
-<div class="big">${sel.net.toLocaleString()} €</div>
-<div class="small">${trans.child_ben_mo}</div>
+`;
+}
+
+document.getElementById('kpis').innerHTML=h;
+
+if(S.m){
+const tk=S.l*S.w*12;
+const kmd=S.kmAuto?tk*0.70:S.kmd;
+const cdd=S.cdAuto?sl.ct.cd*S.k:S.cdd;
+const kmsv=Math.round(kmd*(sl.ct.tr/100));
+const cdsv=Math.round(cdd*(sl.ct.tr/100));
+const tsv=kmsv+cdsv;
+
+if(tsv>0){
+document.getElementById('taxBox').innerHTML=`
+<div class="tax-sum">
+<div class="lbl">馃挼 Tax savings (money you keep)</div>
+<div class="big">+${tsv.toLocaleString()} 鈧�</div>
+<div class="sub">Per year 鈥� +${Math.round(tsv/12).toLocaleString()}鈧� per month</div>
 </div>
-<div class="kpi ${sel.savings>=0?'pos':'neg'}">
-<div class="label">${trans.kpi_savings}</div>
-<div class="big">${sel.savings>=0?'+':''}${sel.savings.toLocaleString()} €</div>
-<div class="small">${trans.child_ben_yr}</div>
+<div class="tax-breakdown">
+<div class="tax-line">
+<span>馃搷 Km deduction (${kmd.toLocaleString()}鈧� 脳 ${sl.ct.tr}%)</span>
+<strong>+${kmsv.toLocaleString()}鈧�</strong>
 </div>
-<div class="kpi">
-<div class="label">${trans.km_needed}</div>
-<div class="big">${sel.kmNeeded} км</div>
-<div class="small">За спестявания ≥ 0€</div>
+<div class="tax-line">
+<span>馃懚 Child deduction (${cdd.toLocaleString()}鈧� 脳 ${sl.ct.tr}%)</span>
+<strong>+${cdsv.toLocaleString()}鈧�</strong>
+</div>
 </div>
 `;
 }else{
-// General mode KPIs
-const yearGrossSal=S.s*12;
-const childBen=ct.cb*S.k*12;
-html+=`
-<div class="kpi">
-<div class="label">${trans.kpi_gross}</div>
-<div class="big">${Math.round((yearGrossSal+childBen)/12).toLocaleString()} €</div>
-<div class="small">${trans.child_ben_mo}</div>
-</div>
-<div class="kpi pos">
-<div class="label">${trans.kpi_net}</div>
-<div class="big">${sel.net.toLocaleString()} €</div>
-<div class="small">${trans.child_ben_mo}</div>
-</div>
-`;
+document.getElementById('taxBox').innerHTML='<p style="color:#8b9eb8;text-align:center;padding:20px">No tax savings (set deductions)</p>';
+}
+}
+}else{
+document.getElementById('selTit').innerHTML='馃幆 Select city';
+document.getElementById('kpis').innerHTML='<p style="color:#8b9eb8;text-align:center;padding:40px 0">Choose a city from the grid above</p>';
+if(S.m){
+document.getElementById('taxBox').innerHTML='<p style="color:#8b9eb8;text-align:center;padding:20px">Select a city first</p>';
+}
+}
 }
 
-// Child benefits KPI
-if(S.k>0){
-const childBen=ct.cb*S.k*12;
-html+=`
-<div class="kpi">
-<div class="label">${trans.child_ben}</div>
-<div class="big">${Math.round(childBen/12).toLocaleString()} €</div>
-<div class="small">${trans.child_ben_mo} · ${childBen.toLocaleString()} € ${trans.child_ben_yr}</div>
-</div>
-`;
-}
-
-// Rent KPI
-html+=`
-<div class="kpi">
-<div class="label">${trans.kpi_rent}</div>
-<div class="big">-${S.r.toLocaleString()} €</div>
-<div class="small">${ct.rm}€ - ${ct.rx}€</div>
-</div>
-`;
-
-// QoL KPI
-const qol=ct.sc*10+ct.bf*5+ct.hh/10;
-html+=`
-<div class="kpi">
-<div class="label">${trans.kpi_qol}</div>
-<div class="big">${Math.round(qol)}</div>
-<div class="small">⭐ ${ct.sc} · 🍽️ ${ct.bf} · 🏥 ${ct.hh}€</div>
-</div>
-`;
-
-document.getElementById('kpiContainer').innerHTML=html;
-}
-
-function updateTaxOpt(sel,trans){
-const ct=sel.city;
-const totalKm=S.l*S.w*12;
-const kmDeduction=totalKm*0.70;
-const kmSaved=kmDeduction*(ct.tr/100);
-const childDeduction=ct.cd*S.k;
-const childSaved=childDeduction*(ct.tr/100);
-const totalSaved=kmSaved+childSaved;
-
-let html='';
-
-// Kilometrage deduction
-html+=`
-<div class="tax-card">
-<div class="tax-head">
-<div class="tax-title">📍 ${trans.km_ded}</div>
-<div class="tax-badge">${trans.km_auto}</div>
-</div>
-<div class="tax-detail">${S.l} ${trans.km_calc}</div>
-<div class="tax-detail">${totalKm.toLocaleString()} км × 0.70€ = ${Math.round(kmDeduction).toLocaleString()}€</div>
-<div class="tax-amount">${Math.round(kmDeduction).toLocaleString()}€ ${trans.km_total}</div>
-<div class="tax-saved">${trans.km_saved}: <strong>${Math.round(kmSaved).toLocaleString()}€</strong></div>
-</div>
-`;
-
-// Child deductions
-if(S.k>0){
-html+=`
-<div class="tax-card">
-<div class="tax-head">
-<div class="tax-title">👶 ${trans.child_ded}</div>
-<div class="tax-badge">${trans.child_auto}</div>
-</div>
-<div class="tax-detail">${S.k} ${trans.child_per} ${ct.cd.toLocaleString()}€</div>
-<div class="tax-amount">${(childDeduction).toLocaleString()}€ ${trans.child_total}</div>
-<div class="tax-saved">${trans.child_saved}: <strong>${Math.round(childSaved).toLocaleString()}€</strong></div>
-</div>
-`;
-}
-
-// Breakdown
-html+=`
-<div class="tax-breakdown">
-<div class="tax-breakdown-item">
-<span class="tax-breakdown-label">📍 ${trans.km_ded}:</span>
-<span class="tax-breakdown-value">${Math.round(kmDeduction).toLocaleString()}€</span>
-</div>
-`;
-if(S.k>0){
-html+=`
-<div class="tax-breakdown-item">
-<span class="tax-breakdown-label">👶 ${trans.child_ded}:</span>
-<span class="tax-breakdown-value">${childDeduction.toLocaleString()}€</span>
-</div>
-`;
-}
-html+=`
-<div class="tax-breakdown-item" style="font-weight:700;border-top:2px solid var(--border);padding-top:8px;margin-top:4px">
-<span class="tax-breakdown-label">💰 ${trans.tax_opt}:</span>
-<span class="tax-breakdown-value">${Math.round(kmDeduction+childDeduction).toLocaleString()}€</span>
-</div>
-</div>
-`;
-
-document.getElementById('taxOptContainer').innerHTML=html;
-document.getElementById('taxSavedTotal').textContent=Math.round(totalSaved).toLocaleString()+' €';
-document.getElementById('taxSavedMonth').textContent=Math.round(totalSaved/12).toLocaleString()+' € '+trans.child_ben_mo;
-}
-
-// Initialize
-updateLang();
 calc();
+
+// Prevent page scroll when dragging sliders
+document.addEventListener('DOMContentLoaded',()=>{
+document.querySelectorAll('input[type=range]').forEach(slider=>{
+slider.addEventListener('touchstart',e=>{
+e.stopPropagation();
+},{passive:true});
+slider.addEventListener('touchmove',e=>{
+e.stopPropagation();
+},{passive:true});
+});
+});
+
+// Close language menu when clicking outside
+document.addEventListener('click',e=>{
+const menu=document.getElementById('langMenu');
+const btn=document.getElementById('lang');
+if(menu&&!menu.contains(e.target)&&!btn.contains(e.target)){
+menu.classList.remove('show');
+}
+});
 </script>
 </body>
 </html>
