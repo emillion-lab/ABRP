@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bg">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>A Better Root Planting v0.99-beta</title>
+<title>A Better Root Planting</title>
 <style>
 :root{
 --bg:#050a15;--card:#0d1525;--border:#1e293b;
@@ -192,19 +192,19 @@ fill="#5d4a3a" stroke="#39ff14" stroke-width="1"/>
 <div class="btns">
 <div class="lang-wrap">
 <button id="langBtn" onclick="toggleLang()">
-<span id="curFlag">馃嚙馃嚞</span>
+<span id="curFlag">🇧🇬</span>
 <span id="curLang">BG</span>
 </button>
 <div class="lang-menu" id="langMenu">
-<div class="lang-opt active" onclick="setLang(0)"><span>馃嚙馃嚞</span>袘褗谢谐邪褉褋泻懈</div>
-<div class="lang-opt" onclick="setLang(1)"><span>馃嚞馃嚙</span>English</div>
-<div class="lang-opt" onclick="setLang(2)"><span>馃嚛馃嚜</span>Deutsch</div>
-<div class="lang-opt" onclick="setLang(3)"><span>馃嚜馃嚫</span>Espa帽ol</div>
-<div class="lang-opt" onclick="setLang(4)"><span>馃嚝馃嚪</span>Fran莽ais</div>
+<div class="lang-opt active" onclick="setLang(0)"><span>🇧🇬</span>Български</div>
+<div class="lang-opt" onclick="setLang(1)"><span>🇬🇧</span>English</div>
+<div class="lang-opt" onclick="setLang(2)"><span>🇩🇪</span>Deutsch</div>
+<div class="lang-opt" onclick="setLang(3)"><span>🇪🇸</span>Español</div>
+<div class="lang-opt" onclick="setLang(4)"><span>🇫🇷</span>Français</div>
 </div>
 </div>
-<button id="viewBtn" onclick="toggleView()">馃捇 Desktop</button>
-<button onclick="location.reload()">馃攧</button>
+<button id="viewBtn" onclick="toggleView()">💻 Desktop</button>
+<button onclick="location.reload()">🔄</button>
 </div>
 </header>
 
@@ -213,10 +213,10 @@ fill="#5d4a3a" stroke="#39ff14" stroke-width="1"/>
 
 <!-- BASIC -->
 <div class="card">
-<h3 data-t="family">馃懆鈥嶐煈┾€嶐煈р€嶐煈� 小械屑械泄褋褌胁芯</h3>
+<h3 data-t="family">👨‍👩‍👧‍👦 Семейство</h3>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl"><span data-t="adults">袙褗蟹褉邪褋褌薪懈</span> / <span data-t="children">袛械褑邪</span></span>
+<span class="lbl"><span data-t="adults">Възрастни</span> / <span data-t="children">Деца</span></span>
 <span class="val"><span id="va">2</span> / <span id="vk">3</span></span>
 </div>
 <input type="range" min="1" max="4" value="2" oninput="S.a=+this.value;calc()">
@@ -224,42 +224,42 @@ fill="#5d4a3a" stroke="#39ff14" stroke-width="1"/>
 </div>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl" data-t="rent">袦械褋械褔械薪 薪邪械屑 (鈧�)</span>
+<span class="lbl" data-t="rent">Месечен наем (€)</span>
 <span class="val neg" id="vr">-1500</span>
 </div>
 <input type="range" id="sRent" min="400" max="8000" value="1500" step="50" oninput="S.r=+this.value;calc()">
 <div style="font-size:0.7rem;color:#64748b;margin-top:4px">
-馃挕 <span data-t="rentHint">袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 谐褉邪写邪:</span> <span id="rentRec" style="color:var(--neon-green);font-weight:900">1500鈧�</span>
+💡 <span data-t="rentHint">Препоръчително за града:</span> <span id="rentRec" style="color:var(--neon-green);font-weight:900">1500€</span>
 </div>
 </div>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl" data-t="budget">袘褞写卸械褌 卸懈胁芯褌 (鈧�/屑械褋)</span>
+<span class="lbl" data-t="budget">Бюджет живот (€/мес)</span>
 <span class="val neg" id="vh">-1200</span>
 </div>
 <input type="range" id="sBudget" min="300" max="5000" value="1200" step="50" oninput="S.h=+this.value;calc()">
 <div style="font-size:0.7rem;color:#64748b;margin-top:4px">
-馃挕 <span data-t="budgetHint">袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 褋械屑械泄褋褌胁芯 芯褌</span> <span id="famSize">5</span>: <span id="budgetRec" style="color:var(--neon-green);font-weight:900">1200鈧�</span>
+💡 <span data-t="budgetHint">Препоръчително за семейство от</span> <span id="famSize">5</span>: <span id="budgetRec" style="color:var(--neon-green);font-weight:900">1200€</span>
 </div>
 </div>
 </div>
 
 <!-- UBER -->
 <div class="card">
-<h3>馃殫 Uber 锌邪褉邪屑械褌褉懈</h3>
+<h3>🚗 Uber параметри</h3>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl" data-t="netKm">袘邪蟹芯胁 薪械褌 鈧�/泻屑</span>
+<span class="lbl" data-t="netKm">Базов нет €/км</span>
 <span class="val pos" id="vnk">1.10</span>
 </div>
 <input type="range" id="sNet" min="0.40" max="2.50" value="1.10" step="0.05" oninput="S.nk=+this.value;calc()">
 <div style="font-size:0.7rem;color:#64748b;margin-top:4px">
-馃挕 <span data-t="netHint">袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 谐褉邪写邪:</span> <span id="netRec" style="color:var(--neon-green);font-weight:900">1.10鈧�</span>
+💡 <span data-t="netHint">Препоръчително за града:</span> <span id="netRec" style="color:var(--neon-green);font-weight:900">1.10€</span>
 </div>
 </div>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl" data-t="km">袣懈谢芯屑械褌褉懈/写械薪</span>
+<span class="lbl" data-t="km">Километри/ден</span>
 <span class="val" id="vl">220</span>
 </div>
 <input type="range" min="50" max="500" value="220" step="10" oninput="S.l=+this.value;calc()">
@@ -275,28 +275,28 @@ fill="#5d4a3a" stroke="#39ff14" stroke-width="1"/>
 
 <!-- TAX DEDUCTIONS -->
 <div class="card">
-<h3 data-t="taxDeductions">馃搲 袛邪薪褗褔薪懈 锌褉懈褋锌邪写邪薪懈褟</h3>
+<h3 data-t="taxDeductions">📉 Данъчни приспадания</h3>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl">小褌邪胁泻邪 鈧�/泻屑</span>
+<span class="lbl">Ставка €/км</span>
 <div style="display:flex;align-items:center;gap:8px">
 <span class="auto-btn" id="rateBtn" onclick="togAuto('rate')">AUTO</span>
 <span class="val pos" id="vrate">0.70</span>
 </div>
 </div>
 <input type="range" id="sRate" min="0.20" max="1.50" value="0.70" step="0.05" disabled oninput="S.rate=+this.value;calc()">
-<div style="font-size:0.7rem;color:#64748b;margin-top:4px" id="rateHint">0.70鈧�/泻屑 (楔胁械泄褑邪褉懈褟)</div>
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px" id="rateHint">0.70€/км (Швейцария)</div>
 </div>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl">袣胁芯褌邪/写械褌械 (鈧�/谐芯写)</span>
+<span class="lbl">Квота/дете (€/год)</span>
 <div style="display:flex;align-items:center;gap:8px">
 <span class="auto-btn" id="childBtn" onclick="togAuto('child')">AUTO</span>
 <span class="val pos" id="vcd">9000</span>
 </div>
 </div>
 <input type="range" id="sChild" min="1000" max="15000" value="9000" step="500" disabled oninput="S.cd=+this.value;calc()">
-<div style="font-size:0.7rem;color:#64748b;margin-top:4px" id="childHint">9000鈧� (楔胁械泄褑邪褉懈褟)</div>
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px" id="childHint">9000€ (Швейцария)</div>
 </div>
 </div>
 
@@ -304,24 +304,24 @@ fill="#5d4a3a" stroke="#39ff14" stroke-width="1"/>
 
 <div class="col">
 <div class="card">
-<h3 data-t="cities">馃實 袚褉邪写芯胁械 - 泻谢懈泻薪懈 蟹邪 写械褌邪泄谢懈</h3>
+<h3 data-t="cities">🌍 Градове - кликни за детайли</h3>
 <div class="grid" id="grid"></div>
 </div>
 </div>
 
 <div class="col">
 <div class="card">
-<h3 id="selTitle">馃幆 袠蟹斜械褉懈 谐褉邪写</h3>
+<h3 id="selTitle">🎯 Избери град</h3>
 <div id="results"></div>
 </div>
 
 <div class="card">
-<h3>鈿栵笍 袛邪薪褗褔械薪 屑械褏邪薪懈蟹褗屑</h3>
+<h3>⚖️ Данъчен механизъм</h3>
 <div id="taxExplain"></div>
 </div>
 
 <div class="card" style="border:2px solid var(--neon-blue)">
-<h3>馃 AI 袩芯屑芯褖薪懈泻</h3>
+<h3>🤖 AI Помощник</h3>
 <div id="aiHelper" style="font-size:0.8rem;line-height:1.6;color:#94a3b8"></div>
 </div>
 </div>
@@ -337,20 +337,20 @@ sel:'Zurich',lg:0,mobile:false
 };
 
 const T={
-family:['小械屑械泄褋褌胁芯','Family','Familie','Familia','Famille'],
-adults:['袙褗蟹褉邪褋褌薪懈','Adults','Erwachsene','Adultos','Adultes'],
-children:['袛械褑邪','Children','Kinder','Ni帽os','Enfants'],
-rent:['袦械褋械褔械薪 薪邪械屑 (鈧�)','Monthly rent (鈧�)','Monatsmiete (鈧�)','Alquiler mensual (鈧�)','Loyer mensuel (鈧�)'],
-rentHint:['袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 谐褉邪写邪:','Recommended for city:','Empfohlen f眉r Stadt:','Recomendado para ciudad:','Recommand茅 pour ville:'],
-budget:['袘褞写卸械褌 卸懈胁芯褌 (鈧�/屑械褋)','Living budget (鈧�/mo)','Lebensbudget (鈧�/Mon)','Presupuesto (鈧�/mes)','Budget vie (鈧�/mois)'],
-budgetHint:['袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 褋械屑械泄褋褌胁芯 芯褌','Recommended for family of','Empfohlen f眉r Familie von','Recomendado para familia de','Recommand茅 pour famille de'],
-netKm:['袘邪蟹芯胁 薪械褌 鈧�/泻屑','Base net 鈧�/km','Basis netto 鈧�/km','Base neto 鈧�/km','Base net 鈧�/km'],
-netHint:['袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 谐褉邪写邪:','Recommended for city:','Empfohlen f眉r Stadt:','Recomendado para ciudad:','Recommand茅 pour ville:'],
-km:['袣懈谢芯屑械褌褉懈/写械薪','Km per day','Km pro Tag','Km por d铆a','Km par jour'],
+family:['Семейство','Family','Familie','Familia','Famille'],
+adults:['Възрастни','Adults','Erwachsene','Adultos','Adultes'],
+children:['Деца','Children','Kinder','Niños','Enfants'],
+rent:['Месечен наем (€)','Monthly rent (€)','Monatsmiete (€)','Alquiler mensual (€)','Loyer mensuel (€)'],
+rentHint:['Препоръчително за града:','Recommended for city:','Empfohlen für Stadt:','Recomendado para ciudad:','Recommandé pour ville:'],
+budget:['Бюджет живот (€/мес)','Living budget (€/mo)','Lebensbudget (€/Mon)','Presupuesto (€/mes)','Budget vie (€/mois)'],
+budgetHint:['Препоръчително за семейство от','Recommended for family of','Empfohlen für Familie von','Recomendado para familia de','Recommandé pour famille de'],
+netKm:['Базов нет €/км','Base net €/km','Basis netto €/km','Base neto €/km','Base net €/km'],
+netHint:['Препоръчително за града:','Recommended for city:','Empfohlen für Stadt:','Recomendado para ciudad:','Recommandé pour ville:'],
+km:['Километри/ден','Km per day','Km pro Tag','Km por día','Km par jour'],
 comfort:['Comfort % (premium)','Comfort % (premium)','Comfort % (Premium)','Comfort % (premium)','Comfort % (premium)'],
-taxDeductions:['袛邪薪褗褔薪懈 锌褉懈褋锌邪写邪薪懈褟','Tax Deductions','Steuerabz眉ge','Deducciones fiscales','D茅ductions fiscales'],
-cities:['袚褉邪写芯胁械 - 泻谢懈泻薪懈 蟹邪 写械褌邪泄谢懈','Cities - click for details','St盲dte - klicken f眉r Details','Ciudades - clic para detalles','Villes - cliquer pour d茅tails'],
-selected:['袠蟹斜械褉懈 谐褉邪写','Select city','Stadt w盲hlen','Elegir ciudad','S茅lectionner ville'],
+taxDeductions:['Данъчни приспадания','Tax Deductions','Steuerabzüge','Deducciones fiscales','Déductions fiscales'],
+cities:['Градове - кликни за детайли','Cities - click for details','Städte - klicken für Details','Ciudades - clic para detalles','Villes - cliquer pour détails'],
+selected:['Избери град','Select city','Stadt wählen','Elegir ciudad','Sélectionner ville'],
 };
 
 function updateText(){
@@ -361,25 +361,25 @@ if(T[key])el.textContent=T[key][S.lg];
 }
 
 const D={
-Zurich:{n:'Z眉rich',c:'馃嚚馃嚟',tr:20,cb:215,cd:9000,rate:0.70,rm:2600,rx:6800,avgRent:3200,avgBudget:1800,baseNet:1.20},
-Zug:{n:'Zug',c:'馃嚚馃嚟',tr:18,cb:215,cd:9000,rate:0.70,rm:2600,rx:6500,avgRent:3000,avgBudget:1700,baseNet:1.15},
-Geneva:{n:'Geneva',c:'馃嚚馃嚟',tr:22,cb:311,cd:11000,rate:0.70,rm:2500,rx:6200,avgRent:2800,avgBudget:1600,baseNet:1.10},
-Oslo:{n:'Oslo',c:'馃嚦馃嚧',tr:32,cb:150,cd:7000,rate:0.50,rm:1900,rx:3600,avgRent:2200,avgBudget:1500,baseNet:0.95},
-Berlin:{n:'Berlin',c:'馃嚛馃嚜',tr:25,cb:255,cd:9000,rate:0.30,rm:1500,rx:3200,avgRent:1800,avgBudget:1200,baseNet:0.80},
-Munich:{n:'M眉nchen',c:'馃嚛馃嚜',tr:27,cb:255,cd:9000,rate:0.30,rm:2000,rx:4500,avgRent:2200,avgBudget:1400,baseNet:0.90},
-Vienna:{n:'Wien',c:'馃嚘馃嚬',tr:28,cb:148,cd:6500,rate:0.42,rm:1600,rx:3000,avgRent:1800,avgBudget:1100,baseNet:0.75},
-Amsterdam:{n:'Amsterdam',c:'馃嚦馃嚤',tr:30,cb:130,cd:6000,rate:0.19,rm:2200,rx:4000,avgRent:2400,avgBudget:1300,baseNet:0.80},
-Paris:{n:'Paris',c:'馃嚝馃嚪',tr:30,cb:142,cd:7500,rate:0.50,rm:1800,rx:3800,avgRent:2000,avgBudget:1300,baseNet:0.75},
-London:{n:'London',c:'馃嚞馃嚙',tr:32,cb:102,cd:5500,rate:0.45,rm:2400,rx:5000,avgRent:2800,avgBudget:1500,baseNet:0.85},
-Brussels:{n:'Brussels',c:'馃嚙馃嚜',tr:28,cb:180,cd:7000,rate:0.35,rm:1400,rx:2800,avgRent:1600,avgBudget:1100,baseNet:0.70},
-Barcelona:{n:'Barcelona',c:'馃嚜馃嚫',tr:24,cb:58,cd:3500,rate:0.19,rm:1400,rx:2600,avgRent:1600,avgBudget:900,baseNet:0.60},
-Madrid:{n:'Madrid',c:'馃嚜馃嚫',tr:24,cb:58,cd:3500,rate:0.19,rm:1300,rx:2400,avgRent:1500,avgBudget:850,baseNet:0.58},
-Lisbon:{n:'Lisboa',c:'馃嚨馃嚬',tr:22,cb:63,cd:3200,rate:0.36,rm:1200,rx:2200,avgRent:1400,avgBudget:800,baseNet:0.55},
-Rome:{n:'Roma',c:'馃嚠馃嚬',tr:26,cb:50,cd:3000,rate:0.20,rm:1400,rx:2600,avgRent:1600,avgBudget:900,baseNet:0.62},
-Prague:{n:'Praha',c:'馃嚚馃嚳',tr:20,cb:30,cd:2500,rate:0.28,rm:1200,rx:2000,avgRent:1300,avgBudget:700,baseNet:0.50},
-Warsaw:{n:'Warszawa',c:'馃嚨馃嚤',tr:18,cb:30,cd:2000,rate:0.30,rm:1000,rx:1800,avgRent:1100,avgBudget:650,baseNet:0.48},
-Budapest:{n:'Budapest',c:'馃嚟馃嚭',tr:16,cb:25,cd:1800,rate:0.25,rm:900,rx:1600,avgRent:1000,avgBudget:600,baseNet:0.45},
-Sofia:{n:'小芯褎懈褟',c:'馃嚙馃嚞',tr:10,cb:20,cd:1500,rate:0.35,rm:650,rx:1600,avgRent:800,avgBudget:500,baseNet:0.42},
+Zurich:{n:'Zürich',c:'🇨🇭',tr:20,cb:215,cd:9000,rate:0.70,rm:2600,rx:6800,avgRent:3200,avgBudget:1800,baseNet:1.20},
+Zug:{n:'Zug',c:'🇨🇭',tr:18,cb:215,cd:9000,rate:0.70,rm:2600,rx:6500,avgRent:3000,avgBudget:1700,baseNet:1.15},
+Geneva:{n:'Geneva',c:'🇨🇭',tr:22,cb:311,cd:11000,rate:0.70,rm:2500,rx:6200,avgRent:2800,avgBudget:1600,baseNet:1.10},
+Oslo:{n:'Oslo',c:'🇳🇴',tr:32,cb:150,cd:7000,rate:0.50,rm:1900,rx:3600,avgRent:2200,avgBudget:1500,baseNet:0.95},
+Berlin:{n:'Berlin',c:'🇩🇪',tr:25,cb:255,cd:9000,rate:0.30,rm:1500,rx:3200,avgRent:1800,avgBudget:1200,baseNet:0.80},
+Munich:{n:'München',c:'🇩🇪',tr:27,cb:255,cd:9000,rate:0.30,rm:2000,rx:4500,avgRent:2200,avgBudget:1400,baseNet:0.90},
+Vienna:{n:'Wien',c:'🇦🇹',tr:28,cb:148,cd:6500,rate:0.42,rm:1600,rx:3000,avgRent:1800,avgBudget:1100,baseNet:0.75},
+Amsterdam:{n:'Amsterdam',c:'🇳🇱',tr:30,cb:130,cd:6000,rate:0.19,rm:2200,rx:4000,avgRent:2400,avgBudget:1300,baseNet:0.80},
+Paris:{n:'Paris',c:'🇫🇷',tr:30,cb:142,cd:7500,rate:0.50,rm:1800,rx:3800,avgRent:2000,avgBudget:1300,baseNet:0.75},
+London:{n:'London',c:'🇬🇧',tr:32,cb:102,cd:5500,rate:0.45,rm:2400,rx:5000,avgRent:2800,avgBudget:1500,baseNet:0.85},
+Brussels:{n:'Brussels',c:'🇧🇪',tr:28,cb:180,cd:7000,rate:0.35,rm:1400,rx:2800,avgRent:1600,avgBudget:1100,baseNet:0.70},
+Barcelona:{n:'Barcelona',c:'🇪🇸',tr:24,cb:58,cd:3500,rate:0.19,rm:1400,rx:2600,avgRent:1600,avgBudget:900,baseNet:0.60},
+Madrid:{n:'Madrid',c:'🇪🇸',tr:24,cb:58,cd:3500,rate:0.19,rm:1300,rx:2400,avgRent:1500,avgBudget:850,baseNet:0.58},
+Lisbon:{n:'Lisboa',c:'🇵🇹',tr:22,cb:63,cd:3200,rate:0.36,rm:1200,rx:2200,avgRent:1400,avgBudget:800,baseNet:0.55},
+Rome:{n:'Roma',c:'🇮🇹',tr:26,cb:50,cd:3000,rate:0.20,rm:1400,rx:2600,avgRent:1600,avgBudget:900,baseNet:0.62},
+Prague:{n:'Praha',c:'🇨🇿',tr:20,cb:30,cd:2500,rate:0.28,rm:1200,rx:2000,avgRent:1300,avgBudget:700,baseNet:0.50},
+Warsaw:{n:'Warszawa',c:'🇵🇱',tr:18,cb:30,cd:2000,rate:0.30,rm:1000,rx:1800,avgRent:1100,avgBudget:650,baseNet:0.48},
+Budapest:{n:'Budapest',c:'🇭🇺',tr:16,cb:25,cd:1800,rate:0.25,rm:900,rx:1600,avgRent:1000,avgBudget:600,baseNet:0.45},
+Sofia:{n:'София',c:'🇧🇬',tr:10,cb:20,cd:1500,rate:0.35,rm:650,rx:1600,avgRent:800,avgBudget:500,baseNet:0.42},
 };
 
 function toggleLang(){
@@ -388,7 +388,7 @@ document.getElementById('langMenu').classList.toggle('show');
 
 function setLang(i){
 S.lg=i;
-const flags=['馃嚙馃嚞','馃嚞馃嚙','馃嚛馃嚜','馃嚜馃嚫','馃嚝馃嚪'];
+const flags=['🇧🇬','🇬🇧','🇩🇪','🇪🇸','🇫🇷'];
 const names=['BG','EN','DE','ES','FR'];
 document.getElementById('curFlag').textContent=flags[i];
 document.getElementById('curLang').textContent=names[i];
@@ -403,7 +403,7 @@ calc();
 function toggleView(){
 S.mobile=!S.mobile;
 document.body.classList.toggle('mobile');
-document.getElementById('viewBtn').textContent=S.mobile?'馃摫 Mobile':'馃捇 Desktop';
+document.getElementById('viewBtn').textContent=S.mobile?'📱 Mobile':'💻 Desktop';
 }
 
 function togAuto(t){
@@ -470,30 +470,30 @@ const yearlyTotal=netMo*12+totalTaxSaved;
 // AI Helper Logic
 let aiAdvice='';
 if(netMo<500){
-aiAdvice='<b style="color:var(--neon-red)">鈿狅笍 袣褉懈褌懈褔薪芯!</b> 袦械褋械褔薪懈褟褌 芯褋褌邪褌褗泻 械 屑薪芯谐芯 薪懈褋褗泻.<br>';
+aiAdvice='<b style="color:var(--neon-red)">⚠️ Критично!</b> Месечният остатък е много нисък.<br>';
 if(S.r>recRent+500){
-aiAdvice+=`馃挕 袧邪械屑褗褌 (${S.r}鈧�) 械 褌胁褗褉写械 胁懈褋芯泻. 袩褉械锌芯褉褗褔懈褌械谢薪芯: ${recRent}鈧�<br>`;
+aiAdvice+=`💡 Наемът (${S.r}€) е твърде висок. Препоръчително: ${recRent}€<br>`;
 }
 if(S.l<200){
-aiAdvice+=`馃挕 袣邪褉邪褕 屑邪谢泻芯 (${S.l} 泻屑/写械薪). 校胁械谢懈褔懈 写芯 250-300 泻屑 蟹邪 锌芯-写芯斜褗褉 写芯褏芯写.<br>`;
+aiAdvice+=`💡 Караш малко (${S.l} км/ден). Увеличи до 250-300 км за по-добър доход.<br>`;
 }
 if(finalNetKm<0.80){
-aiAdvice+=`馃挕 袧械褌薪邪褌邪 锌械褔邪谢斜邪 鈧�/泻屑 械 薪懈褋泻邪 (${finalNetKm.toFixed(2)}). 袩褉械锌芯褉褗褔懈褌械谢薪芯: ${recNet.toFixed(2)}鈧�<br>`;
+aiAdvice+=`💡 Нетната печалба €/км е ниска (${finalNetKm.toFixed(2)}). Препоръчително: ${recNet.toFixed(2)}€<br>`;
 }
 }else if(netMo<1500){
-aiAdvice='<b style="color:var(--neon-blue)">鉁� 小褌邪斜懈谢薪芯</b> 薪芯 懈屑邪 锌芯褌械薪褑懈邪谢 蟹邪 锌芯写芯斜褉械薪懈械.<br>';
+aiAdvice='<b style="color:var(--neon-blue)">✓ Стабилно</b> но има потенциал за подобрение.<br>';
 if(S.r>recRent){
-aiAdvice+=`馃挕 袦芯卸械褕 写邪 褋锌械褋褌懈褕 ${S.r-recRent}鈧� 泻邪褌芯 薪邪屑邪谢懈褕 薪邪械屑邪 写芯 ${recRent}鈧�.<br>`;
+aiAdvice+=`💡 Можеш да спестиш ${S.r-recRent}€ като намалиш наема до ${recRent}€.<br>`;
 }
 if(S.l<250){
-aiAdvice+=`馃挕 校胁械谢懈褔懈 泻懈谢芯屑械褌褉懈褌械 写芯 250-280/写械薪 蟹邪 +${Math.round((250-S.l)*finalNetKm*22)}鈧�/屑械褋.<br>`;
+aiAdvice+=`💡 Увеличи километрите до 250-280/ден за +${Math.round((250-S.l)*finalNetKm*22)}€/мес.<br>`;
 }
 }else if(netMo<3000){
-aiAdvice='<b style="color:var(--neon-green)">鉁撯湏 袨褌谢懈褔薪芯!</b> 袘邪谢邪薪褋懈褉邪薪 斜褞写卸械褌.<br>';
-aiAdvice+=`馃挕 袟邪 芯褖械 锌芯-写芯斜褉懈 褉械蟹褍谢褌邪褌懈: 校胁械谢懈褔懈 Comfort% 写芯 60-70% 懈谢懈 锌褉芯斜胁邪泄 ${S.l+30} 泻屑/写械薪.<br>`;
+aiAdvice='<b style="color:var(--neon-green)">✓✓ Отлично!</b> Балансиран бюджет.<br>';
+aiAdvice+=`💡 За още по-добри резултати: Увеличи Comfort% до 60-70% или пробвай ${S.l+30} км/ден.<br>`;
 }else{
-aiAdvice='<b style="color:var(--neon-green)">馃専 袩械褉褎械泻褌薪芯!</b> 袦薪芯谐芯 褋懈谢薪邪 褎懈薪邪薪褋芯胁邪 锌芯蟹懈褑懈褟!<br>';
-aiAdvice+=`馃挕 小锌械褋褌褟胁邪泄 屑邪泻褋懈屑邪谢薪芯 - 褉邪蟹谐谢械卸写邪泄 懈屑芯褌 懈谢懈 懈薪胁械褋褌懈褑懈懈 褋 谐芯写懈褕薪懈褌械 ${yearlyTotal.toLocaleString()}鈧�!<br>`;
+aiAdvice='<b style="color:var(--neon-green)">🌟 Перфектно!</b> Много силна финансова позиция!<br>';
+aiAdvice+=`💡 Спестявай максимално - разглеждай имот или инвестиции с годишните ${yearlyTotal.toLocaleString()}€!<br>`;
 }
 
 // Compare with other cities
@@ -505,7 +505,7 @@ return testNet>bestNetCalc?k:best;
 },'Zurich');
 
 if(bestCity!==S.sel&&Math.abs(netMo)<2000){
-aiAdvice+=`<br>馃挕 <b>袙邪卸薪芯:</b> 袙 ${D[bestCity].c} ${D[bestCity].n} 屑芯卸械褕 写邪 锌械褔械谢懈褕 锌芯胁械褔械 锌褉懈 褋褗褖懈褌械 锌邪褉邪屑械褌褉懈!`;
+aiAdvice+=`<br>💡 <b>Важно:</b> В ${D[bestCity].c} ${D[bestCity].n} можеш да печелиш повече при същите параметри!`;
 }
 
 // Update ALL displays
@@ -521,12 +521,12 @@ document.getElementById('vcd').textContent=currentChild.toLocaleString();
 
 // Show recommendations
 document.getElementById('famSize').textContent=familySize;
-document.getElementById('rentRec').textContent=recRent+'鈧�';
-document.getElementById('budgetRec').textContent=recBudget+'鈧�';
-document.getElementById('netRec').textContent=recNet.toFixed(2)+'鈧�';
+document.getElementById('rentRec').textContent=recRent+'€';
+document.getElementById('budgetRec').textContent=recBudget+'€';
+document.getElementById('netRec').textContent=recNet.toFixed(2)+'€';
 
-document.getElementById('rateHint').textContent=S.rateAuto?`${currentRate.toFixed(2)}鈧�/泻屑 (${sc.n})`:'袪褗褔薪邪 褋褌邪胁泻邪';
-document.getElementById('childHint').textContent=S.childAuto?`${currentChild.toLocaleString()}鈧� (${sc.n})`:'袪褗褔薪邪 泻胁芯褌邪';
+document.getElementById('rateHint').textContent=S.rateAuto?`${currentRate.toFixed(2)}€/км (${sc.n})`:'Ръчна ставка';
+document.getElementById('childHint').textContent=S.childAuto?`${currentChild.toLocaleString()}€ (${sc.n})`:'Ръчна квота';
 
 if(!S.rateAuto)document.getElementById('sRate').value=S.rate;
 if(!S.childAuto)document.getElementById('sChild').value=S.cd;
@@ -540,7 +540,7 @@ const d=document.createElement('div');
 d.className=`city-card ${S.sel===k?'sel':''} ${netMo>=0?'ok':'bad'}`;
 d.innerHTML=`
 <div class="city-name">${ct.c} ${ct.n}</div>
-<div class="city-val">${netMo>=0?'+':''}${netMo}鈧�/屑械褋</div>
+<div class="city-val">${netMo>=0?'+':''}${netMo}€/мес</div>
 `;
 d.onclick=()=>{
 S.sel=k;
@@ -557,27 +557,27 @@ g.appendChild(d);
 });
 
 // Results
-document.getElementById('selTitle').innerHTML=`馃幆 ${sc.c} ${sc.n}`;
+document.getElementById('selTitle').innerHTML=`🎯 ${sc.c} ${sc.n}`;
 document.getElementById('results').innerHTML=`
 <div class="res-box">
-<div class="line"><span>袩褉懈褏芯写 (褉邪斜芯褌邪):</span><strong class="pos">+${monthlyInc.toLocaleString()}鈧�</strong></div>
-<div class="line"><span>袧邪写斜邪胁泻懈 (写械褑邪):</span><strong class="pos">+${monthlyAllow}鈧�</strong></div>
-<div class="line"><span>袪邪蟹褏芯写懈 (胁褋懈褔泻芯):</span><strong class="neg">-${monthlyOut.toLocaleString()}鈧�</strong></div>
+<div class="line"><span>Приход (работа):</span><strong class="pos">+${monthlyInc.toLocaleString()}€</strong></div>
+<div class="line"><span>Надбавки (деца):</span><strong class="pos">+${monthlyAllow}€</strong></div>
+<div class="line"><span>Разходи (всичко):</span><strong class="neg">-${monthlyOut.toLocaleString()}€</strong></div>
 <div class="line" style="border-top:2px solid var(--neon-blue);margin-top:8px;padding-top:8px;font-size:0.95rem">
-<span><b>袨小孝袗孝歇袣 (屑械褋械褑):</b></span>
-<strong class="${netMo>=0?'pos':'neg'}">${netMo>=0?'+':''}${netMo.toLocaleString()}鈧�</strong>
+<span><b>ОСТАТЪК (месец):</b></span>
+<strong class="${netMo>=0?'pos':'neg'}">${netMo>=0?'+':''}${netMo.toLocaleString()}€</strong>
 </div>
 </div>
 
 <div style="font-size:0.75rem;color:#64748b;margin:12px 0;padding:10px;background:rgba(0,243,255,0.05);border-radius:6px;border-left:3px solid var(--neon-blue)">
-馃挕 <b>袟邪斜械谢械卸泻邪:</b> 袛邪薪褗褔薪懈褌械 芯斜谢械泻褔械薪懈褟 (泻懈谢芯屑械褌褉邪卸 + 写械褑邪) 褋械 锌褉懈谢邪谐邪褌 褋邪屑芯 锌褉懈 谐芯写懈褕薪邪褌邪 写械泻谢邪褉邪褑懈褟, 薪械 屑械褋械褔薪芯.
+💡 <b>Забележка:</b> Данъчните облекчения (километраж + деца) се прилагат само при годишната декларация, не месечно.
 </div>
 
 <div class="big-result">
-<div class="label">馃挵 袚芯写懈褕械薪 斜邪谢邪薪褋 (褋 写邪薪褗褔薪懈 褋锌械褋褌褟胁邪薪懈褟)</div>
-<div class="value">+${yearlyTotal.toLocaleString()} 鈧�</div>
+<div class="label">💰 Годишен баланс (с данъчни спестявания)</div>
+<div class="value">+${yearlyTotal.toLocaleString()} €</div>
 <div style="font-size:0.7rem;color:#64748b;margin-top:8px">
-袨褌 褉邪斜芯褌邪: ${(netMo*12).toLocaleString()}鈧� + 小锌械褋褌械薪 写邪薪褗泻 胁 泻褉邪褟 薪邪 谐芯写懈薪邪褌邪: +${Math.round(totalTaxSaved).toLocaleString()}鈧�
+От работа: ${(netMo*12).toLocaleString()}€ + Спестен данък в края на годината: +${Math.round(totalTaxSaved).toLocaleString()}€
 </div>
 </div>
 `;
@@ -585,22 +585,22 @@ document.getElementById('results').innerHTML=`
 // Tax explanation
 document.getElementById('taxExplain').innerHTML=`
 <div class="tax-box">
-<div class="tax-title">馃挕 袣邪泻 褉邪斜芯褌懈 写邪薪褗褔薪芯褌芯 褋锌械褋褌褟胁邪薪械?</div>
+<div class="tax-title">💡 Как работи данъчното спестяване?</div>
 <div class="tax-info">
-<b style="color:var(--neon-red)">鈿狅笍 袙邪卸薪芯:</b> 孝械蟹懈 芯斜谢械泻褔械薪懈褟 褋邪 <b>袚袨袛袠楔袧袠</b> - 锌芯谢褍褔邪胁邪褕 谐懈 锌褉懈 锌芯写邪胁邪薪械 薪邪 写邪薪褗褔薪邪 写械泻谢邪褉邪褑懈褟!<br><br>
+<b style="color:var(--neon-red)">⚠️ Важно:</b> Тези облекчения са <b>ГОДИШНИ</b> - получаваш ги при подаване на данъчна декларация!<br><br>
 
-袙 ${sc.n} 写邪薪褗泻褗褌 械 <b>${sc.tr}%</b>.<br><br>
+В ${sc.n} данъкът е <b>${sc.tr}%</b>.<br><br>
 
-<b>馃搷 袣懈谢芯屑械褌褉懈:</b><br>
-袠蟹屑懈薪邪胁邪褕 ${totalKmYear.toLocaleString()} 泻屑 谐芯写懈褕薪芯.<br>
-袛褗褉卸邪胁邪褌邪 锌褉懈蟹薪邪胁邪 <b>${kmTaxBasis.toLocaleString()}鈧�</b> 褉邪蟹褏芯写 (${currentRate.toFixed(2)}鈧�/泻屑).<br>
-袧械 锌谢邪褖邪褕 ${sc.tr}% 写邪薪褗泻 胁褗褉褏褍 褌褟褏 鈫� 小锌械褋褌褟胁邪褕 <b>+${Math.round(kmTaxSaved).toLocaleString()}鈧� 袚袨袛袠楔袧袨</b><br><br>
+<b>📍 Километри:</b><br>
+Изминаваш ${totalKmYear.toLocaleString()} км годишно.<br>
+Държавата признава <b>${kmTaxBasis.toLocaleString()}€</b> разход (${currentRate.toFixed(2)}€/км).<br>
+Не плащаш ${sc.tr}% данък върху тях → Спестяваш <b>+${Math.round(kmTaxSaved).toLocaleString()}€ ГОДИШНО</b><br><br>
 
-<b>馃懚 袛械褑邪:</b><br>
-袟邪 ${S.k} 写械褑邪 泻胁芯褌邪褌邪 械 <b>${childTaxBasis.toLocaleString()}鈧�</b> (${currentChild.toLocaleString()}鈧�/写械褌械).<br>
-袧械 锌谢邪褖邪褕 ${sc.tr}% 写邪薪褗泻 胁褗褉褏褍 褌褟褏 鈫� 小锌械褋褌褟胁邪褕 <b>+${Math.round(childTaxSaved).toLocaleString()}鈧� 袚袨袛袠楔袧袨</b><br><br>
+<b>👶 Деца:</b><br>
+За ${S.k} деца квотата е <b>${childTaxBasis.toLocaleString()}€</b> (${currentChild.toLocaleString()}€/дете).<br>
+Не плащаш ${sc.tr}% данък върху тях → Спестяваш <b>+${Math.round(childTaxSaved).toLocaleString()}€ ГОДИШНО</b><br><br>
 
-<b style="color:var(--neon-green)">馃挵 袨斜褖芯 褋锌械褋褌械薪懈 写邪薪褗褑懈 胁 泻褉邪褟 薪邪 谐芯写懈薪邪褌邪: +${Math.round(totalTaxSaved).toLocaleString()}鈧�</b>
+<b style="color:var(--neon-green)">💰 Общо спестени данъци в края на годината: +${Math.round(totalTaxSaved).toLocaleString()}€</b>
 </div>
 </div>
 `;
