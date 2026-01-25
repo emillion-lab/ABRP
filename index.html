@@ -3,232 +3,207 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>A Better Root Planner</title>
+<title>A Better Root Planting</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-font-family:system-ui,sans-serif;background:#0a1929;color:#e8f0f8;
-font-size:14px;overflow-y:scroll;overflow-x:hidden;
+:root{
+--bg:#050a15;--card:#0d1525;--border:#1e293b;
+--neon-green:#39ff14;--neon-blue:#00f3ff;--neon-red:#ff3131;
+--text:#e2e8f0;
 }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px}
 
 header{
-background:#1a2942;border-bottom:2px solid #2d3e55;padding:16px;
-display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+background:var(--card);border-bottom:2px solid var(--neon-blue);
+padding:12px 20px;display:flex;justify-content:space-between;
+align-items:center;position:sticky;top:0;z-index:100;
 }
 .logo-area{display:flex;align-items:center;gap:12px}
-.logo{font-size:2.5rem;filter:drop-shadow(0 3px 8px rgba(0,0,0,0.5))}
-h1{font-size:1.2rem;font-weight:800;color:#4fc3f7}
-.btns{display:flex;gap:8px;flex-wrap:wrap}
-button{
-background:#4fc3f7;color:#001830;border:none;padding:10px 16px;
-border-radius:8px;font-weight:700;cursor:pointer;font-size:0.85rem;
-}
-button:hover{opacity:0.9}
-.ghost{background:transparent;border:2px solid #2d3e55;color:#e8f0f8}
-.ghost:hover{border-color:#4fc3f7}
-.ghost.on{background:#4fc3f7;color:#001830;border-color:#4fc3f7}
+.logo-svg{width:40px;height:40px;filter:drop-shadow(0 0 5px var(--neon-green))}
+h1{font-size:1.1rem;color:var(--neon-green);text-transform:uppercase;letter-spacing:1px}
 
+.btns{display:flex;gap:8px}
+button{
+background:transparent;border:1px solid var(--border);color:var(--text);
+padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;
+transition:0.2s;font-weight:600;
+}
+button:hover{border-color:var(--neon-blue);color:var(--neon-blue)}
 .lang-wrap{position:relative}
 .lang-menu{
 display:none;position:absolute;top:calc(100% + 8px);right:0;
-background:#1a2942;border:2px solid #2d3e55;border-radius:10px;
-min-width:200px;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:9999;
+background:var(--card);border:1px solid var(--border);border-radius:8px;
+min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,0.8);z-index:200;
 }
 .lang-menu.show{display:block}
 .lang-opt{
-padding:12px 16px;cursor:pointer;transition:0.2s;
-border-bottom:1px solid #2d3e55;display:flex;align-items:center;gap:10px;
+padding:10px 14px;cursor:pointer;transition:0.2s;
+border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;
 }
 .lang-opt:last-child{border-bottom:none}
-.lang-opt:hover{background:rgba(79,195,247,0.1)}
-.lang-opt.active{background:rgba(79,195,247,0.2);font-weight:800}
-.flag{font-size:1.3rem}
+.lang-opt:hover{background:rgba(0,243,255,0.1)}
+.lang-opt.active{background:rgba(57,255,20,0.1);font-weight:800}
 
 .main{
-max-width:1800px;margin:0 auto;padding:20px;
-display:grid;grid-template-columns:400px 1fr 440px;gap:20px;
+max-width:1700px;margin:15px auto;padding:0 15px;
+display:grid;grid-template-columns:380px 1fr 420px;gap:15px;
 }
-.col{display:flex;flex-direction:column;gap:16px}
 
-.card{background:#1a2942;border:1px solid #2d3e55;border-radius:12px;padding:18px}
-h3{color:#4fc3f7;font-size:1rem;margin-bottom:14px;display:flex;align-items:center;gap:8px;font-weight:800}
-
-.toggle-card{
-background:#1a2942;border:3px solid #2d3e55;border-radius:12px;padding:16px;
-cursor:pointer;display:flex;align-items:center;gap:16px;
+.card{
+background:var(--card);border:1px solid var(--border);
+border-radius:10px;padding:16px;margin-bottom:15px;
 }
-.toggle-card:hover{border-color:#4fc3f7}
-.sw{
-width:64px;height:34px;background:#2d3e55;border-radius:17px;
-position:relative;transition:0.3s;flex-shrink:0;
+h3{
+color:var(--neon-blue);font-size:0.85rem;text-transform:uppercase;
+margin-bottom:12px;border-bottom:1px solid var(--border);
+padding-bottom:6px;letter-spacing:0.5px;
 }
-.sw.on{background:linear-gradient(135deg,#f87171,#dc2626)}
-.sw.on.gen{background:linear-gradient(135deg,#a78bfa,#4fc3f7)}
-.sw::before{
-content:'';position:absolute;width:28px;height:28px;background:#fff;
-border-radius:50%;top:3px;left:3px;transition:0.3s;
-box-shadow:0 2px 6px rgba(0,0,0,0.4);
-}
-.sw.on::before{left:33px}
-.sw-txt{flex:1}
-.sw-main{font-size:1.15rem;font-weight:900;color:#4fc3f7;margin-bottom:4px}
-.sw-hint{font-size:0.8rem;color:#8b9eb8}
 
 .inp{margin-bottom:14px}
-.inp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.lbl{color:#8b9eb8;font-size:0.9rem;font-weight:600}
-.val{color:#4fc3f7;font-weight:900;font-size:1.05rem}
-.val.neg{color:#f87171}
-.val.pos{color:#4ade80}
+.inp-head{display:flex;justify-content:space-between;margin-bottom:4px;align-items:center}
+.lbl{color:#8b9eb8;font-size:0.8rem;font-weight:600}
+.val{
+font-weight:900;font-family:monospace;font-size:1.05rem;
+color:var(--neon-blue);
+}
+.val.pos{color:var(--neon-green)}
+.val.neg{color:var(--neon-red)}
 
 .auto-btn{
-display:inline-flex;align-items:center;gap:6px;
-background:#4ade80;color:#001830;border:2px solid #4ade80;
-border-radius:8px;padding:4px 10px;font-size:0.7rem;
+display:inline-flex;align-items:center;gap:4px;
+background:var(--neon-green);color:#000;border:none;
+border-radius:5px;padding:3px 8px;font-size:0.65rem;
 cursor:pointer;font-weight:900;text-transform:uppercase;
+transition:0.2s;
 }
 .auto-btn:hover{transform:scale(1.05)}
-.auto-btn.man{background:#fbbf24;border-color:#fbbf24}
+.auto-btn.man{background:var(--neon-red)}
 
 input[type=range]{
-width:100%;height:20px;border-radius:10px;background:#2d3e55;
-border:1px solid #2d3e55;margin:10px 0;cursor:pointer;
--webkit-appearance:none;appearance:none;
-pointer-events:auto;
+width:100%;height:6px;background:var(--border);
+-webkit-appearance:none;margin:10px 0;outline:none;
+border-radius:3px;
 }
-input[type=range]:focus{outline:none}
 input[type=range]::-webkit-slider-thumb{
--webkit-appearance:none;width:26px;height:26px;border-radius:50%;
-background:#4fc3f7;cursor:grab;border:3px solid #001830;
-box-shadow:0 2px 8px rgba(0,0,0,0.4);
-pointer-events:auto;
+-webkit-appearance:none;width:20px;height:20px;
+background:var(--neon-blue);border-radius:3px;cursor:pointer;
+box-shadow:0 0 8px var(--neon-blue);
 }
-input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.15)}
 input[type=range]::-moz-range-thumb{
-width:26px;height:26px;border-radius:50%;background:#4fc3f7;
-cursor:grab;border:3px solid #001830;box-shadow:0 2px 8px rgba(0,0,0,0.4);
-pointer-events:auto;
+width:20px;height:20px;background:var(--neon-blue);
+border-radius:3px;cursor:pointer;
 }
-input[type=range]:disabled{opacity:0.4;cursor:not-allowed}
+input[type=range]:disabled{opacity:0.3;cursor:not-allowed}
 
-.cities{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.city{
-background:#0f1a2a;border:3px solid #2d3e55;padding:14px;
-border-radius:10px;cursor:pointer;transition:0.2s;
+.grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
+gap:10px;
 }
-.city:hover{border-color:#4fc3f7;transform:translateY(-2px)}
-.city.sel{border-color:#4fc3f7;background:#1a2942}
-.city.ok{border-color:#4ade80}
-.city.bad{border-color:#f87171}
-.city-name{font-weight:900;font-size:1.05rem;margin-bottom:10px}
-.city-row{display:flex;justify-content:space-between;margin-top:6px;font-size:0.85rem}
-.city-lbl{color:#8b9eb8}
-.city-val{font-weight:800;color:#4fc3f7}
-.city-val.pos{color:#4ade80}
-.city-val.neg{color:#f87171}
+.city-card{
+background:rgba(255,255,255,0.02);border:1px solid var(--border);
+padding:12px;border-radius:6px;cursor:pointer;text-align:center;
+font-size:0.75rem;transition:0.2s;
+}
+.city-card:hover{border-color:var(--neon-blue);transform:translateY(-2px)}
+.city-card.sel{
+border-color:var(--neon-green);background:rgba(57,255,20,0.08);
+box-shadow:0 0 12px rgba(57,255,20,0.3);
+}
+.city-card.ok{border-color:var(--neon-green)}
+.city-card.bad{border-color:var(--neon-red)}
+.city-name{font-weight:900;font-size:0.9rem;margin-bottom:6px}
+.city-val{
+font-family:monospace;font-size:0.85rem;
+color:var(--neon-blue);margin-top:4px;
+}
 
-.kpi{
-background:rgba(79,195,247,0.08);border:2px solid #2d3e55;
-border-radius:10px;padding:16px;margin-bottom:12px;
+.res-box{
+background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;
+margin-bottom:12px;border-left:3px solid var(--neon-blue);
 }
-.kpi:hover{border-color:#4fc3f7}
-.kpi-lbl{
-font-size:0.75rem;color:#8b9eb8;text-transform:uppercase;
-letter-spacing:0.5px;margin-bottom:8px;font-weight:700;
+.line{
+display:flex;justify-content:space-between;padding:6px 0;
+border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.8rem;
 }
-.kpi-big{font-size:1.6rem;font-weight:900;color:#4fc3f7}
-.kpi-sub{font-size:0.8rem;color:#8b9eb8;margin-top:8px;line-height:1.5}
-.kpi.good{background:rgba(74,222,128,0.08);border-color:#4ade80}
-.kpi.good .kpi-big{color:#4ade80}
-.kpi.bad{background:rgba(248,113,113,0.08);border-color:#f87171}
-.kpi.bad .kpi-big{color:#f87171}
+.line:last-child{border-bottom:none}
+.line strong{font-family:monospace;font-size:0.95rem}
 
-.tax-sum{
-background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(79,195,247,0.15));
-border:3px solid #4ade80;border-radius:14px;padding:20px;
-text-align:center;box-shadow:0 6px 20px rgba(74,222,128,0.25);
-margin-bottom:16px;
+.tax-box{
+border:2px dashed var(--neon-green);
+background:rgba(57,255,20,0.03);
+padding:14px;border-radius:8px;margin-top:12px;
 }
-.tax-sum .lbl{font-size:0.85rem;color:#4ade80;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;font-weight:800}
-.tax-sum .big{font-size:2.2rem;font-weight:900;color:#4ade80;margin-bottom:8px}
-.tax-sum .sub{font-size:0.9rem;color:#8b9eb8;font-weight:600}
+.tax-title{
+color:var(--neon-green);font-weight:900;font-size:0.9rem;
+margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;
+}
+.tax-info{
+font-size:0.75rem;color:#94a3b8;line-height:1.6;
+margin-top:8px;
+}
+.tax-info b{color:var(--neon-green);font-weight:900}
 
-.tax-breakdown{
-margin-top:14px;font-size:0.85rem;color:#8b9eb8;
-border-top:1px solid #2d3e55;padding-top:14px;
+.big-result{
+text-align:center;padding:16px;
+background:linear-gradient(135deg,rgba(57,255,20,0.1),rgba(0,243,255,0.1));
+border:2px solid var(--neon-green);border-radius:10px;
+margin-top:12px;
 }
-.tax-line{
-display:flex;justify-content:space-between;padding:8px 0;
-border-bottom:1px solid rgba(45,62,85,0.5);
+.big-result .label{
+font-size:0.7rem;color:var(--neon-green);
+text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;
 }
-.tax-line:last-child{border-bottom:none}
-.tax-line strong{color:#4ade80;font-weight:800}
-
-.uber{display:block}
-.gen{display:none}
-body.gm .uber{display:none}
-body.gm .gen{display:block}
+.big-result .value{
+font-size:2rem;font-weight:900;font-family:monospace;
+color:var(--neon-green);text-shadow:0 0 10px var(--neon-green);
+}
 
 @media(max-width:1200px){
-.main{grid-template-columns:1fr;padding:16px}
-.cities{grid-template-columns:repeat(2,1fr)}
+.main{grid-template-columns:1fr;padding:12px}
+.grid{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
 }
+body.mobile .main{grid-template-columns:1fr}
+body.mobile .grid{grid-template-columns:repeat(2,1fr)}
+body.mobile input[type=range]{height:8px}
+body.mobile input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
 </style>
 </head>
 <body>
 
 <header>
 <div class="logo-area">
-<svg class="logo" width="50" height="50" viewBox="0 0 120 140">
-  <!-- Soil/Ground -->
-  <ellipse cx="60" cy="110" rx="55" ry="12" fill="#8b6f47" opacity="0.6"/>
-  <ellipse cx="60" cy="108" rx="50" ry="10" fill="#6b5333"/>
-  
-  <!-- Roots spreading in soil -->
-  <path d="M60,85 Q50,95 35,105 M60,85 Q55,98 45,108 M60,85 Q60,98 60,110 M60,85 Q65,98 75,108 M60,85 Q70,95 85,105" 
-        stroke="#4a3422" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-  
-  <!-- Main root tips -->
-  <circle cx="35" cy="105" r="2" fill="#4a3422"/>
-  <circle cx="45" cy="108" r="2" fill="#4a3422"/>
-  <circle cx="60" cy="110" r="2" fill="#4a3422"/>
-  <circle cx="75" cy="108" r="2" fill="#4a3422"/>
-  <circle cx="85" cy="105" r="2" fill="#4a3422"/>
-  
-  <!-- Tree trunk -->
-  <path d="M55,85 Q54,60 52,40 Q50,20 55,10 Q58,5 60,5 Q62,5 65,10 Q70,20 68,40 Q66,60 65,85 Z" 
-        fill="#5d4a3a" stroke="#3d2a1a" stroke-width="1"/>
-  
-  <!-- Foliage layers (bushy tree) -->
-  <ellipse cx="60" cy="45" rx="25" ry="20" fill="#6ba54a" opacity="0.8"/>
-  <ellipse cx="60" cy="35" rx="28" ry="22" fill="#7dbf5a" opacity="0.85"/>
-  <ellipse cx="60" cy="25" rx="24" ry="18" fill="#8dd86d" opacity="0.9"/>
-  
-  <!-- Light highlights on leaves -->
-  <ellipse cx="55" cy="22" rx="8" ry="6" fill="#a8eb8d" opacity="0.4"/>
-  <ellipse cx="68" cy="30" rx="10" ry="7" fill="#a8eb8d" opacity="0.3"/>
-  
-  <!-- Trunk texture -->
-  <path d="M57,50 Q58,55 57,60" stroke="#3d2a1a" stroke-width="0.5" fill="none" opacity="0.5"/>
-  <path d="M63,45 Q62,50 63,55" stroke="#3d2a1a" stroke-width="0.5" fill="none" opacity="0.5"/>
+<svg class="logo-svg" viewBox="0 0 120 140">
+<ellipse cx="60" cy="110" rx="50" ry="10" fill="#39ff14" opacity="0.2"/>
+<path d="M60,85 Q50,95 35,105 M60,85 Q55,98 45,108 M60,85 Q60,98 60,110 M60,85 Q65,98 75,108 M60,85 Q70,95 85,105" 
+stroke="#39ff14" stroke-width="2.5" fill="none"/>
+<circle cx="35" cy="105" r="2" fill="#39ff14"/>
+<circle cx="45" cy="108" r="2" fill="#39ff14"/>
+<circle cx="60" cy="110" r="2" fill="#39ff14"/>
+<circle cx="75" cy="108" r="2" fill="#39ff14"/>
+<circle cx="85" cy="105" r="2" fill="#39ff14"/>
+<path d="M55,85 Q54,60 52,40 Q50,20 55,10 Q58,5 60,5 Q62,5 65,10 Q70,20 68,40 Q66,60 65,85 Z" 
+fill="#5d4a3a" stroke="#39ff14" stroke-width="1"/>
+<ellipse cx="60" cy="45" rx="25" ry="20" fill="#39ff14" opacity="0.6"/>
+<ellipse cx="60" cy="35" rx="28" ry="22" fill="#39ff14" opacity="0.7"/>
+<ellipse cx="60" cy="25" rx="24" ry="18" fill="#39ff14" opacity="0.8"/>
 </svg>
 <h1>A Better Root Planting</h1>
 </div>
 <div class="btns">
 <div class="lang-wrap">
-<button class="ghost" id="lang" onclick="toggleLang()">
-<span class="flag" id="curFlag">馃嚙馃嚞</span>
-<span id="curLang">袘褗谢谐邪褉褋泻懈</span>
+<button id="langBtn" onclick="toggleLang()">
+<span id="curFlag">馃嚙馃嚞</span>
+<span id="curLang">BG</span>
 </button>
 <div class="lang-menu" id="langMenu">
-<div class="lang-opt active" onclick="setLang(0)"><span class="flag">馃嚙馃嚞</span>袘褗谢谐邪褉褋泻懈</div>
-<div class="lang-opt" onclick="setLang(1)"><span class="flag">馃嚞馃嚙</span>English</div>
-<div class="lang-opt" onclick="setLang(2)"><span class="flag">馃嚛馃嚜</span>Deutsch</div>
-<div class="lang-opt" onclick="setLang(3)"><span class="flag">馃嚜馃嚫</span>Espa帽ol</div>
-<div class="lang-opt" onclick="setLang(4)"><span class="flag">馃嚝馃嚪</span>Fran莽ais</div>
+<div class="lang-opt active" onclick="setLang(0)"><span>馃嚙馃嚞</span>袘褗谢谐邪褉褋泻懈</div>
+<div class="lang-opt" onclick="setLang(1)"><span>馃嚞馃嚙</span>English</div>
+<div class="lang-opt" onclick="setLang(2)"><span>馃嚛馃嚜</span>Deutsch</div>
+<div class="lang-opt" onclick="setLang(3)"><span>馃嚜馃嚫</span>Espa帽ol</div>
+<div class="lang-opt" onclick="setLang(4)"><span>馃嚝馃嚪</span>Fran莽ais</div>
 </div>
 </div>
-<button class="ghost" id="view" onclick="chView()">馃捇 Desktop</button>
+<button id="viewBtn" onclick="toggleView()">馃捇 Desktop</button>
 <button onclick="location.reload()">馃攧</button>
 </div>
 </header>
@@ -236,195 +211,92 @@ body.gm .gen{display:block}
 <div class="main">
 <div class="col">
 
-<!-- MODE -->
-<div class="toggle-card" onclick="chMode()">
-<div class="sw on" id="modeSw"></div>
-<div class="sw-txt">
-<div class="sw-main" id="modeTxt">馃殫 Uber Mode</div>
-<div class="sw-hint" id="modeHint">Switch to: 馃捈 General</div>
-</div>
-</div>
-
-<!-- FAMILY -->
+<!-- BASIC -->
 <div class="card">
-<h3>馃懆鈥嶐煈┾€嶐煈р€嶐煈� Family</h3>
+<h3 data-t="family">馃懆鈥嶐煈┾€嶐煈р€嶐煈� 小械屑械泄褋褌胁芯</h3>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl">Adults</span>
-<span class="val" id="va">2</span>
+<span class="lbl"><span data-t="adults">袙褗蟹褉邪褋褌薪懈</span> / <span data-t="children">袛械褑邪</span></span>
+<span class="val"><span id="va">2</span> / <span id="vk">3</span></span>
 </div>
 <input type="range" min="1" max="4" value="2" oninput="S.a=+this.value;calc()">
-</div>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">Children</span>
-<span class="val" id="vk">3</span>
-</div>
 <input type="range" min="0" max="6" value="3" oninput="S.k=+this.value;calc()">
 </div>
-</div>
-
-<!-- RENT -->
-<div class="card">
-<h3>馃彔 Rent</h3>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl">Budget (鈧�/mo)</span>
+<span class="lbl" data-t="rent">袦械褋械褔械薪 薪邪械屑 (鈧�)</span>
 <span class="val neg" id="vr">-1500</span>
 </div>
-<input type="range" min="500" max="6000" value="1500" step="50" oninput="S.r=+this.value;calc()">
-<div style="font-size:0.75rem;color:#8b9eb8;margin-top:6px">馃挕 Higher rent = closer to center = less empty km</div>
+<input type="range" id="sRent" min="400" max="8000" value="1500" step="50" oninput="S.r=+this.value;calc()">
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px">
+馃挕 <span data-t="rentHint">袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 谐褉邪写邪:</span> <span id="rentRec" style="color:var(--neon-green);font-weight:900">1500鈧�</span>
+</div>
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-t="budget">袘褞写卸械褌 卸懈胁芯褌 (鈧�/屑械褋)</span>
+<span class="val neg" id="vh">-1200</span>
+</div>
+<input type="range" id="sBudget" min="300" max="5000" value="1200" step="50" oninput="S.h=+this.value;calc()">
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px">
+馃挕 <span data-t="budgetHint">袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 褋械屑械泄褋褌胁芯 芯褌</span> <span id="famSize">5</span>: <span id="budgetRec" style="color:var(--neon-green);font-weight:900">1200鈧�</span>
+</div>
 </div>
 </div>
 
-<!-- HEALTH (Uber) -->
-<div class="card uber">
-<h3>馃彞 Health Insurance</h3>
+<!-- UBER -->
+<div class="card">
+<h3>馃殫 Uber 锌邪褉邪屑械褌褉懈</h3>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl">Adult (鈧�/mo)</span>
-<span class="val neg" id="vha">-300</span>
+<span class="lbl" data-t="netKm">袘邪蟹芯胁 薪械褌 鈧�/泻屑</span>
+<span class="val pos" id="vnk">1.10</span>
 </div>
-<input type="range" min="0" max="800" value="300" step="10" oninput="S.ha=+this.value;calc()">
+<input type="range" id="sNet" min="0.40" max="2.50" value="1.10" step="0.05" oninput="S.nk=+this.value;calc()">
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px">
+馃挕 <span data-t="netHint">袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 谐褉邪写邪:</span> <span id="netRec" style="color:var(--neon-green);font-weight:900">1.10鈧�</span>
 </div>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">Child (鈧�/mo)</span>
-<span class="val neg" id="vhk">-150</span>
-</div>
-<input type="range" min="0" max="400" value="150" step="10" oninput="S.hk=+this.value;calc()">
-</div>
-</div>
-
-<!-- UBER PARAMS -->
-<div class="card uber">
-<h3>馃殫 Uber Parameters</h3>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">Work days/mo</span>
-<span class="val" id="vw">22</span>
-</div>
-<input type="range" min="10" max="30" value="22" oninput="S.w=+this.value;calc()">
 </div>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl">Km per day</span>
+<span class="lbl" data-t="km">袣懈谢芯屑械褌褉懈/写械薪</span>
 <span class="val" id="vl">220</span>
 </div>
-<input type="range" min="50" max="400" value="220" step="10" oninput="S.l=+this.value;calc()">
+<input type="range" min="50" max="500" value="220" step="10" oninput="S.l=+this.value;calc()">
 </div>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl">Comfort %</span>
-<span class="val" id="vcf">45%</span>
+<span class="lbl" data-t="comfort">Comfort % (premium)</span>
+<span class="val" id="vcf">40%</span>
 </div>
-<input type="range" min="0" max="100" value="45" step="5" oninput="S.cf=+this.value;calc()">
-</div>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">Food (鈧�/day)</span>
-<span class="val neg" id="vem">-8</span>
-</div>
-<input type="range" min="0" max="30" value="8" oninput="S.em=+this.value;calc()">
-</div>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">Pension %</span>
-<span class="val neg" id="vp">-5%</span>
-</div>
-<input type="range" min="0" max="15" value="5" oninput="S.p=+this.value;calc()">
+<input type="range" min="0" max="100" value="40" step="5" oninput="S.cf=+this.value;calc()">
 </div>
 </div>
 
-<!-- NET PER KM (Uber) -->
-<div class="card uber">
-<h3>馃挵 Expected Net 鈧�/km</h3>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">Target net (鈧�/km)</span>
-<span class="val pos" id="vnetpkm">1.10</span>
-</div>
-<input type="range" min="0.30" max="3.00" value="1.10" step="0.05" oninput="S.netpkm=+this.value;calc()">
-<div style="font-size:0.75rem;color:#8b9eb8;margin-top:6px;line-height:1.5">
-馃挕 0.50-0.70 = average 鈥� 0.80-1.20 = good location 鈥� 1.50-3.00 = city center
-</div>
-</div>
-</div>
-
-<!-- SALARY (General) -->
-<div class="card gen">
-<h3>馃捈 Salary</h3>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">Gross (鈧�/mo)</span>
-<span class="val pos" id="vs">5000</span>
-</div>
-<input type="range" min="1000" max="12000" value="5000" step="100" oninput="S.s=+this.value;calc()">
-</div>
-</div>
-
-<!-- CHILD BENEFITS -->
+<!-- TAX DEDUCTIONS -->
 <div class="card">
-<h3>馃挐 Child Benefits</h3>
+<h3 data-t="taxDeductions">馃搲 袛邪薪褗褔薪懈 锌褉懈褋锌邪写邪薪懈褟</h3>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl">Per month (鈧�)</span>
-<div style="display:flex;align-items:center;gap:10px">
-<span class="auto-btn" id="cbBtn" onclick="togAuto('cb')">AUTO</span>
-<span class="val pos" id="vcb">0</span>
-</div>
-</div>
-<input type="range" id="sCb" min="0" max="500" value="0" step="5" disabled oninput="S.cbm=+this.value;calc()">
-</div>
-</div>
-
-<!-- TAX DEDUCTIONS (Uber) -->
-<div class="card uber">
-<h3>馃搲 Tax Deductions</h3>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">馃挾 Rate (鈧�/km)</span>
-<div style="display:flex;align-items:center;gap:10px">
+<span class="lbl">小褌邪胁泻邪 鈧�/泻屑</span>
+<div style="display:flex;align-items:center;gap:8px">
 <span class="auto-btn" id="rateBtn" onclick="togAuto('rate')">AUTO</span>
 <span class="val pos" id="vrate">0.70</span>
 </div>
 </div>
-<input type="range" id="sRate" min="0.30" max="1.50" value="0.70" step="0.05" disabled oninput="S.rate=+this.value;calc()">
-<div style="font-size:0.75rem;color:#8b9eb8;margin-top:6px" id="rateHint">0.70鈧�/km (Switzerland standard)</div>
+<input type="range" id="sRate" min="0.20" max="1.50" value="0.70" step="0.05" disabled oninput="S.rate=+this.value;calc()">
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px" id="rateHint">0.70鈧�/泻屑 (楔胁械泄褑邪褉懈褟)</div>
 </div>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl">馃搷 Km total (鈧�/year)</span>
-<div style="display:flex;align-items:center;gap:10px">
-<span class="auto-btn" id="kmBtn" onclick="togAuto('km')">AUTO</span>
-<span class="val pos" id="vkmd">0</span>
+<span class="lbl">袣胁芯褌邪/写械褌械 (鈧�/谐芯写)</span>
+<div style="display:flex;align-items:center;gap:8px">
+<span class="auto-btn" id="childBtn" onclick="togAuto('child')">AUTO</span>
+<span class="val pos" id="vcd">9000</span>
 </div>
 </div>
-<input type="range" id="sKm" min="0" max="100000" value="0" step="500" disabled oninput="S.kmd=+this.value;calc()">
-<div style="font-size:0.75rem;color:#8b9eb8;margin-top:6px" id="kmFrm">0 km 脳 0.70鈧�</div>
-</div>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">馃懚 Child (鈧�/year)</span>
-<div style="display:flex;align-items:center;gap:10px">
-<span class="auto-btn" id="cdBtn" onclick="togAuto('cd')">AUTO</span>
-<span class="val pos" id="vcdd">0</span>
-</div>
-</div>
-<input type="range" id="sCd" min="0" max="50000" value="0" step="500" disabled oninput="S.cdd=+this.value;calc()">
-<div style="font-size:0.75rem;color:#8b9eb8;margin-top:6px" id="cdFrm">0 脳 0鈧�</div>
-</div>
-</div>
-
-<!-- TIPS -->
-<div class="card">
-<h3>馃挾 Tips / Extra</h3>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">Per month (鈧�)</span>
-<span class="val pos" id="ve">0</span>
-</div>
-<input type="range" min="0" max="2000" value="0" step="50" oninput="S.e=+this.value;calc()">
+<input type="range" id="sChild" min="1000" max="15000" value="9000" step="500" disabled oninput="S.cd=+this.value;calc()">
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px" id="childHint">9000鈧� (楔胁械泄褑邪褉懈褟)</div>
 </div>
 </div>
 
@@ -432,20 +304,25 @@ body.gm .gen{display:block}
 
 <div class="col">
 <div class="card">
-<h3>馃實 Cities</h3>
-<div class="cities" id="grid"></div>
+<h3 data-t="cities">馃實 袚褉邪写芯胁械 - 泻谢懈泻薪懈 蟹邪 写械褌邪泄谢懈</h3>
+<div class="grid" id="grid"></div>
 </div>
 </div>
 
 <div class="col">
 <div class="card">
-<h3 id="selTit">馃幆 Select city</h3>
-<div id="kpis"></div>
+<h3 id="selTitle">馃幆 袠蟹斜械褉懈 谐褉邪写</h3>
+<div id="results"></div>
 </div>
 
-<div class="card uber">
-<h3>馃挵 Tax Savings</h3>
-<div id="taxBox"></div>
+<div class="card">
+<h3>鈿栵笍 袛邪薪褗褔械薪 屑械褏邪薪懈蟹褗屑</h3>
+<div id="taxExplain"></div>
+</div>
+
+<div class="card" style="border:2px solid var(--neon-blue)">
+<h3>馃 AI 袩芯屑芯褖薪懈泻</h3>
+<div id="aiHelper" style="font-size:0.8rem;line-height:1.6;color:#94a3b8"></div>
 </div>
 </div>
 
@@ -453,368 +330,295 @@ body.gm .gen{display:block}
 
 <script>
 const S={
-a:2,k:3,r:1500,ha:300,hk:150,e:0,s:5000,
-w:22,l:220,em:8,p:5,cf:45,netpkm:1.10,
-m:true,sel:null,lg:0,mob:false,
-cbAuto:true,kmAuto:true,cdAuto:true,rateAuto:true,
-cbm:0,kmd:0,cdd:0,rate:0.70
-};
-
-const D={
-Zurich:{n:'Z眉rich',c:'馃嚚馃嚟',rm:2500,rx:6000,pk:1.2,tr:20,cb:215,cd:9000,rate:0.70},
-Zug:{n:'Zug',c:'馃嚚馃嚟',rm:2600,rx:6500,pk:1.2,tr:18,cb:215,cd:9000,rate:0.70},
-Geneva:{n:'Geneva',c:'馃嚚馃嚟',rm:2400,rx:5500,pk:1.1,tr:22,cb:311,cd:11000,rate:0.70},
-Oslo:{n:'Oslo',c:'馃嚦馃嚧',rm:1900,rx:3600,pk:1.0,tr:32,cb:150,cd:7000,rate:0.50},
-Berlin:{n:'Berlin',c:'馃嚛馃嚜',rm:1500,rx:3200,pk:0.75,tr:25,cb:255,cd:9000,rate:0.30},
-Munich:{n:'M眉nchen',c:'馃嚛馃嚜',rm:2000,rx:4500,pk:0.9,tr:27,cb:255,cd:9000,rate:0.30},
-Vienna:{n:'Wien',c:'馃嚘馃嚬',rm:1600,rx:3000,pk:0.7,tr:28,cb:148,cd:6500,rate:0.42},
-Amsterdam:{n:'Amsterdam',c:'馃嚦馃嚤',rm:2200,rx:4000,pk:0.75,tr:30,cb:130,cd:6000,rate:0.19},
-Paris:{n:'Paris',c:'馃嚝馃嚪',rm:1800,rx:3800,pk:0.7,tr:30,cb:142,cd:7500,rate:0.50},
-London:{n:'London',c:'馃嚞馃嚙',rm:2400,rx:5000,pk:0.7,tr:32,cb:102,cd:5500,rate:0.45},
-Brussels:{n:'Brussels',c:'馃嚙馃嚜',rm:1400,rx:2800,pk:0.65,tr:28,cb:180,cd:7000,rate:0.35},
-Barcelona:{n:'Barcelona',c:'馃嚜馃嚫',rm:1400,rx:2600,pk:0.55,tr:24,cb:58,cd:3500,rate:0.19},
-Madrid:{n:'Madrid',c:'馃嚜馃嚫',rm:1300,rx:2400,pk:0.5,tr:24,cb:58,cd:3500,rate:0.19},
-Lisbon:{n:'Lisboa',c:'馃嚨馃嚬',rm:1200,rx:2200,pk:0.45,tr:22,cb:63,cd:3200,rate:0.36},
-Rome:{n:'Roma',c:'馃嚠馃嚬',rm:1400,rx:2600,pk:0.55,tr:26,cb:50,cd:3000,rate:0.20},
-Prague:{n:'Praha',c:'馃嚚馃嚳',rm:1200,rx:2000,pk:0.35,tr:20,cb:30,cd:2500,rate:0.28},
-Warsaw:{n:'Warszawa',c:'馃嚨馃嚤',rm:1000,rx:1800,pk:0.35,tr:18,cb:30,cd:2000,rate:0.30},
-Budapest:{n:'Budapest',c:'馃嚟馃嚭',rm:900,rx:1600,pk:0.3,tr:16,cb:25,cd:1800,rate:0.25},
-Sofia:{n:'小芯褎懈褟',c:'馃嚙馃嚞',rm:700,rx:1200,pk:0.28,tr:10,cb:20,cd:1500,rate:0.35},
+a:2,k:3,r:1500,h:1200,nk:1.10,l:220,cf:40,
+rate:0.70,cd:9000,
+rateAuto:true,childAuto:true,
+sel:'Zurich',lg:0,mobile:false
 };
 
 const T={
-  adults:['袙褗蟹褉邪褋褌薪懈','Adults','Erwachsene','Adultos','Adultes'],
-  children:['袛械褑邪','Children','Kinder','Ni帽os','Enfants'],
-  rent:['袧邪械屑','Rent','Miete','Alquiler','Loyer'],
-  budget:['袘褞写卸械褌 (鈧�/屑械褋)','Budget (鈧�/mo)','Budget (鈧�/Mon)','Presupuesto (鈧�/mes)','Budget (鈧�/mois)'],
+family:['小械屑械泄褋褌胁芯','Family','Familie','Familia','Famille'],
+adults:['袙褗蟹褉邪褋褌薪懈','Adults','Erwachsene','Adultos','Adultes'],
+children:['袛械褑邪','Children','Kinder','Ni帽os','Enfants'],
+rent:['袦械褋械褔械薪 薪邪械屑 (鈧�)','Monthly rent (鈧�)','Monatsmiete (鈧�)','Alquiler mensual (鈧�)','Loyer mensuel (鈧�)'],
+rentHint:['袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 谐褉邪写邪:','Recommended for city:','Empfohlen f眉r Stadt:','Recomendado para ciudad:','Recommand茅 pour ville:'],
+budget:['袘褞写卸械褌 卸懈胁芯褌 (鈧�/屑械褋)','Living budget (鈧�/mo)','Lebensbudget (鈧�/Mon)','Presupuesto (鈧�/mes)','Budget vie (鈧�/mois)'],
+budgetHint:['袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 褋械屑械泄褋褌胁芯 芯褌','Recommended for family of','Empfohlen f眉r Familie von','Recomendado para familia de','Recommand茅 pour famille de'],
+netKm:['袘邪蟹芯胁 薪械褌 鈧�/泻屑','Base net 鈧�/km','Basis netto 鈧�/km','Base neto 鈧�/km','Base net 鈧�/km'],
+netHint:['袩褉械锌芯褉褗褔懈褌械谢薪芯 蟹邪 谐褉邪写邪:','Recommended for city:','Empfohlen f眉r Stadt:','Recomendado para ciudad:','Recommand茅 pour ville:'],
+km:['袣懈谢芯屑械褌褉懈/写械薪','Km per day','Km pro Tag','Km por d铆a','Km par jour'],
+comfort:['Comfort % (premium)','Comfort % (premium)','Comfort % (Premium)','Comfort % (premium)','Comfort % (premium)'],
+taxDeductions:['袛邪薪褗褔薪懈 锌褉懈褋锌邪写邪薪懈褟','Tax Deductions','Steuerabz眉ge','Deducciones fiscales','D茅ductions fiscales'],
+cities:['袚褉邪写芯胁械 - 泻谢懈泻薪懈 蟹邪 写械褌邪泄谢懈','Cities - click for details','St盲dte - klicken f眉r Details','Ciudades - clic para detalles','Villes - cliquer pour d茅tails'],
+selected:['袠蟹斜械褉懈 谐褉邪写','Select city','Stadt w盲hlen','Elegir ciudad','S茅lectionner ville'],
+};
+
+function updateText(){
+document.querySelectorAll('[data-t]').forEach(el=>{
+const key=el.getAttribute('data-t');
+if(T[key])el.textContent=T[key][S.lg];
+});
+}
+
+const D={
+Zurich:{n:'Z眉rich',c:'馃嚚馃嚟',tr:20,cb:215,cd:9000,rate:0.70,rm:2600,rx:6800,avgRent:3200,avgBudget:1800,baseNet:1.20},
+Zug:{n:'Zug',c:'馃嚚馃嚟',tr:18,cb:215,cd:9000,rate:0.70,rm:2600,rx:6500,avgRent:3000,avgBudget:1700,baseNet:1.15},
+Geneva:{n:'Geneva',c:'馃嚚馃嚟',tr:22,cb:311,cd:11000,rate:0.70,rm:2500,rx:6200,avgRent:2800,avgBudget:1600,baseNet:1.10},
+Oslo:{n:'Oslo',c:'馃嚦馃嚧',tr:32,cb:150,cd:7000,rate:0.50,rm:1900,rx:3600,avgRent:2200,avgBudget:1500,baseNet:0.95},
+Berlin:{n:'Berlin',c:'馃嚛馃嚜',tr:25,cb:255,cd:9000,rate:0.30,rm:1500,rx:3200,avgRent:1800,avgBudget:1200,baseNet:0.80},
+Munich:{n:'M眉nchen',c:'馃嚛馃嚜',tr:27,cb:255,cd:9000,rate:0.30,rm:2000,rx:4500,avgRent:2200,avgBudget:1400,baseNet:0.90},
+Vienna:{n:'Wien',c:'馃嚘馃嚬',tr:28,cb:148,cd:6500,rate:0.42,rm:1600,rx:3000,avgRent:1800,avgBudget:1100,baseNet:0.75},
+Amsterdam:{n:'Amsterdam',c:'馃嚦馃嚤',tr:30,cb:130,cd:6000,rate:0.19,rm:2200,rx:4000,avgRent:2400,avgBudget:1300,baseNet:0.80},
+Paris:{n:'Paris',c:'馃嚝馃嚪',tr:30,cb:142,cd:7500,rate:0.50,rm:1800,rx:3800,avgRent:2000,avgBudget:1300,baseNet:0.75},
+London:{n:'London',c:'馃嚞馃嚙',tr:32,cb:102,cd:5500,rate:0.45,rm:2400,rx:5000,avgRent:2800,avgBudget:1500,baseNet:0.85},
+Brussels:{n:'Brussels',c:'馃嚙馃嚜',tr:28,cb:180,cd:7000,rate:0.35,rm:1400,rx:2800,avgRent:1600,avgBudget:1100,baseNet:0.70},
+Barcelona:{n:'Barcelona',c:'馃嚜馃嚫',tr:24,cb:58,cd:3500,rate:0.19,rm:1400,rx:2600,avgRent:1600,avgBudget:900,baseNet:0.60},
+Madrid:{n:'Madrid',c:'馃嚜馃嚫',tr:24,cb:58,cd:3500,rate:0.19,rm:1300,rx:2400,avgRent:1500,avgBudget:850,baseNet:0.58},
+Lisbon:{n:'Lisboa',c:'馃嚨馃嚬',tr:22,cb:63,cd:3200,rate:0.36,rm:1200,rx:2200,avgRent:1400,avgBudget:800,baseNet:0.55},
+Rome:{n:'Roma',c:'馃嚠馃嚬',tr:26,cb:50,cd:3000,rate:0.20,rm:1400,rx:2600,avgRent:1600,avgBudget:900,baseNet:0.62},
+Prague:{n:'Praha',c:'馃嚚馃嚳',tr:20,cb:30,cd:2500,rate:0.28,rm:1200,rx:2000,avgRent:1300,avgBudget:700,baseNet:0.50},
+Warsaw:{n:'Warszawa',c:'馃嚨馃嚤',tr:18,cb:30,cd:2000,rate:0.30,rm:1000,rx:1800,avgRent:1100,avgBudget:650,baseNet:0.48},
+Budapest:{n:'Budapest',c:'馃嚟馃嚭',tr:16,cb:25,cd:1800,rate:0.25,rm:900,rx:1600,avgRent:1000,avgBudget:600,baseNet:0.45},
+Sofia:{n:'小芯褎懈褟',c:'馃嚙馃嚞',tr:10,cb:20,cd:1500,rate:0.35,rm:650,rx:1600,avgRent:800,avgBudget:500,baseNet:0.42},
 };
 
 function toggleLang(){
-const menu=document.getElementById('langMenu');
-menu.classList.toggle('show');
+document.getElementById('langMenu').classList.toggle('show');
 }
 
 function setLang(i){
 S.lg=i;
 const flags=['馃嚙馃嚞','馃嚞馃嚙','馃嚛馃嚜','馃嚜馃嚫','馃嚝馃嚪'];
-const names=['袘褗谢谐邪褉褋泻懈','English','Deutsch','Espa帽ol','Fran莽ais'];
+const names=['BG','EN','DE','ES','FR'];
 document.getElementById('curFlag').textContent=flags[i];
 document.getElementById('curLang').textContent=names[i];
 document.querySelectorAll('.lang-opt').forEach((el,idx)=>{
 el.classList.toggle('active',idx===i);
 });
 document.getElementById('langMenu').classList.remove('show');
-}
-
-function chView(){
-S.mob=!S.mob;
-document.body.classList.toggle('mob');
-const b=document.getElementById('view');
-if(S.mob){
-b.innerHTML='馃摫 Mobile';
-b.classList.add('on');
-}else{
-b.innerHTML='馃捇 Desktop';
-b.classList.remove('on');
-}
-}
-
-function chMode(){
-S.m=!S.m;
-document.body.classList.toggle('gm');
-const sw=document.getElementById('modeSw');
-sw.classList.toggle('gen');
-if(S.m){
-document.getElementById('modeTxt').innerHTML='馃殫 Uber Mode';
-document.getElementById('modeHint').innerHTML='Switch to: 馃捈 General';
-}else{
-document.getElementById('modeTxt').innerHTML='馃捈 General Mode';
-document.getElementById('modeHint').innerHTML='Switch to: 馃殫 Uber';
-}
+updateText();
 calc();
 }
 
+function toggleView(){
+S.mobile=!S.mobile;
+document.body.classList.toggle('mobile');
+document.getElementById('viewBtn').textContent=S.mobile?'馃摫 Mobile':'馃捇 Desktop';
+}
+
 function togAuto(t){
-if(t==='cb'){
-S.cbAuto=!S.cbAuto;
-document.getElementById('cbBtn').textContent=S.cbAuto?'AUTO':'MANUAL';
-document.getElementById('cbBtn').classList.toggle('man');
-document.getElementById('sCb').disabled=S.cbAuto;
-}else if(t==='rate'){
+if(t==='rate'){
 S.rateAuto=!S.rateAuto;
 document.getElementById('rateBtn').textContent=S.rateAuto?'AUTO':'MANUAL';
 document.getElementById('rateBtn').classList.toggle('man');
 document.getElementById('sRate').disabled=S.rateAuto;
-}else if(t==='km'){
-S.kmAuto=!S.kmAuto;
-document.getElementById('kmBtn').textContent=S.kmAuto?'AUTO':'MANUAL';
-document.getElementById('kmBtn').classList.toggle('man');
-document.getElementById('sKm').disabled=S.kmAuto;
-}else if(t==='cd'){
-S.cdAuto=!S.cdAuto;
-document.getElementById('cdBtn').textContent=S.cdAuto?'AUTO':'MANUAL';
-document.getElementById('cdBtn').classList.toggle('man');
-document.getElementById('sCd').disabled=S.cdAuto;
+}else if(t==='child'){
+S.childAuto=!S.childAuto;
+document.getElementById('childBtn').textContent=S.childAuto?'AUTO':'MANUAL';
+document.getElementById('childBtn').classList.toggle('man');
+document.getElementById('sChild').disabled=S.childAuto;
 }
 calc();
-}
-
-// Calculate empty km % based on rent
-function calcEmptyPct(city,rent){
-const {rm,rx}=city;
-// Base empty km for this city
-let base=city.ek||10;
-// Adjust based on rent position
-if(rent<rm){
-// Low rent = far from center = more empty km
-return base+10;
-}else if(rent>rx){
-// Very high rent = very close to center = less empty km
-return Math.max(base-8,2);
-}else{
-// Within range: linear interpolation
-const pct=(rent-rm)/(rx-rm);
-return base+10-(pct*18); // from +10 to -8
-}
 }
 
 function calc(){
-const sc=S.sel?D[S.sel]:null;
-let autoCb=0,autoKm=0,autoCd=0,autoRate=0.70;
-if(sc){
-autoCb=sc.cb*S.k;
-autoRate=sc.rate||0.70;
-if(S.m){
-const tk=S.l*S.w*12;
+const sc=D[S.sel];
+
+// Recommended values based on city + family size
+const familySize=S.a+S.k;
+const budgetMultiplier=familySize<=3?1.0:familySize===4?1.15:familySize===5?1.3:1.5;
+
+const recRent=sc.avgRent||1500;
+const recBudget=Math.round((sc.avgBudget||1200)*budgetMultiplier);
+const recNet=sc.baseNet||1.0;
+const autoRate=sc.rate||0.70;
+const autoChild=sc.cd||9000;
+
+// Use CURRENT values (user can adjust)
 const currentRate=S.rateAuto?autoRate:S.rate;
-autoKm=Math.round(tk*currentRate);
-autoCd=sc.cd*S.k;
+const currentChild=S.childAuto?autoChild:S.cd;
+
+// Location efficiency (higher rent = closer to center)
+let eff=0;
+if(S.r>sc.rm){
+const pct=(S.r-sc.rm)/(sc.rx-sc.rm);
+eff=Math.min(pct*0.45,0.55);
 }
+const realNetKm=S.nk+eff;
+
+// Comfort bonus
+const comfortBonus=realNetKm*(S.cf/100)*0.25;
+const finalNetKm=realNetKm+comfortBonus;
+
+// Monthly calculations (WITHOUT tax savings - those are yearly)
+const monthlyInc=Math.round(finalNetKm*S.l*22);
+const monthlyAllow=S.k*sc.cb;
+const monthlyOut=S.r+S.h+(S.a*300);
+const netMo=monthlyInc+monthlyAllow-monthlyOut;
+
+// Tax calculations (YEARLY ONLY)
+const totalKmYear=S.l*22*12;
+const kmTaxBasis=totalKmYear*currentRate;
+const kmTaxSaved=kmTaxBasis*(sc.tr/100);
+
+const childTaxBasis=S.k*currentChild;
+const childTaxSaved=childTaxBasis*(sc.tr/100);
+
+const totalTaxSaved=kmTaxSaved+childTaxSaved;
+const yearlyTotal=netMo*12+totalTaxSaved;
+
+// AI Helper Logic
+let aiAdvice='';
+if(netMo<500){
+aiAdvice='<b style="color:var(--neon-red)">鈿狅笍 袣褉懈褌懈褔薪芯!</b> 袦械褋械褔薪懈褟褌 芯褋褌邪褌褗泻 械 屑薪芯谐芯 薪懈褋褗泻.<br>';
+if(S.r>recRent+500){
+aiAdvice+=`馃挕 袧邪械屑褗褌 (${S.r}鈧�) 械 褌胁褗褉写械 胁懈褋芯泻. 袩褉械锌芯褉褗褔懈褌械谢薪芯: ${recRent}鈧�<br>`;
+}
+if(S.l<200){
+aiAdvice+=`馃挕 袣邪褉邪褕 屑邪谢泻芯 (${S.l} 泻屑/写械薪). 校胁械谢懈褔懈 写芯 250-300 泻屑 蟹邪 锌芯-写芯斜褗褉 写芯褏芯写.<br>`;
+}
+if(finalNetKm<0.80){
+aiAdvice+=`馃挕 袧械褌薪邪褌邪 锌械褔邪谢斜邪 鈧�/泻屑 械 薪懈褋泻邪 (${finalNetKm.toFixed(2)}). 袩褉械锌芯褉褗褔懈褌械谢薪芯: ${recNet.toFixed(2)}鈧�<br>`;
+}
+}else if(netMo<1500){
+aiAdvice='<b style="color:var(--neon-blue)">鉁� 小褌邪斜懈谢薪芯</b> 薪芯 懈屑邪 锌芯褌械薪褑懈邪谢 蟹邪 锌芯写芯斜褉械薪懈械.<br>';
+if(S.r>recRent){
+aiAdvice+=`馃挕 袦芯卸械褕 写邪 褋锌械褋褌懈褕 ${S.r-recRent}鈧� 泻邪褌芯 薪邪屑邪谢懈褕 薪邪械屑邪 写芯 ${recRent}鈧�.<br>`;
+}
+if(S.l<250){
+aiAdvice+=`馃挕 校胁械谢懈褔懈 泻懈谢芯屑械褌褉懈褌械 写芯 250-280/写械薪 蟹邪 +${Math.round((250-S.l)*finalNetKm*22)}鈧�/屑械褋.<br>`;
+}
+}else if(netMo<3000){
+aiAdvice='<b style="color:var(--neon-green)">鉁撯湏 袨褌谢懈褔薪芯!</b> 袘邪谢邪薪褋懈褉邪薪 斜褞写卸械褌.<br>';
+aiAdvice+=`馃挕 袟邪 芯褖械 锌芯-写芯斜褉懈 褉械蟹褍谢褌邪褌懈: 校胁械谢懈褔懈 Comfort% 写芯 60-70% 懈谢懈 锌褉芯斜胁邪泄 ${S.l+30} 泻屑/写械薪.<br>`;
+}else{
+aiAdvice='<b style="color:var(--neon-green)">馃専 袩械褉褎械泻褌薪芯!</b> 袦薪芯谐芯 褋懈谢薪邪 褎懈薪邪薪褋芯胁邪 锌芯蟹懈褑懈褟!<br>';
+aiAdvice+=`馃挕 小锌械褋褌褟胁邪泄 屑邪泻褋懈屑邪谢薪芯 - 褉邪蟹谐谢械卸写邪泄 懈屑芯褌 懈谢懈 懈薪胁械褋褌懈褑懈懈 褋 谐芯写懈褕薪懈褌械 ${yearlyTotal.toLocaleString()}鈧�!<br>`;
 }
 
-const cbVal=S.cbAuto?autoCb:S.cbm;
-document.getElementById('vcb').textContent=cbVal;
-if(!S.cbAuto)document.getElementById('sCb').value=S.cbm;
+// Compare with other cities
+const bestCity=Object.keys(D).reduce((best,k)=>{
+const ct=D[k];
+const testNet=(ct.baseNet||1.0)*S.l*22+(S.k*ct.cb)-(ct.avgRent||1500)-(ct.avgBudget||1200)*budgetMultiplier;
+const bestNetCalc=(D[best].baseNet||1.0)*S.l*22+(S.k*D[best].cb)-(D[best].avgRent||1500)-(D[best].avgBudget||1200)*budgetMultiplier;
+return testNet>bestNetCalc?k:best;
+},'Zurich');
 
-if(S.m){
-const currentRate=S.rateAuto?autoRate:S.rate;
-document.getElementById('vrate').textContent=currentRate.toFixed(2);
-if(!S.rateAuto)document.getElementById('sRate').value=S.rate;
-document.getElementById('rateHint').textContent=S.rateAuto&&sc?`${currentRate.toFixed(2)}鈧�/km (${sc.n})`:'Manual rate';
-
-const kmVal=S.kmAuto?autoKm:S.kmd;
-const cdVal=S.cdAuto?autoCd:S.cdd;
-document.getElementById('vkmd').textContent=kmVal.toLocaleString();
-document.getElementById('vcdd').textContent=cdVal.toLocaleString();
-document.getElementById('kmFrm').textContent=S.kmAuto?`${S.l*S.w*12} km 脳 ${currentRate.toFixed(2)}鈧琡:'Manual';
-document.getElementById('cdFrm').textContent=S.cdAuto&&sc?`${S.k} 脳 ${sc.cd}鈧琡:'Manual';
-if(!S.kmAuto)document.getElementById('sKm').value=S.kmd;
-if(!S.cdAuto)document.getElementById('sCd').value=S.cdd;
-document.getElementById('vnetpkm').textContent=S.netpkm.toFixed(2);
+if(bestCity!==S.sel&&Math.abs(netMo)<2000){
+aiAdvice+=`<br>馃挕 <b>袙邪卸薪芯:</b> 袙 ${D[bestCity].c} ${D[bestCity].n} 屑芯卸械褕 写邪 锌械褔械谢懈褕 锌芯胁械褔械 锌褉懈 褋褗褖懈褌械 锌邪褉邪屑械褌褉懈!`;
 }
 
+// Update ALL displays
 document.getElementById('va').textContent=S.a;
 document.getElementById('vk').textContent=S.k;
 document.getElementById('vr').textContent='-'+S.r;
-document.getElementById('ve').textContent=S.e;
-document.getElementById('vha').textContent='-'+S.ha;
-document.getElementById('vhk').textContent='-'+S.hk;
-document.getElementById('vs').textContent=S.s;
-document.getElementById('vcf').textContent=S.cf+'%';
-document.getElementById('vw').textContent=S.w;
+document.getElementById('vh').textContent='-'+S.h;
+document.getElementById('vnk').textContent=finalNetKm.toFixed(2);
 document.getElementById('vl').textContent=S.l;
-document.getElementById('vem').textContent='-'+S.em;
-document.getElementById('vp').textContent='-'+S.p+'%';
+document.getElementById('vcf').textContent=S.cf+'%';
+document.getElementById('vrate').textContent=currentRate.toFixed(2);
+document.getElementById('vcd').textContent=currentChild.toLocaleString();
 
-const res=[];
+// Show recommendations
+document.getElementById('famSize').textContent=familySize;
+document.getElementById('rentRec').textContent=recRent+'鈧�';
+document.getElementById('budgetRec').textContent=recBudget+'鈧�';
+document.getElementById('netRec').textContent=recNet.toFixed(2)+'鈧�';
+
+document.getElementById('rateHint').textContent=S.rateAuto?`${currentRate.toFixed(2)}鈧�/泻屑 (${sc.n})`:'袪褗褔薪邪 褋褌邪胁泻邪';
+document.getElementById('childHint').textContent=S.childAuto?`${currentChild.toLocaleString()}鈧� (${sc.n})`:'袪褗褔薪邪 泻胁芯褌邪';
+
+if(!S.rateAuto)document.getElementById('sRate').value=S.rate;
+if(!S.childAuto)document.getElementById('sChild').value=S.cd;
+
+// City grid
+const g=document.getElementById('grid');
+g.innerHTML='';
 Object.keys(D).forEach(k=>{
 const ct=D[k];
-let profitMo,profitYr,netMo,netPerKm;
-const ccb=(S.cbAuto?ct.cb*S.k:S.cbm)*12;
-
-if(S.m){
-// Calculate based on expected net 鈧�/km
-const monthlyKm=S.l*S.w;
-const yearlyKm=monthlyKm*12;
-
-// Empty km based on rent
-const emptyPct=calcEmptyPct(ct,S.r);
-const paidKm=yearlyKm*(1-emptyPct/100);
-
-// Net income from driving (before expenses)
-const netFromDriving=S.netpkm*paidKm;
-
-// Tax deductions - use city rate or manual rate
-const cityRate=ct.rate||0.70;
-const currentRate=S.rateAuto?cityRate:S.rate;
-const kmd=S.kmAuto?yearlyKm*currentRate:S.kmd;
-const cdd=S.cdAuto?ct.cd*S.k:S.cdd;
-const taxSavings=(kmd+cdd)*(ct.tr/100);
-
-// Total income
-const totalIncome=netFromDriving+taxSavings+ccb+S.e*12;
-
-// Expenses
-const monthlyExp=S.r+(S.ha*S.a+S.hk*S.k)+S.em*S.w;
-const yearlyExp=monthlyExp*12;
-
-// Pension (deducted from gross, but we approximate)
-const pensionCost=(netFromDriving+S.e*12)*(S.p/100);
-
-// Net after all
-const netYearly=totalIncome-yearlyExp-pensionCost;
-netMo=Math.round(netYearly/12);
-
-// Pure profit = what you have left (net already has rent deducted)
-profitMo=netMo;
-profitYr=Math.round(netYearly);
-
-netPerKm=S.netpkm;
-}else{
-const yg=S.s*12;
-const tg=yg+ccb;
-const tx=yg*(ct.tr/100);
-const ye=(S.r+(S.ha*S.a+S.hk*S.k))*12;
-const net=tg-tx-ye;
-netMo=Math.round(net/12);
-profitYr=Math.round(net);
-profitMo=netMo;
-netPerKm=0;
-}
-
-res.push({k,ct,profitMo,profitYr,netMo,netPerKm});
-});
-
-res.sort((a,b)=>b.profitYr-a.profitYr);
-
-const gr=document.getElementById('grid');
-gr.innerHTML='';
-res.forEach(r=>{
 const d=document.createElement('div');
-d.className='city';
-if(r.k===S.sel)d.classList.add('sel');
-if(r.profitYr>=0)d.classList.add('ok');
-else d.classList.add('bad');
-
+d.className=`city-card ${S.sel===k?'sel':''} ${netMo>=0?'ok':'bad'}`;
 d.innerHTML=`
-<div class="city-name">${r.ct.c} ${r.ct.n}</div>
-<div class="city-row">
-<span class="city-lbl">Net profit:</span>
-<span class="city-val ${r.profitMo>=0?'pos':'neg'}">${r.profitMo>=0?'+':''}${r.profitMo.toLocaleString()}鈧�/mo</span>
-</div>
-<div class="city-row">
-<span class="city-lbl">Per year:</span>
-<span class="city-val ${r.profitYr>=0?'pos':'neg'}">${r.profitYr>=0?'+':''}${r.profitYr.toLocaleString()}鈧�</span>
-</div>
+<div class="city-name">${ct.c} ${ct.n}</div>
+<div class="city-val">${netMo>=0?'+':''}${netMo}鈧�/屑械褋</div>
 `;
-d.onclick=()=>{S.sel=r.k;calc();};
-gr.appendChild(d);
-});
-
-if(S.sel){
-const sl=res.find(r=>r.k===S.sel);
-document.getElementById('selTit').innerHTML=`馃幆 ${sl.ct.c} ${sl.ct.n}`;
-
-const emptyPct=S.m?calcEmptyPct(sl.ct,S.r):0;
-
-let h='';
-h+=`
-<div class="kpi ${sl.profitYr>=0?'good':'bad'}">
-<div class="kpi-lbl">馃挵 Pure profit (Savings)</div>
-<div class="kpi-big">${sl.profitMo>=0?'+':''}${sl.profitMo.toLocaleString()} 鈧�</div>
-<div class="kpi-sub">Per month 鈥� ${sl.profitYr>=0?'+':''}${sl.profitYr.toLocaleString()}鈧� per year</div>
-</div>
-<div class="kpi">
-<div class="kpi-lbl">馃搳 Net income</div>
-<div class="kpi-big">${sl.netMo.toLocaleString()} 鈧�</div>
-<div class="kpi-sub">Per month after ALL expenses (rent, health, food, pension)</div>
-</div>
-`;
-
-if(S.m){
-h+=`
-<div class="kpi">
-<div class="kpi-lbl">馃挵 Net 鈧�/km (paid km)</div>
-<div class="kpi-big">${sl.netPerKm.toFixed(2)} 鈧�</div>
-<div class="kpi-sub">Set via slider 鈥� Empty km: ${emptyPct.toFixed(1)}%</div>
-</div>
-`;
-}
-
-if(S.k>0){
-const cb=S.cbAuto?sl.ct.cb*S.k:S.cbm;
-h+=`
-<div class="kpi">
-<div class="kpi-lbl">馃挐 Child benefits</div>
-<div class="kpi-big">+${cb} 鈧�</div>
-<div class="kpi-sub">Per month 鈥� +${(cb*12).toLocaleString()}鈧� per year</div>
-</div>
-`;
-}
-
-document.getElementById('kpis').innerHTML=h;
-
-if(S.m){
-const tk=S.l*S.w*12;
-const kmd=S.kmAuto?tk*0.70:S.kmd;
-const cdd=S.cdAuto?sl.ct.cd*S.k:S.cdd;
-const kmsv=Math.round(kmd*(sl.ct.tr/100));
-const cdsv=Math.round(cdd*(sl.ct.tr/100));
-const tsv=kmsv+cdsv;
-
-if(tsv>0){
-document.getElementById('taxBox').innerHTML=`
-<div class="tax-sum">
-<div class="lbl">馃挼 Tax savings (money you keep)</div>
-<div class="big">+${tsv.toLocaleString()} 鈧�</div>
-<div class="sub">Per year 鈥� +${Math.round(tsv/12).toLocaleString()}鈧� per month</div>
-</div>
-<div class="tax-breakdown">
-<div class="tax-line">
-<span>馃搷 Km deduction (${kmd.toLocaleString()}鈧� 脳 ${sl.ct.tr}%)</span>
-<strong>+${kmsv.toLocaleString()}鈧�</strong>
-</div>
-<div class="tax-line">
-<span>馃懚 Child deduction (${cdd.toLocaleString()}鈧� 脳 ${sl.ct.tr}%)</span>
-<strong>+${cdsv.toLocaleString()}鈧�</strong>
-</div>
-</div>
-`;
-}else{
-document.getElementById('taxBox').innerHTML='<p style="color:#8b9eb8;text-align:center;padding:20px">No tax savings (set deductions)</p>';
-}
-}
-}else{
-document.getElementById('selTit').innerHTML='馃幆 Select city';
-document.getElementById('kpis').innerHTML='<p style="color:#8b9eb8;text-align:center;padding:40px 0">Choose a city from the grid above</p>';
-if(S.m){
-document.getElementById('taxBox').innerHTML='<p style="color:#8b9eb8;text-align:center;padding:20px">Select a city first</p>';
-}
-}
-}
-
+d.onclick=()=>{
+S.sel=k;
+// Auto-set recommended values when selecting city
+S.r=D[k].avgRent||S.r;
+S.h=Math.round((D[k].avgBudget||S.h)*budgetMultiplier);
+S.nk=D[k].baseNet||S.nk;
+document.getElementById('sRent').value=S.r;
+document.getElementById('sBudget').value=S.h;
+document.getElementById('sNet').value=S.nk;
 calc();
-
-// Prevent page scroll when dragging sliders
-document.addEventListener('DOMContentLoaded',()=>{
-document.querySelectorAll('input[type=range]').forEach(slider=>{
-slider.addEventListener('touchstart',e=>{
-e.stopPropagation();
-},{passive:true});
-slider.addEventListener('touchmove',e=>{
-e.stopPropagation();
-},{passive:true});
-});
+};
+g.appendChild(d);
 });
 
-// Close language menu when clicking outside
+// Results
+document.getElementById('selTitle').innerHTML=`馃幆 ${sc.c} ${sc.n}`;
+document.getElementById('results').innerHTML=`
+<div class="res-box">
+<div class="line"><span>袩褉懈褏芯写 (褉邪斜芯褌邪):</span><strong class="pos">+${monthlyInc.toLocaleString()}鈧�</strong></div>
+<div class="line"><span>袧邪写斜邪胁泻懈 (写械褑邪):</span><strong class="pos">+${monthlyAllow}鈧�</strong></div>
+<div class="line"><span>袪邪蟹褏芯写懈 (胁褋懈褔泻芯):</span><strong class="neg">-${monthlyOut.toLocaleString()}鈧�</strong></div>
+<div class="line" style="border-top:2px solid var(--neon-blue);margin-top:8px;padding-top:8px;font-size:0.95rem">
+<span><b>袨小孝袗孝歇袣 (屑械褋械褑):</b></span>
+<strong class="${netMo>=0?'pos':'neg'}">${netMo>=0?'+':''}${netMo.toLocaleString()}鈧�</strong>
+</div>
+</div>
+
+<div style="font-size:0.75rem;color:#64748b;margin:12px 0;padding:10px;background:rgba(0,243,255,0.05);border-radius:6px;border-left:3px solid var(--neon-blue)">
+馃挕 <b>袟邪斜械谢械卸泻邪:</b> 袛邪薪褗褔薪懈褌械 芯斜谢械泻褔械薪懈褟 (泻懈谢芯屑械褌褉邪卸 + 写械褑邪) 褋械 锌褉懈谢邪谐邪褌 褋邪屑芯 锌褉懈 谐芯写懈褕薪邪褌邪 写械泻谢邪褉邪褑懈褟, 薪械 屑械褋械褔薪芯.
+</div>
+
+<div class="big-result">
+<div class="label">馃挵 袚芯写懈褕械薪 斜邪谢邪薪褋 (褋 写邪薪褗褔薪懈 褋锌械褋褌褟胁邪薪懈褟)</div>
+<div class="value">+${yearlyTotal.toLocaleString()} 鈧�</div>
+<div style="font-size:0.7rem;color:#64748b;margin-top:8px">
+袨褌 褉邪斜芯褌邪: ${(netMo*12).toLocaleString()}鈧� + 小锌械褋褌械薪 写邪薪褗泻 胁 泻褉邪褟 薪邪 谐芯写懈薪邪褌邪: +${Math.round(totalTaxSaved).toLocaleString()}鈧�
+</div>
+</div>
+`;
+
+// Tax explanation
+document.getElementById('taxExplain').innerHTML=`
+<div class="tax-box">
+<div class="tax-title">馃挕 袣邪泻 褉邪斜芯褌懈 写邪薪褗褔薪芯褌芯 褋锌械褋褌褟胁邪薪械?</div>
+<div class="tax-info">
+<b style="color:var(--neon-red)">鈿狅笍 袙邪卸薪芯:</b> 孝械蟹懈 芯斜谢械泻褔械薪懈褟 褋邪 <b>袚袨袛袠楔袧袠</b> - 锌芯谢褍褔邪胁邪褕 谐懈 锌褉懈 锌芯写邪胁邪薪械 薪邪 写邪薪褗褔薪邪 写械泻谢邪褉邪褑懈褟!<br><br>
+
+袙 ${sc.n} 写邪薪褗泻褗褌 械 <b>${sc.tr}%</b>.<br><br>
+
+<b>馃搷 袣懈谢芯屑械褌褉懈:</b><br>
+袠蟹屑懈薪邪胁邪褕 ${totalKmYear.toLocaleString()} 泻屑 谐芯写懈褕薪芯.<br>
+袛褗褉卸邪胁邪褌邪 锌褉懈蟹薪邪胁邪 <b>${kmTaxBasis.toLocaleString()}鈧�</b> 褉邪蟹褏芯写 (${currentRate.toFixed(2)}鈧�/泻屑).<br>
+袧械 锌谢邪褖邪褕 ${sc.tr}% 写邪薪褗泻 胁褗褉褏褍 褌褟褏 鈫� 小锌械褋褌褟胁邪褕 <b>+${Math.round(kmTaxSaved).toLocaleString()}鈧� 袚袨袛袠楔袧袨</b><br><br>
+
+<b>馃懚 袛械褑邪:</b><br>
+袟邪 ${S.k} 写械褑邪 泻胁芯褌邪褌邪 械 <b>${childTaxBasis.toLocaleString()}鈧�</b> (${currentChild.toLocaleString()}鈧�/写械褌械).<br>
+袧械 锌谢邪褖邪褕 ${sc.tr}% 写邪薪褗泻 胁褗褉褏褍 褌褟褏 鈫� 小锌械褋褌褟胁邪褕 <b>+${Math.round(childTaxSaved).toLocaleString()}鈧� 袚袨袛袠楔袧袨</b><br><br>
+
+<b style="color:var(--neon-green)">馃挵 袨斜褖芯 褋锌械褋褌械薪懈 写邪薪褗褑懈 胁 泻褉邪褟 薪邪 谐芯写懈薪邪褌邪: +${Math.round(totalTaxSaved).toLocaleString()}鈧�</b>
+</div>
+</div>
+`;
+
+// AI Helper
+document.getElementById('aiHelper').innerHTML=aiAdvice;
+}
+
+// Close dropdown on outside click
 document.addEventListener('click',e=>{
 const menu=document.getElementById('langMenu');
-const btn=document.getElementById('lang');
+const btn=document.getElementById('langBtn');
 if(menu&&!menu.contains(e.target)&&!btn.contains(e.target)){
 menu.classList.remove('show');
 }
 });
+
+calc();
 </script>
 </body>
 </html>
