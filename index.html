@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bg">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
@@ -7,7 +7,7 @@
 <style>
 :root{
 --bg:#050a15;--card:#0d1525;--border:#1e293b;
---neon-green:#39ff14;--neon-blue:#00f3ff;--neon-red:#ff3131;
+--neon-green:#4ade80;--neon-blue:#38bdf8;--neon-red:#dc2626;--neon-orange:#fb923c;
 --text:#e2e8f0;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -17,32 +17,44 @@ header{
 background:var(--card);border-bottom:2px solid var(--neon-blue);
 padding:12px 20px;display:flex;justify-content:space-between;
 align-items:center;position:sticky;top:0;z-index:100;
+box-shadow:0 4px 20px rgba(56,189,248,0.3);
 }
 .logo-area{display:flex;align-items:center;gap:12px}
-.logo-svg{width:40px;height:40px;filter:drop-shadow(0 0 5px var(--neon-green))}
-h1{font-size:1.1rem;color:var(--neon-green);text-transform:uppercase;letter-spacing:1px}
+.logo-svg{width:40px;height:40px;filter:drop-shadow(0 0 8px var(--neon-green))}
+h1{font-size:1.1rem;color:var(--neon-green);text-transform:uppercase;letter-spacing:1px;
+text-shadow:0 0 10px var(--neon-green);}
 
-.btns{display:flex;gap:8px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
 button{
 background:transparent;border:1px solid var(--border);color:var(--text);
 padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;
 transition:0.2s;font-weight:600;
 }
-button:hover{border-color:var(--neon-blue);color:var(--neon-blue)}
-.lang-wrap{position:relative}
-.lang-menu{
-display:none;position:absolute;top:calc(100% + 8px);right:0;
-background:var(--card);border:1px solid var(--border);border-radius:8px;
-min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,0.8);z-index:200;
+button:hover{border-color:var(--neon-blue);color:var(--neon-blue);
+transform:translateY(-2px);box-shadow:0 4px 12px rgba(56,189,248,0.3);}
+button.active{background:var(--neon-green);color:#000;border-color:var(--neon-green);
+box-shadow:0 0 15px rgba(74,222,128,0.6);}
+
+.dropdown{position:relative;display:inline-block}
+.dropdown-btn{display:flex;align-items:center;gap:6px}
+.dropdown-content{
+display:none;position:absolute;top:calc(100% + 4px);right:0;
+background:var(--card);border:1px solid var(--border);
+border-radius:8px;min-width:160px;
+box-shadow:0 8px 24px rgba(0,0,0,0.8);z-index:200;
 }
-.lang-menu.show{display:block}
-.lang-opt{
+.dropdown-content.show{display:block}
+.dropdown-item{
 padding:10px 14px;cursor:pointer;transition:0.2s;
-border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;
+border-bottom:1px solid var(--border);
+display:flex;align-items:center;gap:10px;font-size:0.85rem;
 }
-.lang-opt:last-child{border-bottom:none}
-.lang-opt:hover{background:rgba(0,243,255,0.1)}
-.lang-opt.active{background:rgba(57,255,20,0.1);font-weight:800}
+.dropdown-item:last-child{border-bottom:none}
+.dropdown-item:hover{background:rgba(56,189,248,0.15);transform:translateX(3px)}
+
+.flag-img{width:20px;height:15px;object-fit:cover;border-radius:2px}
+.flag-big{width:28px;height:21px;object-fit:cover;border-radius:3px;
+box-shadow:0 2px 8px rgba(0,0,0,0.4)}
 
 .main{
 max-width:1700px;margin:15px auto;padding:0 15px;
@@ -52,11 +64,16 @@ display:grid;grid-template-columns:380px 1fr 420px;gap:15px;
 .card{
 background:var(--card);border:1px solid var(--border);
 border-radius:10px;padding:16px;margin-bottom:15px;
+box-shadow:0 4px 12px rgba(0,0,0,0.3);
+transition:0.2s;
 }
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.5)}
+
 h3{
 color:var(--neon-blue);font-size:0.85rem;text-transform:uppercase;
 margin-bottom:12px;border-bottom:1px solid var(--border);
 padding-bottom:6px;letter-spacing:0.5px;
+text-shadow:0 0 8px rgba(56,189,248,0.4);
 }
 
 .inp{margin-bottom:14px}
@@ -66,18 +83,52 @@ padding-bottom:6px;letter-spacing:0.5px;
 font-weight:900;font-family:monospace;font-size:1.05rem;
 color:var(--neon-blue);
 }
-.val.pos{color:var(--neon-green)}
-.val.neg{color:var(--neon-red)}
+.val.pos{
+color:var(--neon-green);
+text-shadow:0 0 8px var(--neon-green);
+animation:pulse-glow-green 2s ease-in-out infinite;
+}
+.val.neg{
+color:var(--neon-red);
+text-shadow:0 0 10px var(--neon-red);
+font-size:1.15rem;
+animation:pulse-glow-red 2s ease-in-out infinite;
+}
+.val.warn{
+color:var(--neon-orange);
+animation:pulse-glow-orange 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-green{
+0%,100%{text-shadow:0 0 5px var(--neon-green)}
+50%{text-shadow:0 0 15px var(--neon-green),0 0 25px var(--neon-green)}
+}
+
+@keyframes pulse-glow-orange{
+0%,100%{text-shadow:0 0 5px var(--neon-orange)}
+50%{text-shadow:0 0 15px var(--neon-orange),0 0 25px var(--neon-orange)}
+}
+
+@keyframes pulse-glow-red{
+0%,100%{text-shadow:0 0 5px var(--neon-red)}
+50%{text-shadow:0 0 20px var(--neon-red),0 0 30px var(--neon-red)}
+}
+
+@keyframes pulse-critical{
+0%,20%{text-shadow:0 0 8px var(--neon-red);transform:scale(1)}
+10%{text-shadow:0 0 25px var(--neon-red);transform:scale(1.08)}
+20%,100%{text-shadow:0 0 8px var(--neon-red);transform:scale(1)}
+}
 
 .auto-btn{
 display:inline-flex;align-items:center;gap:4px;
 background:var(--neon-green);color:#000;border:none;
 border-radius:5px;padding:3px 8px;font-size:0.65rem;
 cursor:pointer;font-weight:900;text-transform:uppercase;
-transition:0.2s;
+transition:0.2s;box-shadow:0 0 10px rgba(74,222,128,0.4);
 }
-.auto-btn:hover{transform:scale(1.05)}
-.auto-btn.man{background:var(--neon-red)}
+.auto-btn:hover{transform:scale(1.05);box-shadow:0 0 15px rgba(74,222,128,0.6)}
+.auto-btn.man{background:var(--neon-red);box-shadow:0 0 10px rgba(220,38,38,0.4)}
 
 input[type=range]{
 width:100%;height:6px;background:var(--border);
@@ -87,11 +138,11 @@ border-radius:3px;
 input[type=range]::-webkit-slider-thumb{
 -webkit-appearance:none;width:20px;height:20px;
 background:var(--neon-blue);border-radius:3px;cursor:pointer;
-box-shadow:0 0 8px var(--neon-blue);
+box-shadow:0 0 12px var(--neon-blue);
 }
 input[type=range]::-moz-range-thumb{
 width:20px;height:20px;background:var(--neon-blue);
-border-radius:3px;cursor:pointer;
+border-radius:3px;cursor:pointer;box-shadow:0 0 12px var(--neon-blue);
 }
 input[type=range]:disabled{opacity:0.3;cursor:not-allowed}
 
@@ -102,70 +153,157 @@ gap:10px;
 .city-card{
 background:rgba(255,255,255,0.02);border:1px solid var(--border);
 padding:12px;border-radius:6px;cursor:pointer;text-align:center;
-font-size:0.75rem;transition:0.2s;
+font-size:0.75rem;transition:0.2s;position:relative;
 }
-.city-card:hover{border-color:var(--neon-blue);transform:translateY(-2px)}
-.city-card.sel{
-border-color:var(--neon-green);background:rgba(57,255,20,0.08);
-box-shadow:0 0 12px rgba(57,255,20,0.3);
+.city-card:hover{border-color:var(--neon-blue);transform:translateY(-3px) scale(1.02);
+box-shadow:0 8px 20px rgba(56,189,248,0.3)}
+
+.city-card.green{
+border-color:var(--neon-green);
+box-shadow:0 0 20px rgba(74,222,128,0.4);
+background:rgba(74,222,128,0.05);
 }
-.city-card.ok{border-color:var(--neon-green)}
-.city-card.bad{border-color:var(--neon-red)}
-.city-name{font-weight:900;font-size:0.9rem;margin-bottom:6px}
-.city-val{
-font-family:monospace;font-size:0.85rem;
-color:var(--neon-blue);margin-top:4px;
+.city-card.orange{
+border-color:var(--neon-orange);
+box-shadow:0 0 20px rgba(251,146,60,0.4);
+background:rgba(251,146,60,0.05);
+}
+.city-card.red{
+border-color:var(--neon-red);
+box-shadow:0 0 20px rgba(220,38,38,0.4);
+background:rgba(220,38,38,0.05);
 }
 
+.city-card.sel{
+border:3px solid var(--neon-green);
+animation:breathe 3s ease-in-out infinite;
+transform:scale(1.05);
+}
+.city-card.sel::before{
+content:'';position:absolute;top:-3px;left:-3px;right:-3px;bottom:-3px;
+border-radius:6px;
+box-shadow:0 0 30px rgba(74,222,128,0.8);
+animation:breathe-shadow 3s ease-in-out infinite;
+pointer-events:none;
+}
+
+@keyframes breathe{
+0%,100%{box-shadow:0 0 25px rgba(74,222,128,0.5)}
+50%{box-shadow:0 0 40px rgba(74,222,128,1)}
+}
+
+@keyframes breathe-shadow{
+0%,100%{opacity:0.7}
+50%{opacity:1}
+}
+
+.city-name{font-weight:900;font-size:0.9rem;margin-bottom:6px}
+.city-val{font-family:monospace;font-size:0.85rem;margin-top:4px;font-weight:800}
+.city-val.pos{color:var(--neon-green);text-shadow:0 0 8px var(--neon-green)}
+.city-val.warn{color:var(--neon-orange);text-shadow:0 0 8px var(--neon-orange)}
+.city-val.neg{color:var(--neon-red);animation:pulse-critical 3s ease-in-out infinite}
+.city-flag{margin-bottom:8px;display:flex;justify-content:center}
+
+.hint-box{
+background:rgba(251,146,60,0.1);border:2px dashed var(--neon-orange);
+padding:12px;border-radius:8px;margin-top:12px;
+font-size:0.75rem;line-height:1.8;color:#94a3b8;
+box-shadow:0 0 15px rgba(251,146,60,0.2);
+}
+.hint-box b{color:var(--neon-orange);font-weight:900;text-shadow:0 0 5px var(--neon-orange)}
+.hint-box ul{margin:8px 0 0 20px}
+.hint-box li{margin:4px 0}
+
 .res-box{
-background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;
+background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;
 margin-bottom:12px;border-left:3px solid var(--neon-blue);
+box-shadow:inset 0 2px 10px rgba(0,0,0,0.3);
 }
 .line{
 display:flex;justify-content:space-between;padding:6px 0;
 border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.8rem;
 }
 .line:last-child{border-bottom:none}
-.line strong{font-family:monospace;font-size:0.95rem}
+.line strong{font-family:monospace;font-size:0.95rem;font-weight:900}
 
 .tax-box{
 border:2px dashed var(--neon-green);
-background:rgba(57,255,20,0.03);
+background:rgba(74,222,128,0.05);
 padding:14px;border-radius:8px;margin-top:12px;
+box-shadow:0 0 15px rgba(74,222,128,0.2);
 }
 .tax-title{
 color:var(--neon-green);font-weight:900;font-size:0.9rem;
 margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;
+text-shadow:0 0 8px var(--neon-green);
 }
 .tax-info{
-font-size:0.75rem;color:#94a3b8;line-height:1.6;
+font-size:0.75rem;color:#94a3b8;line-height:1.8;
 margin-top:8px;
 }
 .tax-info b{color:var(--neon-green);font-weight:900}
 
 .big-result{
-text-align:center;padding:16px;
-background:linear-gradient(135deg,rgba(57,255,20,0.1),rgba(0,243,255,0.1));
-border:2px solid var(--neon-green);border-radius:10px;
+text-align:center;padding:20px;
+background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(56,189,248,0.15));
+border:3px solid var(--neon-green);border-radius:12px;
 margin-top:12px;
+box-shadow:0 0 30px rgba(74,222,128,0.4),inset 0 2px 20px rgba(74,222,128,0.1);
 }
 .big-result .label{
 font-size:0.7rem;color:var(--neon-green);
-text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;
+text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;
+text-shadow:0 0 8px var(--neon-green);
 }
 .big-result .value{
-font-size:2rem;font-weight:900;font-family:monospace;
-color:var(--neon-green);text-shadow:0 0 10px var(--neon-green);
+font-size:2.2rem;font-weight:900;font-family:monospace;
+color:var(--neon-green);
+text-shadow:0 0 15px var(--neon-green),0 0 30px var(--neon-green);
+animation:pulse-glow-green 2s ease-in-out infinite;
 }
+.big-result.warn{
+border-color:var(--neon-orange);
+background:linear-gradient(135deg,rgba(251,146,60,0.2),rgba(251,146,60,0.05));
+box-shadow:0 0 30px rgba(251,146,60,0.4),inset 0 2px 20px rgba(251,146,60,0.1);
+}
+.big-result.warn .label{color:var(--neon-orange);text-shadow:0 0 8px var(--neon-orange)}
+.big-result.warn .value{color:var(--neon-orange);animation:pulse-glow-orange 2s ease-in-out infinite}
+.big-result.bad{
+border-color:var(--neon-red);
+background:linear-gradient(135deg,rgba(220,38,38,0.2),rgba(220,38,38,0.05));
+box-shadow:0 0 30px rgba(220,38,38,0.5),inset 0 2px 20px rgba(220,38,38,0.1);
+}
+.big-result.bad .label{color:var(--neon-red);text-shadow:0 0 8px var(--neon-red)}
+.big-result.bad .value{color:var(--neon-red);animation:pulse-critical 3s ease-in-out infinite}
+
+.status-badge{
+display:inline-block;padding:4px 12px;border-radius:20px;
+font-size:0.7rem;font-weight:900;text-transform:uppercase;
+margin-top:8px;letter-spacing:0.5px;
+}
+.status-badge.profit{
+background:rgba(74,222,128,0.2);color:var(--neon-green);
+border:1px solid var(--neon-green);
+box-shadow:0 0 10px rgba(74,222,128,0.3);
+}
+.status-badge.warning{
+background:rgba(251,146,60,0.2);color:var(--neon-orange);
+border:1px solid var(--neon-orange);
+box-shadow:0 0 10px rgba(251,146,60,0.3);
+}
+.status-badge.danger{
+background:rgba(220,38,38,0.2);color:var(--neon-red);
+border:1px solid var(--neon-red);
+box-shadow:0 0 10px rgba(220,38,38,0.3);
+animation:pulse-critical 3s ease-in-out infinite;
+}
+
+.hidden{display:none}
 
 @media(max-width:1200px){
 .main{grid-template-columns:1fr;padding:12px}
 .grid{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
 }
-body.mobile .main{grid-template-columns:1fr}
-body.mobile .grid{grid-template-columns:repeat(2,1fr)}
-body.mobile input[type=range]{height:8px}
-body.mobile input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
 </style>
 </head>
 <body>
@@ -173,37 +311,37 @@ body.mobile input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
 <header>
 <div class="logo-area">
 <svg class="logo-svg" viewBox="0 0 120 140">
-<ellipse cx="60" cy="110" rx="50" ry="10" fill="#39ff14" opacity="0.2"/>
-<path d="M60,85 Q50,95 35,105 M60,85 Q55,98 45,108 M60,85 Q60,98 60,110 M60,85 Q65,98 75,108 M60,85 Q70,95 85,105" 
-stroke="#39ff14" stroke-width="2.5" fill="none"/>
-<circle cx="35" cy="105" r="2" fill="#39ff14"/>
-<circle cx="45" cy="108" r="2" fill="#39ff14"/>
-<circle cx="60" cy="110" r="2" fill="#39ff14"/>
-<circle cx="75" cy="108" r="2" fill="#39ff14"/>
-<circle cx="85" cy="105" r="2" fill="#39ff14"/>
-<path d="M55,85 Q54,60 52,40 Q50,20 55,10 Q58,5 60,5 Q62,5 65,10 Q70,20 68,40 Q66,60 65,85 Z" 
-fill="#5d4a3a" stroke="#39ff14" stroke-width="1"/>
-<ellipse cx="60" cy="45" rx="25" ry="20" fill="#39ff14" opacity="0.6"/>
-<ellipse cx="60" cy="35" rx="28" ry="22" fill="#39ff14" opacity="0.7"/>
-<ellipse cx="60" cy="25" rx="24" ry="18" fill="#39ff14" opacity="0.8"/>
+<ellipse cx="60" cy="110" rx="50" ry="10" fill="#4ade80" opacity="0.2"/>
+<path d="M60,85 Q50,95 35,105 M60,85 Q55,98 45,108 M60,85 Q60,98 60,110 M60,85 Q65,98 75,108 M60,85 Q70,95 85,105" stroke="#4ade80" stroke-width="2.5" fill="none"/>
+<circle cx="35" cy="105" r="2" fill="#4ade80"/>
+<circle cx="45" cy="108" r="2" fill="#4ade80"/>
+<circle cx="60" cy="110" r="2" fill="#4ade80"/>
+<circle cx="75" cy="108" r="2" fill="#4ade80"/>
+<circle cx="85" cy="105" r="2" fill="#4ade80"/>
+<path d="M55,85 Q54,60 52,40 Q50,20 55,10 Q58,5 60,5 Q62,5 65,10 Q70,20 68,40 Q66,60 65,85 Z" fill="#5d4a3a" stroke="#4ade80" stroke-width="1"/>
+<ellipse cx="60" cy="45" rx="25" ry="20" fill="#4ade80" opacity="0.6"/>
+<ellipse cx="60" cy="35" rx="28" ry="22" fill="#4ade80" opacity="0.7"/>
+<ellipse cx="60" cy="25" rx="24" ry="18" fill="#4ade80" opacity="0.8"/>
 </svg>
-<h1>A Better Root Planting</h1>
+<h1 data-i18n="title">A Better Root Planting</h1>
 </div>
 <div class="btns">
-<div class="lang-wrap">
-<button id="langBtn" onclick="toggleLang()">
-<span id="curFlag">🇧🇬</span>
-<span id="curLang">BG</span>
+<button id="uberBtn" class="active" onclick="toggleUber()"><span data-i18n="uberMode">🚗 Uber Mode</span></button>
+<button id="hintBtn" onclick="toggleHint()"><span data-i18n="hintMode">💡 Hint Mode</span></button>
+<div class="dropdown">
+<button class="dropdown-btn" onclick="toggleLangMenu()">
+<img id="currentFlag" class="flag-img" src="https://flagcdn.com/bg.svg" alt="BG">
+<span id="currentLang">BG</span>
+▼
 </button>
-<div class="lang-menu" id="langMenu">
-<div class="lang-opt active" onclick="setLang(0)"><span>🇧🇬</span>Български</div>
-<div class="lang-opt" onclick="setLang(1)"><span>🇬🇧</span>English</div>
-<div class="lang-opt" onclick="setLang(2)"><span>🇩🇪</span>Deutsch</div>
-<div class="lang-opt" onclick="setLang(3)"><span>🇪🇸</span>Español</div>
-<div class="lang-opt" onclick="setLang(4)"><span>🇫🇷</span>Français</div>
+<div class="dropdown-content" id="langMenu">
+<div class="dropdown-item" onclick="setLang('bg')"><img class="flag-img" src="https://flagcdn.com/bg.svg"> <span data-i18n="langBg">Български</span></div>
+<div class="dropdown-item" onclick="setLang('en')"><img class="flag-img" src="https://flagcdn.com/gb.svg"> <span data-i18n="langEn">English</span></div>
+<div class="dropdown-item" onclick="setLang('de')"><img class="flag-img" src="https://flagcdn.com/de.svg"> <span data-i18n="langDe">Deutsch</span></div>
+<div class="dropdown-item" onclick="setLang('es')"><img class="flag-img" src="https://flagcdn.com/es.svg"> <span data-i18n="langEs">Español</span></div>
+<div class="dropdown-item" onclick="setLang('fr')"><img class="flag-img" src="https://flagcdn.com/fr.svg"> <span data-i18n="langFr">Français</span></div>
 </div>
 </div>
-<button id="viewBtn" onclick="toggleView()">💻 Desktop</button>
 <button onclick="location.reload()">🔄</button>
 </div>
 </header>
@@ -211,208 +349,311 @@ fill="#5d4a3a" stroke="#39ff14" stroke-width="1"/>
 <div class="main">
 <div class="col">
 
-<!-- BASIC -->
 <div class="card">
-<h3 data-t="family">👨‍👩‍👧‍👦 Семейство</h3>
+<h3 data-i18n="family">👨‍👩‍👧‍👦 Family</h3>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl"><span data-t="adults">Възрастни</span> / <span data-t="children">Деца</span></span>
-<span class="val"><span id="va">2</span> / <span id="vk">3</span></span>
+<span class="lbl" data-i18n="adults">Adults</span>
+<span class="val" id="va">2</span>
 </div>
-<input type="range" min="1" max="4" value="2" oninput="S.a=+this.value;calc()">
-<input type="range" min="0" max="6" value="3" oninput="S.k=+this.value;calc()">
-</div>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl" data-t="rent">Месечен наем (€)</span>
-<span class="val neg" id="vr">-1500</span>
-</div>
-<input type="range" id="sRent" min="400" max="8000" value="1500" step="50" oninput="S.r=+this.value;calc()">
-<div style="font-size:0.7rem;color:#64748b;margin-top:4px">
-💡 <span data-t="rentHint">Препоръчително за града:</span> <span id="rentRec" style="color:var(--neon-green);font-weight:900">1500€</span>
-</div>
+<input type="range" min="1" max="4" value="2" id="sAdults" oninput="S.a=+this.value;updateFamily();calc()">
 </div>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl" data-t="budget">Бюджет живот (€/мес)</span>
-<span class="val neg" id="vh">-1200</span>
+<span class="lbl" data-i18n="kids">Kids</span>
+<span class="val" id="vk">1</span>
 </div>
-<input type="range" id="sBudget" min="300" max="5000" value="1200" step="50" oninput="S.h=+this.value;calc()">
-<div style="font-size:0.7rem;color:#64748b;margin-top:4px">
-💡 <span data-t="budgetHint">Препоръчително за семейство от</span> <span id="famSize">5</span>: <span id="budgetRec" style="color:var(--neon-green);font-weight:900">1200€</span>
-</div>
+<input type="range" min="0" max="5" value="1" id="sKids" oninput="S.k=+this.value;updateFamily();calc()">
 </div>
 </div>
 
-<!-- UBER -->
 <div class="card">
-<h3>🚗 Uber параметри</h3>
+<h3 data-i18n="living">🏠 Living & Expenses</h3>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl" data-t="netKm">Базов нет €/км</span>
-<span class="val pos" id="vnk">1.10</span>
+<span class="lbl" data-i18n="rent">Rent (€/mo)</span>
+<span class="val neg" id="vr">-3200</span>
 </div>
-<input type="range" id="sNet" min="0.40" max="2.50" value="1.10" step="0.05" oninput="S.nk=+this.value;calc()">
-<div style="font-size:0.7rem;color:#64748b;margin-top:4px">
-💡 <span data-t="netHint">Препоръчително за града:</span> <span id="netRec" style="color:var(--neon-green);font-weight:900">1.10€</span>
-</div>
+<input type="range" min="500" max="9000" step="50" value="3200" id="sRent" oninput="S.r=+this.value;updateNet();calc()">
 </div>
 <div class="inp">
 <div class="inp-head">
-<span class="lbl" data-t="km">Километри/ден</span>
-<span class="val" id="vl">220</span>
+<span class="lbl" data-i18n="budget">Budget (€/mo)</span>
+<span class="val neg" id="vh">-1800</span>
 </div>
-<input type="range" min="50" max="500" value="220" step="10" oninput="S.l=+this.value;calc()">
-</div>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl" data-t="comfort">Comfort % (premium)</span>
-<span class="val" id="vcf">40%</span>
-</div>
-<input type="range" min="0" max="100" value="40" step="5" oninput="S.cf=+this.value;calc()">
+<input type="range" min="400" max="5000" step="50" value="1800" id="sBudget" oninput="S.h=+this.value;calc()">
 </div>
 </div>
 
-<!-- TAX DEDUCTIONS -->
+<div class="card" id="uberCard">
+<h3 data-i18n="uber">🚗 Uber Parameters</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="netkm">Net profit (€/km)</span>
+<span class="val pos" id="vnk">1.20</span>
+</div>
+<input type="range" min="0.30" max="2.50" step="0.01" value="1.20" id="sNet" oninput="S.nk=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="kmday">Kilometers/day</span>
+<span class="val" id="vl">250</span>
+</div>
+<input type="range" min="100" max="400" step="10" value="250" id="sKm" oninput="S.l=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="workdays">Working days/month</span>
+<span class="val" id="vwd">22</span>
+</div>
+<input type="range" min="15" max="28" step="1" value="22" id="sWorkDays" oninput="S.wd=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="comfort">Comfort %</span>
+<span class="val" id="vcf">50%</span>
+</div>
+<input type="range" min="0" max="100" step="5" value="50" id="sComfort" oninput="S.cf=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="tips">💶 Tips (€/mo)</span>
+<span class="val pos" id="vtips">300</span>
+</div>
+<input type="range" min="100" max="1000" step="50" value="300" id="sTips" oninput="S.tips=+this.value;calc()">
+</div>
+</div>
+
+<div class="card hidden" id="incomeCard">
+<h3 data-i18n="income">💼 Income</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="monthlyIncome">Monthly income (€)</span>
+<span class="val pos" id="vIncome">3000</span>
+</div>
+<input type="range" min="1000" max="15000" step="100" value="3000" id="sIncome" oninput="S.income=+this.value;calc()">
+</div>
+</div>
+
+<div class="card" id="taxCard">
+<h3 data-i18n="tax">💰 Tax Benefits</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="kmrate">€/km rate</span>
+<span class="val" id="vrate">0.70</span>
+<button class="auto-btn" id="rateBtn" onclick="toggleAuto('rate')">AUTO</button>
+</div>
+<input type="range" min="0.30" max="1.00" step="0.01" value="0.70" id="sRate" disabled oninput="S.rate=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="childded">Quota/child (€)</span>
+<span class="val" id="vcd">9000</span>
+<button class="auto-btn" id="childBtn" onclick="toggleAuto('child')">AUTO</button>
+</div>
+<input type="range" min="3000" max="15000" step="500" value="9000" id="sChild" disabled oninput="S.cd=+this.value;calc()">
+</div>
+</div>
+
 <div class="card">
-<h3 data-t="taxDeductions">📉 Данъчни приспадания</h3>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">Ставка €/км</span>
-<div style="display:flex;align-items:center;gap:8px">
-<span class="auto-btn" id="rateBtn" onclick="togAuto('rate')">AUTO</span>
-<span class="val pos" id="vrate">0.70</span>
+<h3 data-i18n="recommended">💡 Recommendations</h3>
+<div style="font-size:0.75rem;color:#94a3b8;line-height:1.8">
+<div><span data-i18n="recFamily">Family</span>: <b style="color:var(--neon-blue)" id="famSize">3</b></div>
+<div><span data-i18n="recRent">Rent</span>: <b style="color:var(--neon-blue)" id="rentRec">3200€</b></div>
+<div><span data-i18n="recBudget">Budget</span>: <b style="color:var(--neon-blue)" id="budgetRec">1800€</b></div>
+<div id="netRecLine"><span data-i18n="recNetkm">Net/km</span>: <b style="color:var(--neon-blue)" id="netRec">1.20€</b></div>
 </div>
 </div>
-<input type="range" id="sRate" min="0.20" max="1.50" value="0.70" step="0.05" disabled oninput="S.rate=+this.value;calc()">
-<div style="font-size:0.7rem;color:#64748b;margin-top:4px" id="rateHint">0.70€/км (Швейцария)</div>
-</div>
-<div class="inp">
-<div class="inp-head">
-<span class="lbl">Квота/дете (€/год)</span>
-<div style="display:flex;align-items:center;gap:8px">
-<span class="auto-btn" id="childBtn" onclick="togAuto('child')">AUTO</span>
-<span class="val pos" id="vcd">9000</span>
-</div>
-</div>
-<input type="range" id="sChild" min="1000" max="15000" value="9000" step="500" disabled oninput="S.cd=+this.value;calc()">
-<div style="font-size:0.7rem;color:#64748b;margin-top:4px" id="childHint">9000€ (Швейцария)</div>
-</div>
+
+<div class="card hidden" id="hintCard">
+<h3 data-i18n="hints">🎯 Hint Suggestions</h3>
+<div id="hintContent"></div>
 </div>
 
 </div>
 
 <div class="col">
 <div class="card">
-<h3 data-t="cities">🌍 Градове - кликни за детайли</h3>
+<h3 id="selTitle" data-i18n="cities">🌍 Cities</h3>
 <div class="grid" id="grid"></div>
 </div>
 </div>
 
 <div class="col">
 <div class="card">
-<h3 id="selTitle">🎯 Избери град</h3>
+<h3 data-i18n="results">📊 Results</h3>
 <div id="results"></div>
 </div>
 
-<div class="card">
-<h3>⚖️ Данъчен механизъм</h3>
+<div class="card" id="taxExplainCard">
+<h3 data-i18n="taxinfo">📋 Tax Mathematics</h3>
 <div id="taxExplain"></div>
 </div>
 
-<div class="card" style="border:2px solid var(--neon-blue)">
-<h3>🤖 AI Помощник</h3>
-<div id="aiHelper" style="font-size:0.8rem;line-height:1.6;color:#94a3b8"></div>
+<div class="card">
+<h3 data-i18n="aihelper">🤖 AI Financial Analysis</h3>
+<div id="aiHelper" style="font-size:0.78rem;color:#94a3b8;line-height:1.8"></div>
 </div>
 </div>
 
 </div>
 
 <script>
-const S={
-a:2,k:3,r:1500,h:1200,nk:1.10,l:220,cf:40,
-rate:0.70,cd:9000,
-rateAuto:true,childAuto:true,
-sel:'Zurich',lg:0,mobile:false
+const FLAGS_URL='https://flagcdn.com/';
+
+const FLAG_CODES={
+bg:'bg',en:'gb',de:'de',es:'es',fr:'fr'
 };
 
 const T={
-family:['Семейство','Family','Familie','Familia','Famille'],
-adults:['Възрастни','Adults','Erwachsene','Adultos','Adultes'],
-children:['Деца','Children','Kinder','Niños','Enfants'],
-rent:['Месечен наем (€)','Monthly rent (€)','Monatsmiete (€)','Alquiler mensual (€)','Loyer mensuel (€)'],
-rentHint:['Препоръчително за града:','Recommended for city:','Empfohlen für Stadt:','Recomendado para ciudad:','Recommandé pour ville:'],
-budget:['Бюджет живот (€/мес)','Living budget (€/mo)','Lebensbudget (€/Mon)','Presupuesto (€/mes)','Budget vie (€/mois)'],
-budgetHint:['Препоръчително за семейство от','Recommended for family of','Empfohlen für Familie von','Recomendado para familia de','Recommandé pour famille de'],
-netKm:['Базов нет €/км','Base net €/km','Basis netto €/km','Base neto €/km','Base net €/km'],
-netHint:['Препоръчително за града:','Recommended for city:','Empfohlen für Stadt:','Recomendado para ciudad:','Recommandé pour ville:'],
-km:['Километри/ден','Km per day','Km pro Tag','Km por día','Km par jour'],
-comfort:['Comfort % (premium)','Comfort % (premium)','Comfort % (Premium)','Comfort % (premium)','Comfort % (premium)'],
-taxDeductions:['Данъчни приспадания','Tax Deductions','Steuerabzüge','Deducciones fiscales','Déductions fiscales'],
-cities:['Градове - кликни за детайли','Cities - click for details','Städte - klicken für Details','Ciudades - clic para detalles','Villes - cliquer pour détails'],
-selected:['Избери град','Select city','Stadt wählen','Elegir ciudad','Sélectionner ville'],
+title:{bg:'A Better Root Planting',en:'A Better Root Planting',de:'Eine bessere Wurzelpflanzung',es:'Una Mejor Plantación de Raíces',fr:'Une Meilleure Plantation de Racines'},
+uberMode:{bg:'🚗 Uber Режим',en:'🚗 Uber Mode',de:'🚗 Uber Modus',es:'🚗 Modo Uber',fr:'🚗 Mode Uber'},
+hintMode:{bg:'💡 Hint Режим',en:'💡 Hint Mode',de:'💡 Hinweis-Modus',es:'💡 Modo Sugerencia',fr:'💡 Mode Conseil'},
+hints:{bg:'🎯 Hint Препоръки',en:'🎯 Hint Suggestions',de:'🎯 Hinweis-Vorschläge',es:'🎯 Sugerencias Hint',fr:'🎯 Suggestions Hint'},
+langBg:{bg:'Български',en:'Bulgarian',de:'Bulgarisch',es:'Búlgaro',fr:'Bulgare'},
+langEn:{bg:'Английски',en:'English',de:'Englisch',es:'Inglés',fr:'Anglais'},
+langDe:{bg:'Немски',en:'German',de:'Deutsch',es:'Alemán',fr:'Allemand'},
+langEs:{bg:'Испански',en:'Spanish',de:'Spanisch',es:'Español',fr:'Espagnol'},
+langFr:{bg:'Френски',en:'French',de:'Französisch',es:'Francés',fr:'Français'},
+family:{bg:'👨‍👩‍👧‍👦 Семейство',en:'👨‍👩‍👧‍👦 Family',de:'👨‍👩‍👧‍👦 Familie',es:'👨‍👩‍👧‍👦 Familia',fr:'👨‍👩‍👧‍👦 Famille'},
+adults:{bg:'Възрастни',en:'Adults',de:'Erwachsene',es:'Adultos',fr:'Adultes'},
+kids:{bg:'Деца',en:'Kids',de:'Kinder',es:'Niños',fr:'Enfants'},
+living:{bg:'🏠 Жилище & Разходи',en:'🏠 Living & Expenses',de:'🏠 Wohnen & Ausgaben',es:'🏠 Vivienda & Gastos',fr:'🏠 Logement & Dépenses'},
+rent:{bg:'Наем (€/мес)',en:'Rent (€/mo)',de:'Miete (€/Monat)',es:'Alquiler (€/mes)',fr:'Loyer (€/mois)'},
+budget:{bg:'Бюджет (€/мес)',en:'Budget (€/mo)',de:'Budget (€/Monat)',es:'Presupuesto (€/mes)',fr:'Budget (€/mois)'},
+uber:{bg:'🚗 Uber Параметри',en:'🚗 Uber Parameters',de:'🚗 Uber Parameter',es:'🚗 Parámetros Uber',fr:'🚗 Paramètres Uber'},
+netkm:{bg:'Нетна печалба (€/км)',en:'Net profit (€/km)',de:'Nettogewinn (€/km)',es:'Beneficio neto (€/km)',fr:'Bénéfice net (€/km)'},
+kmday:{bg:'Километри/ден',en:'Kilometers/day',de:'Kilometer/Tag',es:'Kilómetros/día',fr:'Kilomètres/jour'},
+workdays:{bg:'Работни дни/месец',en:'Working days/month',de:'Arbeitstage/Monat',es:'Días laborables/mes',fr:'Jours ouvrables/mois'},
+comfort:{bg:'Comfort %',en:'Comfort %',de:'Comfort %',es:'Comfort %',fr:'Comfort %'},
+tips:{bg:'💶 Бакшиш (€/мес)',en:'💶 Tips (€/mo)',de:'💶 Trinkgeld (€/Monat)',es:'💶 Propinas (€/mes)',fr:'💶 Pourboires (€/mois)'},
+income:{bg:'💼 Приходи',en:'💼 Income',de:'💼 Einkommen',es:'💼 Ingresos',fr:'💼 Revenus'},
+monthlyIncome:{bg:'Месечен доход (€)',en:'Monthly income (€)',de:'Monatliches Einkommen (€)',es:'Ingresos mensuales (€)',fr:'Revenu mensuel (€)'},
+tax:{bg:'💰 Данъчни облекчения',en:'💰 Tax Benefits',de:'💰 Steuervergünstigungen',es:'💰 Beneficios fiscales',fr:'💰 Avantages fiscaux'},
+kmrate:{bg:'€/км ставка',en:'€/km rate',de:'€/km Satz',es:'€/km tarifa',fr:'€/km tarif'},
+childded:{bg:'Квота/дете (€)',en:'Quota/child (€)',de:'Quote/Kind (€)',es:'Cuota/niño (€)',fr:'Quota/enfant (€)'},
+recommended:{bg:'💡 Препоръки',en:'💡 Recommendations',de:'💡 Empfehlungen',es:'💡 Recomendaciones',fr:'💡 Recommandations'},
+recFamily:{bg:'Семейство',en:'Family',de:'Familie',es:'Familia',fr:'Famille'},
+recRent:{bg:'Наем',en:'Rent',de:'Miete',es:'Alquiler',fr:'Loyer'},
+recBudget:{bg:'Бюджет',en:'Budget',de:'Budget',es:'Presupuesto',fr:'Budget'},
+recNetkm:{bg:'Нетно/км',en:'Net/km',de:'Netto/km',es:'Neto/km',fr:'Net/km'},
+cities:{bg:'🌍 Градове',en:'🌍 Cities',de:'🌍 Städte',es:'🌍 Ciudades',fr:'🌍 Villes'},
+results:{bg:'📊 Резултати',en:'📊 Results',de:'📊 Ergebnisse',es:'📊 Resultados',fr:'📊 Résultats'},
+taxinfo:{bg:'📋 Данъчна математика',en:'📋 Tax Mathematics',de:'📋 Steuermathematik',es:'📋 Matemáticas Fiscales',fr:'📋 Mathématiques Fiscales'},
+aihelper:{bg:'🤖 AI Финансов Анализ',en:'🤖 AI Financial Analysis',de:'🤖 KI-Finanzanalyse',es:'🤖 Análisis Financiero IA',fr:'🤖 Analyse Financière IA'},
+incomeLabel:{bg:'Приход',en:'Income',de:'Einkommen',es:'Ingresos',fr:'Revenus'},
+benefitsLabel:{bg:'Надбавки',en:'Benefits',de:'Leistungen',es:'Beneficios',fr:'Prestations'},
+expensesLabel:{bg:'Разходи',en:'Expenses',de:'Ausgaben',es:'Gastos',fr:'Dépenses'},
+balanceLabel:{bg:'ОСТАТЪК',en:'BALANCE',de:'SALDO',es:'SALDO',fr:'SOLDE'},
+yearlyBalance:{bg:'Годишен баланс',en:'Yearly Balance',de:'Jahresbilanz',es:'Balance Anual',fr:'Bilan Annuel'},
+fromWork:{bg:'От работа',en:'From work',de:'Aus Arbeit',es:'Del trabajo',fr:'Du travail'},
+profit:{bg:'💰 ПЕЧАЛБА',en:'💰 PROFIT',de:'💰 GEWINN',es:'💰 GANANCIA',fr:'💰 BÉNÉFICE'},
+warning:{bg:'⚠️ РИСК',en:'⚠️ RISK',de:'⚠️ RISIKO',es:'⚠️ RIESGO',fr:'⚠️ RISQUE'},
+danger:{bg:'🚨 ЗАГУБА',en:'🚨 LOSS',de:'🚨 VERLUST',es:'🚨 PÉRDIDA',fr:'🚨 PERTE'}
 };
 
-function updateText(){
-document.querySelectorAll('[data-t]').forEach(el=>{
-const key=el.getAttribute('data-t');
-if(T[key])el.textContent=T[key][S.lg];
-});
-}
-
-const D={
-Zurich:{n:'Zürich',c:'🇨🇭',tr:20,cb:215,cd:9000,rate:0.70,rm:2600,rx:6800,avgRent:3200,avgBudget:1800,baseNet:1.20},
-Zug:{n:'Zug',c:'🇨🇭',tr:18,cb:215,cd:9000,rate:0.70,rm:2600,rx:6500,avgRent:3000,avgBudget:1700,baseNet:1.15},
-Geneva:{n:'Geneva',c:'🇨🇭',tr:22,cb:311,cd:11000,rate:0.70,rm:2500,rx:6200,avgRent:2800,avgBudget:1600,baseNet:1.10},
-Oslo:{n:'Oslo',c:'🇳🇴',tr:32,cb:150,cd:7000,rate:0.50,rm:1900,rx:3600,avgRent:2200,avgBudget:1500,baseNet:0.95},
-Berlin:{n:'Berlin',c:'🇩🇪',tr:25,cb:255,cd:9000,rate:0.30,rm:1500,rx:3200,avgRent:1800,avgBudget:1200,baseNet:0.80},
-Munich:{n:'München',c:'🇩🇪',tr:27,cb:255,cd:9000,rate:0.30,rm:2000,rx:4500,avgRent:2200,avgBudget:1400,baseNet:0.90},
-Vienna:{n:'Wien',c:'🇦🇹',tr:28,cb:148,cd:6500,rate:0.42,rm:1600,rx:3000,avgRent:1800,avgBudget:1100,baseNet:0.75},
-Amsterdam:{n:'Amsterdam',c:'🇳🇱',tr:30,cb:130,cd:6000,rate:0.19,rm:2200,rx:4000,avgRent:2400,avgBudget:1300,baseNet:0.80},
-Paris:{n:'Paris',c:'🇫🇷',tr:30,cb:142,cd:7500,rate:0.50,rm:1800,rx:3800,avgRent:2000,avgBudget:1300,baseNet:0.75},
-London:{n:'London',c:'🇬🇧',tr:32,cb:102,cd:5500,rate:0.45,rm:2400,rx:5000,avgRent:2800,avgBudget:1500,baseNet:0.85},
-Brussels:{n:'Brussels',c:'🇧🇪',tr:28,cb:180,cd:7000,rate:0.35,rm:1400,rx:2800,avgRent:1600,avgBudget:1100,baseNet:0.70},
-Barcelona:{n:'Barcelona',c:'🇪🇸',tr:24,cb:58,cd:3500,rate:0.19,rm:1400,rx:2600,avgRent:1600,avgBudget:900,baseNet:0.60},
-Madrid:{n:'Madrid',c:'🇪🇸',tr:24,cb:58,cd:3500,rate:0.19,rm:1300,rx:2400,avgRent:1500,avgBudget:850,baseNet:0.58},
-Lisbon:{n:'Lisboa',c:'🇵🇹',tr:22,cb:63,cd:3200,rate:0.36,rm:1200,rx:2200,avgRent:1400,avgBudget:800,baseNet:0.55},
-Rome:{n:'Roma',c:'🇮🇹',tr:26,cb:50,cd:3000,rate:0.20,rm:1400,rx:2600,avgRent:1600,avgBudget:900,baseNet:0.62},
-Prague:{n:'Praha',c:'🇨🇿',tr:20,cb:30,cd:2500,rate:0.28,rm:1200,rx:2000,avgRent:1300,avgBudget:700,baseNet:0.50},
-Warsaw:{n:'Warszawa',c:'🇵🇱',tr:18,cb:30,cd:2000,rate:0.30,rm:1000,rx:1800,avgRent:1100,avgBudget:650,baseNet:0.48},
-Budapest:{n:'Budapest',c:'🇭🇺',tr:16,cb:25,cd:1800,rate:0.25,rm:900,rx:1600,avgRent:1000,avgBudget:600,baseNet:0.45},
-Sofia:{n:'София',c:'🇧🇬',tr:10,cb:20,cd:1500,rate:0.35,rm:650,rx:1600,avgRent:800,avgBudget:500,baseNet:0.42},
+const CITIES={
+zurich:{flag:'ch',name:{bg:'Цюрих',en:'Zurich',de:'Zürich',es:'Zúrich',fr:'Zurich'},baseNet:1.00,maxBoost:0.60,avgRent:3200,rm:2500,rx:7000,avgBudget:1800,rate:0.70,cb:250,cd:9000,tr:25},
+geneva:{flag:'ch',name:{bg:'Женева',en:'Geneva',de:'Genf',es:'Ginebra',fr:'Genève'},baseNet:0.98,maxBoost:0.58,avgRent:3400,rm:2700,rx:7200,avgBudget:1900,rate:0.70,cb:250,cd:9000,tr:25},
+basel:{flag:'ch',name:{bg:'Базел',en:'Basel',de:'Basel',es:'Basilea',fr:'Bâle'},baseNet:0.95,maxBoost:0.55,avgRent:2800,rm:2200,rx:6500,avgBudget:1600,rate:0.70,cb:250,cd:9000,tr:24},
+bern:{flag:'ch',name:{bg:'Берн',en:'Bern',de:'Bern',es:'Berna',fr:'Berne'},baseNet:0.92,maxBoost:0.52,avgRent:2600,rm:2000,rx:6000,avgBudget:1500,rate:0.70,cb:250,cd:9000,tr:23},
+munich:{flag:'de',name:{bg:'Мюнхен',en:'Munich',de:'München',es:'Múnich',fr:'Munich'},baseNet:0.85,maxBoost:0.40,avgRent:2200,rm:1700,rx:4500,avgBudget:1400,rate:0.65,cb:219,cd:8952,tr:30},
+berlin:{flag:'de',name:{bg:'Берлин',en:'Berlin',de:'Berlin',es:'Berlín',fr:'Berlin'},baseNet:0.75,maxBoost:0.35,avgRent:1800,rm:1300,rx:3800,avgBudget:1200,rate:0.65,cb:219,cd:8952,tr:28},
+frankfurt:{flag:'de',name:{bg:'Франкфурт',en:'Frankfurt',de:'Frankfurt',es:'Fráncfort',fr:'Francfort'},baseNet:0.80,maxBoost:0.38,avgRent:2000,rm:1500,rx:4200,avgBudget:1300,rate:0.65,cb:219,cd:8952,tr:29},
+hamburg:{flag:'de',name:{bg:'Хамбург',en:'Hamburg',de:'Hamburg',es:'Hamburgo',fr:'Hambourg'},baseNet:0.78,maxBoost:0.36,avgRent:1900,rm:1400,rx:4000,avgBudget:1250,rate:0.65,cb:219,cd:8952,tr:28},
+vienna:{flag:'at',name:{bg:'Виена',en:'Vienna',de:'Wien',es:'Viena',fr:'Vienne'},baseNet:0.70,maxBoost:0.32,avgRent:1600,rm:1200,rx:3500,avgBudget:1100,rate:0.60,cb:174,cd:8388,tr:32},
+amsterdam:{flag:'nl',name:{bg:'Амстердам',en:'Amsterdam',de:'Amsterdam',es:'Ámsterdam',fr:'Amsterdam'},baseNet:0.88,maxBoost:0.45,avgRent:2400,rm:1900,rx:4800,avgBudget:1500,rate:0.68,cb:275,cd:10284,tr:37},
+brussels:{flag:'be',name:{bg:'Брюксел',en:'Brussels',de:'Brüssel',es:'Bruselas',fr:'Bruxelles'},baseNet:0.73,maxBoost:0.33,avgRent:1700,rm:1300,rx:3600,avgBudget:1200,rate:0.62,cb:180,cd:8990,tr:35},
+luxembourg:{flag:'lu',name:{bg:'Люксембург',en:'Luxembourg',de:'Luxemburg',es:'Luxemburgo',fr:'Luxembourg'},baseNet:0.93,maxBoost:0.48,avgRent:2800,rm:2200,rx:5500,avgBudget:1700,rate:0.72,cb:265,cd:11520,tr:28},
+paris:{flag:'fr',name:{bg:'Париж',en:'Paris',de:'Paris',es:'París',fr:'Paris'},baseNet:0.82,maxBoost:0.42,avgRent:2300,rm:1800,rx:4600,avgBudget:1450,rate:0.66,cb:185,cd:8547,tr:33},
+london:{flag:'gb',name:{bg:'Лондон',en:'London',de:'London',es:'Londres',fr:'Londres'},baseNet:0.90,maxBoost:0.50,avgRent:2900,rm:2300,rx:5800,avgBudget:1750,rate:0.69,cb:240,cd:12570,tr:31},
+dublin:{flag:'ie',name:{bg:'Дъблин',en:'Dublin',de:'Dublin',es:'Dublín',fr:'Dublin'},baseNet:0.86,maxBoost:0.44,avgRent:2500,rm:2000,rx:5000,avgBudget:1550,rate:0.67,cb:220,cd:9360,tr:29},
+copenhagen:{flag:'dk',name:{bg:'Копенхаген',en:'Copenhagen',de:'Kopenhagen',es:'Copenhague',fr:'Copenhague'},baseNet:0.87,maxBoost:0.44,avgRent:2400,rm:1900,rx:4800,avgBudget:1650,rate:0.68,cb:290,cd:10872,tr:36},
+stockholm:{flag:'se',name:{bg:'Стокхолм',en:'Stockholm',de:'Stockholm',es:'Estocolmo',fr:'Stockholm'},baseNet:0.85,maxBoost:0.42,avgRent:2200,rm:1700,rx:4400,avgBudget:1500,rate:0.67,cb:250,cd:9576,tr:32},
+oslo:{flag:'no',name:{bg:'Осло',en:'Oslo',de:'Oslo',es:'Oslo',fr:'Oslo'},baseNet:0.94,maxBoost:0.48,avgRent:2600,rm:2100,rx:5200,avgBudget:1700,rate:0.70,cb:310,cd:11064,tr:30},
+helsinki:{flag:'fi',name:{bg:'Хелзинки',en:'Helsinki',de:'Helsinki',es:'Helsinki',fr:'Helsinki'},baseNet:0.83,maxBoost:0.40,avgRent:2000,rm:1500,rx:4000,avgBudget:1450,rate:0.66,cb:260,cd:9240,tr:31},
+reykjavik:{flag:'is',name:{bg:'Рейкявик',en:'Reykjavik',de:'Reykjavík',es:'Reikiavik',fr:'Reykjavik'},baseNet:0.88,maxBoost:0.44,avgRent:2300,rm:1800,rx:4600,avgBudget:1550,rate:0.68,cb:280,cd:10200,tr:33},
+madrid:{flag:'es',name:{bg:'Мадрид',en:'Madrid',de:'Madrid',es:'Madrid',fr:'Madrid'},baseNet:0.60,maxBoost:0.20,avgRent:1400,rm:1000,rx:2800,avgBudget:1050,rate:0.58,cb:145,cd:6936,tr:27},
+barcelona:{flag:'es',name:{bg:'Барселона',en:'Barcelona',de:'Barcelona',es:'Barcelona',fr:'Barcelone'},baseNet:0.62,maxBoost:0.22,avgRent:1600,rm:1200,rx:3200,avgBudget:1150,rate:0.58,cb:145,cd:6936,tr:27},
+rome:{flag:'it',name:{bg:'Рим',en:'Rome',de:'Rom',es:'Roma',fr:'Rome'},baseNet:0.58,maxBoost:0.18,avgRent:1500,rm:1100,rx:3000,avgBudget:1100,rate:0.57,cb:167,cd:7452,tr:29},
+milan:{flag:'it',name:{bg:'Милано',en:'Milan',de:'Mailand',es:'Milán',fr:'Milan'},baseNet:0.63,maxBoost:0.24,avgRent:1800,rm:1400,rx:3600,avgBudget:1200,rate:0.59,cb:167,cd:7452,tr:30},
+lisbon:{flag:'pt',name:{bg:'Лисабон',en:'Lisbon',de:'Lissabon',es:'Lisboa',fr:'Lisbonne'},baseNet:0.55,maxBoost:0.16,avgRent:1300,rm:900,rx:2600,avgBudget:1000,rate:0.55,cb:140,cd:6480,tr:26},
+athens:{flag:'gr',name:{bg:'Атина',en:'Athens',de:'Athen',es:'Atenas',fr:'Athènes'},baseNet:0.52,maxBoost:0.14,avgRent:1100,rm:800,rx:2200,avgBudget:950,rate:0.53,cb:135,cd:5880,tr:24},
+warsaw:{flag:'pl',name:{bg:'Варшава',en:'Warsaw',de:'Warschau',es:'Varsovia',fr:'Varsovie'},baseNet:0.49,maxBoost:0.12,avgRent:1000,rm:700,rx:2000,avgBudget:850,rate:0.52,cb:92,cd:4392,tr:22},
+prague:{flag:'cz',name:{bg:'Прага',en:'Prague',de:'Prag',es:'Praga',fr:'Prague'},baseNet:0.53,maxBoost:0.15,avgRent:1200,rm:900,rx:2400,avgBudget:950,rate:0.54,cb:105,cd:4968,tr:23},
+budapest:{flag:'hu',name:{bg:'Будапеща',en:'Budapest',de:'Budapest',es:'Budapest',fr:'Budapest'},baseNet:0.47,maxBoost:0.10,avgRent:950,rm:650,rx:1900,avgBudget:800,rate:0.51,cb:88,cd:4080,tr:20},
+bucharest:{flag:'ro',name:{bg:'Букурещ',en:'Bucharest',de:'Bukarest',es:'Bucarest',fr:'Bucarest'},baseNet:0.44,maxBoost:0.09,avgRent:850,rm:600,rx:1700,avgBudget:750,rate:0.49,cb:82,cd:3720,tr:18},
+sofia:{flag:'bg',name:{bg:'София',en:'Sofia',de:'Sofia',es:'Sofía',fr:'Sofia'},baseNet:0.42,maxBoost:0.08,avgRent:750,rm:500,rx:1500,avgBudget:650,rate:0.35,cb:75,cd:3360,tr:10}
 };
 
-function toggleLang(){
-document.getElementById('langMenu').classList.toggle('show');
-}
+const S={
+a:2,k:1,r:3200,h:1800,nk:1.20,l:250,wd:22,cf:50,tips:300,income:3000,
+rate:0.70,cd:9000,rateAuto:true,childAuto:true,sel:'zurich',uberMode:true,hintMode:false,lang:'bg'
+};
 
-function setLang(i){
-S.lg=i;
-const flags=['🇧🇬','🇬🇧','🇩🇪','🇪🇸','🇫🇷'];
-const names=['BG','EN','DE','ES','FR'];
-document.getElementById('curFlag').textContent=flags[i];
-document.getElementById('curLang').textContent=names[i];
-document.querySelectorAll('.lang-opt').forEach((el,idx)=>{
-el.classList.toggle('active',idx===i);
-});
+function toggleLangMenu(){document.getElementById('langMenu').classList.toggle('show')}
+
+function setLang(lang){
+S.lang=lang;
+document.getElementById('currentFlag').src=FLAGS_URL+FLAG_CODES[lang]+'.svg';
+document.getElementById('currentLang').textContent=lang.toUpperCase();
 document.getElementById('langMenu').classList.remove('show');
-updateText();
+document.querySelectorAll('[data-i18n]').forEach(el=>{
+const key=el.getAttribute('data-i18n');
+if(T[key]&&T[key][lang])el.textContent=T[key][lang];
+});
 calc();
 }
 
-function toggleView(){
-S.mobile=!S.mobile;
-document.body.classList.toggle('mobile');
-document.getElementById('viewBtn').textContent=S.mobile?'📱 Mobile':'💻 Desktop';
+function calcNet(cityKey,rentLevel){
+const c=CITIES[cityKey];
+const pct=Math.max(0,Math.min(1,(rentLevel-c.rm)/(c.rx-c.rm)));
+return c.baseNet+(c.maxBoost*pct*0.95);
 }
 
-function togAuto(t){
+function updateFamily(){
+const f=S.a+S.k;
+const c=CITIES[S.sel];
+let m=1.0;
+if(f===2)m=0.85;
+else if(f===3)m=1.0;
+else if(f===4)m=1.3;
+else if(f===5)m=1.6;
+else if(f>=6)m=2.0;
+S.h=Math.round((c.avgBudget||1500)*m);
+document.getElementById('sBudget').value=S.h;
+}
+
+function updateNet(){
+S.nk=Math.round(calcNet(S.sel,S.r)*100)/100;
+document.getElementById('sNet').value=S.nk;
+}
+
+function toggleUber(){
+S.uberMode=!S.uberMode;
+document.getElementById('uberBtn').classList.toggle('active',S.uberMode);
+document.getElementById('uberCard').classList.toggle('hidden',!S.uberMode);
+document.getElementById('incomeCard').classList.toggle('hidden',S.uberMode);
+document.getElementById('taxCard').classList.toggle('hidden',!S.uberMode);
+document.getElementById('taxExplainCard').classList.toggle('hidden',!S.uberMode);
+document.getElementById('netRecLine').classList.toggle('hidden',!S.uberMode);
+calc();
+}
+
+function toggleHint(){
+S.hintMode=!S.hintMode;
+document.getElementById('hintBtn').classList.toggle('active',S.hintMode);
+document.getElementById('hintCard').classList.toggle('hidden',!S.hintMode);
+calc();
+}
+
+function toggleAuto(t){
 if(t==='rate'){
 S.rateAuto=!S.rateAuto;
 document.getElementById('rateBtn').textContent=S.rateAuto?'AUTO':'MANUAL';
 document.getElementById('rateBtn').classList.toggle('man');
 document.getElementById('sRate').disabled=S.rateAuto;
-}else if(t==='child'){
+}else{
 S.childAuto=!S.childAuto;
 document.getElementById('childBtn').textContent=S.childAuto?'AUTO':'MANUAL';
 document.getElementById('childBtn').classList.toggle('man');
@@ -422,203 +663,257 @@ calc();
 }
 
 function calc(){
-const sc=D[S.sel];
+const c=CITIES[S.sel];
+const f=S.a+S.k;
+let m=1.0;
+if(f===2)m=0.85;
+else if(f===3)m=1.0;
+else if(f===4)m=1.3;
+else if(f===5)m=1.6;
+else if(f>=6)m=2.0;
 
-// Recommended values based on city + family size
-const familySize=S.a+S.k;
-const budgetMultiplier=familySize<=3?1.0:familySize===4?1.15:familySize===5?1.3:1.5;
+const recRent=c.avgRent||3200;
+const recBudget=Math.round((c.avgBudget||1800)*m);
+const recNet=calcNet(S.sel,recRent);
+const autoRate=c.rate||0.70;
+const autoChild=c.cd||9000;
+const curRate=S.rateAuto?autoRate:S.rate;
+const curChild=S.childAuto?autoChild:S.cd;
 
-const recRent=sc.avgRent||1500;
-const recBudget=Math.round((sc.avgBudget||1200)*budgetMultiplier);
-const recNet=sc.baseNet||1.0;
-const autoRate=sc.rate||0.70;
-const autoChild=sc.cd||9000;
+let monthlyInc=0;
+let finalNetKm=0;
 
-// Use CURRENT values (user can adjust)
-const currentRate=S.rateAuto?autoRate:S.rate;
-const currentChild=S.childAuto?autoChild:S.cd;
-
-// Location efficiency (higher rent = closer to center)
-let eff=0;
-if(S.r>sc.rm){
-const pct=(S.r-sc.rm)/(sc.rx-sc.rm);
-eff=Math.min(pct*0.45,0.55);
+if(S.uberMode){
+const comfortBonus=S.nk*(S.cf/100)*0.20;
+finalNetKm=S.nk+comfortBonus;
+monthlyInc=Math.round(finalNetKm*S.l*S.wd)+S.tips;
+}else{
+monthlyInc=S.income;
 }
-const realNetKm=S.nk+eff;
 
-// Comfort bonus
-const comfortBonus=realNetKm*(S.cf/100)*0.25;
-const finalNetKm=realNetKm+comfortBonus;
-
-// Monthly calculations (WITHOUT tax savings - those are yearly)
-const monthlyInc=Math.round(finalNetKm*S.l*22);
-const monthlyAllow=S.k*sc.cb;
+const monthlyAllow=S.k*c.cb;
 const monthlyOut=S.r+S.h+(S.a*300);
 const netMo=monthlyInc+monthlyAllow-monthlyOut;
 
-// Tax calculations (YEARLY ONLY)
-const totalKmYear=S.l*22*12;
-const kmTaxBasis=totalKmYear*currentRate;
-const kmTaxSaved=kmTaxBasis*(sc.tr/100);
+let totalTaxSaved=0;
+if(S.uberMode){
+const totalKmYear=S.l*S.wd*12;
+const kmTaxBasis=totalKmYear*curRate;
+const kmTaxSaved=kmTaxBasis*(c.tr/100);
+const childTaxBasis=S.k*curChild;
+const childTaxSaved=childTaxBasis*(c.tr/100);
+totalTaxSaved=kmTaxSaved+childTaxSaved;
+}
 
-const childTaxBasis=S.k*currentChild;
-const childTaxSaved=childTaxBasis*(sc.tr/100);
-
-const totalTaxSaved=kmTaxSaved+childTaxSaved;
 const yearlyTotal=netMo*12+totalTaxSaved;
+const isWarn=netMo>=-500&&netMo<=500;
+const isBad=netMo<-500;
 
-// AI Helper Logic
-let aiAdvice='';
-if(netMo<500){
-aiAdvice='<b style="color:var(--neon-red)">⚠️ Критично!</b> Месечният остатък е много нисък.<br>';
-if(S.r>recRent+500){
-aiAdvice+=`💡 Наемът (${S.r}€) е твърде висок. Препоръчително: ${recRent}€<br>`;
-}
-if(S.l<200){
-aiAdvice+=`💡 Караш малко (${S.l} км/ден). Увеличи до 250-300 км за по-добър доход.<br>`;
-}
-if(finalNetKm<0.80){
-aiAdvice+=`💡 Нетната печалба €/км е ниска (${finalNetKm.toFixed(2)}). Препоръчително: ${recNet.toFixed(2)}€<br>`;
-}
-}else if(netMo<1500){
-aiAdvice='<b style="color:var(--neon-blue)">✓ Стабилно</b> но има потенциал за подобрение.<br>';
-if(S.r>recRent){
-aiAdvice+=`💡 Можеш да спестиш ${S.r-recRent}€ като намалиш наема до ${recRent}€.<br>`;
-}
-if(S.l<250){
-aiAdvice+=`💡 Увеличи километрите до 250-280/ден за +${Math.round((250-S.l)*finalNetKm*22)}€/мес.<br>`;
-}
-}else if(netMo<3000){
-aiAdvice='<b style="color:var(--neon-green)">✓✓ Отлично!</b> Балансиран бюджет.<br>';
-aiAdvice+=`💡 За още по-добри резултати: Увеличи Comfort% до 60-70% или пробвай ${S.l+30} км/ден.<br>`;
+if(S.hintMode){
+let hints='';
+if(isBad){
+const neededKm=Math.ceil((monthlyOut-monthlyAllow-S.tips)/(finalNetKm*S.wd));
+const rentReduce=Math.abs(netMo)+500;
+const budgetReduce=Math.round(Math.abs(netMo)*0.6);
+hints=`<div class="hint-box">
+<b>⚠️ ${S.lang==='bg'?'КРИТИЧНА СИТУАЦИЯ':'CRITICAL SITUATION'}!</b><br><br>
+${S.lang==='bg'?'Параметри за промяна':'Parameters to change'}:<br>
+<ul>
+<li><b>${S.lang==='bg'?'Километри/ден':'Km/day'}:</b> ${S.lang==='bg'?'Увеличи на':'Increase to'} <b>${neededKm} км</b></li>
+<li><b>${S.lang==='bg'?'Наем':'Rent'}:</b> ${S.lang==='bg'?'Намали с':'Reduce by'} <b>${rentReduce}€</b></li>
+<li><b>${S.lang==='bg'?'Бюджет':'Budget'}:</b> ${S.lang==='bg'?'Намали с':'Reduce by'} <b>${budgetReduce}€</b></li>
+<li><b>Comfort %:</b> ${S.lang==='bg'?'Увеличи до':'Increase to'} <b>70-80%</b></li>
+</ul>
+</div>`;
+}else if(isWarn){
+const safeKm=Math.ceil((monthlyOut+1000-monthlyAllow-S.tips)/(finalNetKm*S.wd));
+hints=`<div class="hint-box">
+<b>⚠️ ${S.lang==='bg'?'РИСКОВА ЗОНА':'RISK ZONE'}!</b><br><br>
+${S.lang==='bg'?'Препоръчителни промени':'Recommended changes'}:<br>
+<ul>
+<li><b>${S.lang==='bg'?'Километри/ден':'Km/day'}:</b> ${S.lang==='bg'?'Увеличи на':'Increase to'} <b>${safeKm} км</b></li>
+<li><b>${S.lang==='bg'?'Работни дни':'Work days'}:</b> ${S.lang==='bg'?'Добави':'Add'} <b>2-3 ${S.lang==='bg'?'дни':'days'}</b></li>
+<li><b>Comfort %:</b> ${S.lang==='bg'?'Оптимизирай до':'Optimize to'} <b>60-70%</b></li>
+</ul>
+</div>`;
 }else{
-aiAdvice='<b style="color:var(--neon-green)">🌟 Перфектно!</b> Много силна финансова позиция!<br>';
-aiAdvice+=`💡 Спестявай максимално - разглеждай имот или инвестиции с годишните ${yearlyTotal.toLocaleString()}€!<br>`;
+hints=`<div class="hint-box">
+<b>✅ ${S.lang==='bg'?'СТАБИЛНА КОНФИГУРАЦИЯ':'STABLE CONFIGURATION'}!</b><br><br>
+${S.lang==='bg'?'Спестявания':'Savings'}: ${Math.round(netMo*0.6)}€/мес → ${Math.round(netMo*0.6*12).toLocaleString()}€/${S.lang==='bg'?'година':'year'}
+</div>`;
+}
+document.getElementById('hintContent').innerHTML=hints;
 }
 
-// Compare with other cities
-const bestCity=Object.keys(D).reduce((best,k)=>{
-const ct=D[k];
-const testNet=(ct.baseNet||1.0)*S.l*22+(S.k*ct.cb)-(ct.avgRent||1500)-(ct.avgBudget||1200)*budgetMultiplier;
-const bestNetCalc=(D[best].baseNet||1.0)*S.l*22+(S.k*D[best].cb)-(D[best].avgRent||1500)-(D[best].avgBudget||1200)*budgetMultiplier;
-return testNet>bestNetCalc?k:best;
-},'Zurich');
-
-if(bestCity!==S.sel&&Math.abs(netMo)<2000){
-aiAdvice+=`<br>💡 <b>Важно:</b> В ${D[bestCity].c} ${D[bestCity].n} можеш да печелиш повече при същите параметри!`;
-}
-
-// Update ALL displays
 document.getElementById('va').textContent=S.a;
 document.getElementById('vk').textContent=S.k;
 document.getElementById('vr').textContent='-'+S.r;
 document.getElementById('vh').textContent='-'+S.h;
+
+if(S.uberMode){
 document.getElementById('vnk').textContent=finalNetKm.toFixed(2);
 document.getElementById('vl').textContent=S.l;
+document.getElementById('vwd').textContent=S.wd;
 document.getElementById('vcf').textContent=S.cf+'%';
-document.getElementById('vrate').textContent=currentRate.toFixed(2);
-document.getElementById('vcd').textContent=currentChild.toLocaleString();
+document.getElementById('vtips').textContent='+'+S.tips;
+document.getElementById('vrate').textContent=curRate.toFixed(2);
+document.getElementById('vcd').textContent=curChild.toLocaleString();
+}else{
+document.getElementById('vIncome').textContent=S.income;
+}
 
-// Show recommendations
-document.getElementById('famSize').textContent=familySize;
+document.getElementById('famSize').textContent=f;
 document.getElementById('rentRec').textContent=recRent+'€';
 document.getElementById('budgetRec').textContent=recBudget+'€';
-document.getElementById('netRec').textContent=recNet.toFixed(2)+'€';
+if(S.uberMode)document.getElementById('netRec').textContent=recNet.toFixed(2)+'€';
 
-document.getElementById('rateHint').textContent=S.rateAuto?`${currentRate.toFixed(2)}€/км (${sc.n})`:'Ръчна ставка';
-document.getElementById('childHint').textContent=S.childAuto?`${currentChild.toLocaleString()}€ (${sc.n})`:'Ръчна квота';
-
-if(!S.rateAuto)document.getElementById('sRate').value=S.rate;
-if(!S.childAuto)document.getElementById('sChild').value=S.cd;
-
-// City grid
 const g=document.getElementById('grid');
 g.innerHTML='';
-Object.keys(D).forEach(k=>{
-const ct=D[k];
+Object.keys(CITIES).forEach(k=>{
+const ct=CITIES[k];
+let cityInc=0;
+if(S.uberMode){
+const cityComfortBonus=S.nk*(S.cf/100)*0.20;
+const cityNetKm=S.nk+cityComfortBonus;
+cityInc=Math.round(cityNetKm*S.l*S.wd)+S.tips;
+}else{
+cityInc=S.income;
+}
+const cityAllow=S.k*ct.cb;
+const cityOut=S.r+S.h+(S.a*300);
+const cityNet=cityInc+cityAllow-cityOut;
+const isNearZero=cityNet>=-500&&cityNet<=500;
+const isCityBad=cityNet<-500;
+
+let cityClass='city-card';
+if(S.sel===k)cityClass+=' sel';
+if(isCityBad)cityClass+=' red';
+else if(isNearZero)cityClass+=' orange';
+else if(cityNet>500)cityClass+=' green';
+
+let valClass='city-val';
+if(isCityBad)valClass+=' neg';
+else if(isNearZero)valClass+=' warn';
+else if(cityNet>500)valClass+=' pos';
+
 const d=document.createElement('div');
-d.className=`city-card ${S.sel===k?'sel':''} ${netMo>=0?'ok':'bad'}`;
-d.innerHTML=`
-<div class="city-name">${ct.c} ${ct.n}</div>
-<div class="city-val">${netMo>=0?'+':''}${netMo}€/мес</div>
-`;
+d.className=cityClass;
+d.innerHTML=`<div class="city-flag"><img src="${FLAGS_URL}${ct.flag}.svg" class="flag-big" alt="${ct.flag}"></div><div class="city-name">${ct.name[S.lang]}</div><div class="${valClass}">${cityNet>=0?'+':''}${cityNet}€</div>`;
 d.onclick=()=>{
 S.sel=k;
-// Auto-set recommended values when selecting city
-S.r=D[k].avgRent||S.r;
-S.h=Math.round((D[k].avgBudget||S.h)*budgetMultiplier);
-S.nk=D[k].baseNet||S.nk;
+S.r=CITIES[k].avgRent||S.r;
+S.h=Math.round((CITIES[k].avgBudget||S.h)*m);
+if(S.uberMode){
+S.nk=calcNet(k,S.r);
+document.getElementById('sNet').value=S.nk;
+}
 document.getElementById('sRent').value=S.r;
 document.getElementById('sBudget').value=S.h;
-document.getElementById('sNet').value=S.nk;
 calc();
 };
 g.appendChild(d);
 });
 
-// Results
-document.getElementById('selTitle').innerHTML=`🎯 ${sc.c} ${sc.n}`;
-document.getElementById('results').innerHTML=`
+document.getElementById('selTitle').innerHTML=`🎯 <img src="${FLAGS_URL}${c.flag}.svg" class="flag-img" style="vertical-align:middle"> ${c.name[S.lang]}`;
+
+let incomeClass='pos';
+let benefitsClass='pos';
+let expensesClass='neg';
+let balanceClass=isWarn?'warn':(isBad?'neg':'pos');
+
+let statusBadge='';
+if(isBad){
+statusBadge=`<div class="status-badge danger">${T.danger[S.lang]}</div>`;
+}else if(isWarn){
+statusBadge=`<div class="status-badge warning">${T.warning[S.lang]}</div>`;
+}else{
+statusBadge=`<div class="status-badge profit">${T.profit[S.lang]}</div>`;
+}
+
+let resultsHTML=`
 <div class="res-box">
-<div class="line"><span>Приход (работа):</span><strong class="pos">+${monthlyInc.toLocaleString()}€</strong></div>
-<div class="line"><span>Надбавки (деца):</span><strong class="pos">+${monthlyAllow}€</strong></div>
-<div class="line"><span>Разходи (всичко):</span><strong class="neg">-${monthlyOut.toLocaleString()}€</strong></div>
-<div class="line" style="border-top:2px solid var(--neon-blue);margin-top:8px;padding-top:8px;font-size:0.95rem">
-<span><b>ОСТАТЪК (месец):</b></span>
-<strong class="${netMo>=0?'pos':'neg'}">${netMo>=0?'+':''}${netMo.toLocaleString()}€</strong>
+<div class="line"><span>${T.incomeLabel[S.lang]}:</span><strong class="${incomeClass}">+${monthlyInc.toLocaleString()}€</strong></div>
+<div class="line"><span>${T.benefitsLabel[S.lang]}:</span><strong class="${benefitsClass}">+${monthlyAllow}€</strong></div>
+<div class="line"><span>${T.expensesLabel[S.lang]}:</span><strong class="${expensesClass}">-${monthlyOut.toLocaleString()}€</strong></div>
+<div class="line" style="border-top:2px solid var(--neon-blue);margin-top:8px;padding-top:8px">
+<span><b>${T.balanceLabel[S.lang]}:</b></span>
+<strong class="${balanceClass}">${netMo>=0?'+':''}${netMo.toLocaleString()}€</strong>
 </div>
 </div>
-
-<div style="font-size:0.75rem;color:#64748b;margin:12px 0;padding:10px;background:rgba(0,243,255,0.05);border-radius:6px;border-left:3px solid var(--neon-blue)">
-💡 <b>Забележка:</b> Данъчните облекчения (километраж + деца) се прилагат само при годишната декларация, не месечно.
-</div>
-
-<div class="big-result">
-<div class="label">💰 Годишен баланс (с данъчни спестявания)</div>
-<div class="value">+${yearlyTotal.toLocaleString()} €</div>
+${statusBadge}
+<div class="big-result${isWarn?' warn':(isBad?' bad':'')}">
+<div class="label">💰 ${T.yearlyBalance[S.lang]}</div>
+<div class="value">${yearlyTotal>=0?'+':''}${yearlyTotal.toLocaleString()} €</div>
 <div style="font-size:0.7rem;color:#64748b;margin-top:8px">
-От работа: ${(netMo*12).toLocaleString()}€ + Спестен данък в края на годината: +${Math.round(totalTaxSaved).toLocaleString()}€
+${T.fromWork[S.lang]}: ${(netMo*12).toLocaleString()}€ + <b style="color:var(${isWarn?'--neon-orange':(isBad?'--neon-red':'--neon-green')})">+${Math.round(totalTaxSaved).toLocaleString()}€</b>
 </div>
 </div>
 `;
+document.getElementById('results').innerHTML=resultsHTML;
 
-// Tax explanation
+if(S.uberMode){
+const kmPerYear=S.l*S.wd*12;
+const kmTaxBasis=kmPerYear*curRate;
+const kmTaxSaved=kmTaxBasis*(c.tr/100);
+const childTaxBasis=S.k*curChild;
+const childTaxSaved=childTaxBasis*(c.tr/100);
+
 document.getElementById('taxExplain').innerHTML=`
 <div class="tax-box">
-<div class="tax-title">💡 Как работи данъчното спестяване?</div>
+<div class="tax-title">💡 ${S.lang==='bg'?'Данъчна математика':'Tax Mathematics'}</div>
 <div class="tax-info">
-<b style="color:var(--neon-red)">⚠️ Важно:</b> Тези облекчения са <b>ГОДИШНИ</b> - получаваш ги при подаване на данъчна декларация!<br><br>
+<b style="color:var(--neon-green)">📊 ${S.lang==='bg'?'КИЛОМЕТРАЖ':'MILEAGE'}:</b><br>
+🚗 ${S.lang==='bg'?'Годишно':'Yearly'}: ${S.l} км × ${S.wd} ${S.lang==='bg'?'дни':'days'} × 12 = <b>${kmPerYear.toLocaleString()} км</b><br><br>
 
-В ${sc.n} данъкът е <b>${sc.tr}%</b>.<br><br>
+<b style="color:var(--neon-green)">💰 ${S.lang==='bg'?'ДАНЪЧНА СТАВКА':'TAX RATE'}:</b><br>
+📋 ${kmPerYear.toLocaleString()} км × ${curRate.toFixed(2)}€ = <b>${kmTaxBasis.toLocaleString()}€</b><br>
+📋 ${S.lang==='bg'?'Данък':'Tax'} ${c.tr}%: <b>-${kmTaxSaved.toLocaleString()}€</b><br>
+📋 ${S.lang==='bg'?'Месечно':'Monthly'}: <b>${Math.round(kmTaxSaved/12).toLocaleString()}€</b><br><br>
 
-<b>📍 Километри:</b><br>
-Изминаваш ${totalKmYear.toLocaleString()} км годишно.<br>
-Държавата признава <b>${kmTaxBasis.toLocaleString()}€</b> разход (${currentRate.toFixed(2)}€/км).<br>
-Не плащаш ${sc.tr}% данък върху тях → Спестяваш <b>+${Math.round(kmTaxSaved).toLocaleString()}€ ГОДИШНО</b><br><br>
+${S.k>0?`<b style="color:var(--neon-green)">👶 ${S.lang==='bg'?'ДЕЦА':'CHILDREN'} (${S.k}):</b><br>
+📋 ${S.k} × ${curChild.toLocaleString()}€ = <b>${childTaxBasis.toLocaleString()}€</b><br>
+📋 ${S.lang==='bg'?'Данък':'Tax'} ${c.tr}%: <b>-${childTaxSaved.toLocaleString()}€</b><br>
+📋 ${S.lang==='bg'?'Месечно':'Monthly'}: <b>${Math.round(childTaxSaved/12).toLocaleString()}€</b><br><br>`:''}
 
-<b>👶 Деца:</b><br>
-За ${S.k} деца квотата е <b>${childTaxBasis.toLocaleString()}€</b> (${currentChild.toLocaleString()}€/дете).<br>
-Не плащаш ${sc.tr}% данък върху тях → Спестяваш <b>+${Math.round(childTaxSaved).toLocaleString()}€ ГОДИШНО</b><br><br>
-
-<b style="color:var(--neon-green)">💰 Общо спестени данъци в края на годината: +${Math.round(totalTaxSaved).toLocaleString()}€</b>
+<b style="color:var(--neon-green)">🎯 ${S.lang==='bg'?'ОБЩО':'TOTAL'}:</b><br>
+✅ ${S.lang==='bg'?'Годишно':'Yearly'}: <b>${Math.round(totalTaxSaved).toLocaleString()}€</b><br>
+✅ ${S.lang==='bg'?'Месечно':'Monthly'}: <b>${Math.round(totalTaxSaved/12).toLocaleString()}€</b>
 </div>
 </div>
 `;
+}
 
-// AI Helper
+let aiAdvice='';
+if(netMo<-500){
+aiAdvice=`<b style="color:var(--neon-red)">🚨 ${S.lang==='bg'?'КРИТИЧНО':'CRITICAL'}!</b><br><br>
+${S.lang==='bg'?'Месечен дефицит':'Monthly deficit'}: ${Math.abs(netMo).toLocaleString()}€`;
+}else if(netMo<500){
+aiAdvice=`<b style="color:var(--neon-orange)">⚠️ ${S.lang==='bg'?'РИСК':'RISK'}!</b><br><br>
+${S.lang==='bg'?'Баланс':'Balance'}: ${netMo}€`;
+}else if(netMo<1500){
+aiAdvice=`<b style="color:var(--neon-blue)">✓ ${S.lang==='bg'?'СТАБИЛНО':'STABLE'}</b><br><br>
+${S.lang==='bg'?'Излишък':'Surplus'}: ${netMo.toLocaleString()}€/мес`;
+}else if(netMo<3000){
+aiAdvice=`<b style="color:var(--neon-green)">✓✓ ${S.lang==='bg'?'ОТЛИЧНО':'EXCELLENT'}!</b><br><br>
+${S.lang==='bg'?'Излишък':'Surplus'}: ${netMo.toLocaleString()}€/мес`;
+}else{
+aiAdvice=`<b style="color:var(--neon-green)">🌟 ${S.lang==='bg'?'ПЕРФЕКТНО':'PERFECT'}!</b><br><br>
+${S.lang==='bg'?'Годишен баланс':'Yearly'}: ${yearlyTotal.toLocaleString()}€`;
+}
 document.getElementById('aiHelper').innerHTML=aiAdvice;
 }
 
-// Close dropdown on outside click
-document.addEventListener('click',e=>{
-const menu=document.getElementById('langMenu');
-const btn=document.getElementById('langBtn');
-if(menu&&!menu.contains(e.target)&&!btn.contains(e.target)){
-menu.classList.remove('show');
+document.addEventListener('click',(e)=>{
+if(!e.target.closest('.dropdown')){
+document.getElementById('langMenu').classList.remove('show');
 }
 });
 
+setLang('bg');
+updateFamily();
+updateNet();
 calc();
 </script>
+
 </body>
 </html>
