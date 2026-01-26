@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>A Better Root Planting</title>
+<style>
+:root{
+--bg:#050a15;--card:#0d1525;--border:#1e293b;
+--neon-green:#39ff14;--neon-blue:#00f3ff;--neon-red:#ff3131;
+--text:#e2e8f0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+
+header{
+background:var(--card);border-bottom:2px solid var(--neon-blue);
+padding:12px 20px;display:flex;justify-content:space-between;
+align-items:center;position:sticky;top:0;z-index:100;
+}
+.logo-area{display:flex;align-items:center;gap:12px}
+.logo-svg{width:40px;height:40px;filter:drop-shadow(0 0 5px var(--neon-green))}
+h1{font-size:1.1rem;color:var(--neon-green);text-transform:uppercase;letter-spacing:1px}
+
+.btns{display:flex;gap:8px}
+button{
+background:transparent;border:1px solid var(--border);color:var(--text);
+padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;
+transition:0.2s;font-weight:600;
+}
+button:hover{border-color:var(--neon-blue);color:var(--neon-blue)}
+.lang-wrap{position:relative}
+.lang-menu{
+display:none;position:absolute;top:calc(100% + 8px);right:0;
+background:var(--card);border:1px solid var(--border);border-radius:8px;
+min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,0.8);z-index:200;
+}
+.lang-menu.show{display:block}
+.lang-opt{
+padding:10px 14px;cursor:pointer;transition:0.2s;
+border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;
+}
+.lang-opt:last-child{border-bottom:none}
+.lang-opt:hover{background:rgba(0,243,255,0.1)}
+.lang-opt.active{background:rgba(57,255,20,0.1);font-weight:800}
+
+.main{
+max-width:1700px;margin:15px auto;padding:0 15px;
+display:grid;grid-template-columns:380px 1fr 420px;gap:15px;
+}
+
+.card{
+background:var(--card);border:1px solid var(--border);
+border-radius:10px;padding:16px;margin-bottom:15px;
+}
+h3{
+color:var(--neon-blue);font-size:0.85rem;text-transform:uppercase;
+margin-bottom:12px;border-bottom:1px solid var(--border);
+padding-bottom:6px;letter-spacing:0.5px;
+}
+
+.inp{margin-bottom:14px}
+.inp-head{display:flex;justify-content:space-between;margin-bottom:4px;align-items:center}
+.lbl{color:#8b9eb8;font-size:0.8rem;font-weight:600}
+.val{
+font-weight:900;font-family:monospace;font-size:1.05rem;
+color:var(--neon-blue);
+}
+.val.pos{color:var(--neon-green)}
+.val.neg{color:var(--neon-red)}
+
+.auto-btn{
+display:inline-flex;align-items:center;gap:4px;
+background:var(--neon-green);color:#000;border:none;
+border-radius:5px;padding:3px 8px;font-size:0.65rem;
+cursor:pointer;font-weight:900;text-transform:uppercase;
+transition:0.2s;
+}
+.auto-btn:hover{transform:scale(1.05)}
+.auto-btn.man{background:var(--neon-red)}
+
+input[type=range]{
+width:100%;height:6px;background:var(--border);
+-webkit-appearance:none;margin:10px 0;outline:none;
+border-radius:3px;
+}
+input[type=range]::-webkit-slider-thumb{
+-webkit-appearance:none;width:20px;height:20px;
+background:var(--neon-blue);border-radius:3px;cursor:pointer;
+box-shadow:0 0 8px var(--neon-blue);
+}
+input[type=range]::-moz-range-thumb{
+width:20px;height:20px;background:var(--neon-blue);
+border-radius:3px;cursor:pointer;
+}
+input[type=range]:disabled{opacity:0.3;cursor:not-allowed}
+
+.grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
+gap:10px;
+}
+.city-card{
+background:rgba(255,255,255,0.02);border:1px solid var(--border);
+padding:12px;border-radius:6px;cursor:pointer;text-align:center;
+font-size:0.75rem;transition:0.2s;
+}
+.city-card:hover{border-color:var(--neon-blue);transform:translateY(-2px)}
+.city-card.sel{
+border-color:var(--neon-green);background:rgba(57,255,20,0.08);
+box-shadow:0 0 12px rgba(57,255,20,0.3);
+}
+.city-card.ok{border-color:var(--neon-green)}
+.city-card.bad{border-color:var(--neon-red)}
+.city-name{font-weight:900;font-size:0.9rem;margin-bottom:6px}
+.city-val{
+font-family:monospace;font-size:0.85rem;
+color:var(--neon-blue);margin-top:4px;
+}
+
+.res-box{
+background:rgba(0,0,0,0.3);padding:12px;border-radius:6px;
+margin-bottom:12px;border-left:3px solid var(--neon-blue);
+}
+.line{
+display:flex;justify-content:space-between;padding:6px 0;
+border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.8rem;
+}
+.line:last-child{border-bottom:none}
+.line strong{font-family:monospace;font-size:0.95rem}
+
+.tax-box{
+border:2px dashed var(--neon-green);
+background:rgba(57,255,20,0.03);
+padding:14px;border-radius:8px;margin-top:12px;
+}
+.tax-title{
+color:var(--neon-green);font-weight:900;font-size:0.9rem;
+margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;
+}
+.tax-info{
+font-size:0.75rem;color:#94a3b8;line-height:1.6;
+margin-top:8px;
+}
+.tax-info b{color:var(--neon-green);font-weight:900}
+
+.big-result{
+text-align:center;padding:16px;
+background:linear-gradient(135deg,rgba(57,255,20,0.1),rgba(0,243,255,0.1));
+border:2px solid var(--neon-green);border-radius:10px;
+margin-top:12px;
+}
+.big-result .label{
+font-size:0.7rem;color:var(--neon-green);
+text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;
+}
+.big-result .value{
+font-size:2rem;font-weight:900;font-family:monospace;
+color:var(--neon-green);text-shadow:0 0 10px var(--neon-green);
+}
+
+@media(max-width:1200px){
+.main{grid-template-columns:1fr;padding:12px}
+.grid{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
+}
+body.mobile .main{grid-template-columns:1fr}
+body.mobile .grid{grid-template-columns:repeat(2,1fr)}
+body.mobile input[type=range]{height:8px}
+body.mobile input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo-area">
+<svg class="logo-svg" viewBox="0 0 120 140">
+<ellipse cx="60" cy="110" rx="50" ry="10" fill="#39ff14" opacity="0.2"/>
+<path d="M60,85 Q50,95 35,105 M60,85 Q55,98 45,108 M60,85 Q60,98 60,110 M60,85 Q65,98 75,108 M60,85 Q70,95 85,105" 
+stroke="#39ff14" stroke-width="2.5" fill="none"/>
+<circle cx="35" cy="105" r="2" fill="#39ff14"/>
+<circle cx="45" cy="108" r="2" fill="#39ff14"/>
+<circle cx="60" cy="110" r="2" fill="#39ff14"/>
+<circle cx="75" cy="108" r="2" fill="#39ff14"/>
+<circle cx="85" cy="105" r="2" fill="#39ff14"/>
+<path d="M55,85 Q54,60 52,40 Q50,20 55,10 Q58,5 60,5 Q62,5 65,10 Q70,20 68,40 Q66,60 65,85 Z" 
+fill="#5d4a3a" stroke="#39ff14" stroke-width="1"/>
+<ellipse cx="60" cy="45" rx="25" ry="20" fill="#39ff14" opacity="0.6"/>
+<ellipse cx="60" cy="35" rx="28" ry="22" fill="#39ff14" opacity="0.7"/>
+<ellipse cx="60" cy="25" rx="24" ry="18" fill="#39ff14" opacity="0.8"/>
+</svg>
+<h1>A Better Root Planting</h1>
+</div>
+<div class="btns">
+<div class="lang-wrap">
+<button id="langBtn" onclick="toggleLang()">
+<span id="curFlag">🇧🇬</span>
+<span id="curLang">BG</span>
+</button>
+<div class="lang-menu" id="langMenu">
+<div class="lang-opt active" onclick="setLang(0)"><span>🇧🇬</span>Български</div>
+<div class="lang-opt" onclick="setLang(1)"><span>🇬🇧</span>English</div>
+<div class="lang-opt" onclick="setLang(2)"><span>🇩🇪</span>Deutsch</div>
+<div class="lang-opt" onclick="setLang(3)"><span>🇪🇸</span>Español</div>
+<div class="lang-opt" onclick="setLang(4)"><span>🇫🇷</span>Français</div>
+</div>
+</div>
+<button id="viewBtn" onclick="toggleView()">💻 Desktop</button>
+<button onclick="location.reload()">🔄</button>
+</div>
+</header>
+
+<div class="main">
+<div class="col">
+
+<!-- BASIC -->
+<div class="card">
+<h3 data-t="family">👨‍👩‍👧‍👦 Семейство</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl"><span data-t="adults">Възрастни</span> / <span data-t="children">Деца</span></span>
+<span class="val"><span id="va">2</span> / <span id="vk">3</span></span>
+</div>
+<input type="range" min="1" max="4" value="2" oninput="S.a=+this.value;calc()">
+<input type="range" min="0" max="6" value="3" oninput="S.k=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-t="rent">Месечен наем (€)</span>
+<span class="val neg" id="vr">-1500</span>
+</div>
+<input type="range" id="sRent" min="400" max="8000" value="1500" step="50" oninput="S.r=+this.value;calc()">
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px">
+💡 <span data-t="rentHint">Препоръчително за града:</span> <span id="rentRec" style="color:var(--neon-green);font-weight:900">1500€</span>
+</div>
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-t="budget">Бюджет живот (€/мес)</span>
+<span class="val neg" id="vh">-1200</span>
+</div>
+<input type="range" id="sBudget" min="300" max="5000" value="1200" step="50" oninput="S.h=+this.value;calc()">
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px">
+💡 <span data-t="budgetHint">Препоръчително за семейство от</span> <span id="famSize">5</span>: <span id="budgetRec" style="color:var(--neon-green);font-weight:900">1200€</span>
+</div>
+</div>
+</div>
+
+<!-- UBER -->
+<div class="card">
+<h3>🚗 Uber параметри</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-t="netKm">Базов нет €/км</span>
+<span class="val pos" id="vnk">1.10</span>
+</div>
+<input type="range" id="sNet" min="0.40" max="2.50" value="1.10" step="0.05" oninput="S.nk=+this.value;calc()">
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px">
+💡 <span data-t="netHint">Препоръчително за града:</span> <span id="netRec" style="color:var(--neon-green);font-weight:900">1.10€</span>
+</div>
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-t="km">Километри/ден</span>
+<span class="val" id="vl">220</span>
+</div>
+<input type="range" min="50" max="500" value="220" step="10" oninput="S.l=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-t="comfort">Comfort % (premium)</span>
+<span class="val" id="vcf">40%</span>
+</div>
+<input type="range" min="0" max="100" value="40" step="5" oninput="S.cf=+this.value;calc()">
+</div>
+</div>
+
+<!-- TAX DEDUCTIONS -->
+<div class="card">
+<h3 data-t="taxDeductions">📉 Данъчни приспадания</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Ставка €/км</span>
+<div style="display:flex;align-items:center;gap:8px">
+<span class="auto-btn" id="rateBtn" onclick="togAuto('rate')">AUTO</span>
+<span class="val pos" id="vrate">0.70</span>
+</div>
+</div>
+<input type="range" id="sRate" min="0.20" max="1.50" value="0.70" step="0.05" disabled oninput="S.rate=+this.value;calc()">
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px" id="rateHint">0.70€/км (Швейцария)</div>
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl">Квота/дете (€/год)</span>
+<div style="display:flex;align-items:center;gap:8px">
+<span class="auto-btn" id="childBtn" onclick="togAuto('child')">AUTO</span>
+<span class="val pos" id="vcd">9000</span>
+</div>
+</div>
+<input type="range" id="sChild" min="1000" max="15000" value="9000" step="500" disabled oninput="S.cd=+this.value;calc()">
+<div style="font-size:0.7rem;color:#64748b;margin-top:4px" id="childHint">9000€ (Швейцария)</div>
+</div>
+</div>
+
+</div>
+
+<div class="col">
+<div class="card">
+<h3 data-t="cities">🌍 Градове - кликни за детайли</h3>
+<div class="grid" id="grid"></div>
+</div>
+</div>
+
+<div class="col">
+<div class="card">
+<h3 id="selTitle">🎯 Избери град</h3>
+<div id="results"></div>
+</div>
+
+<div class="card">
+<h3>⚖️ Данъчен механизъм</h3>
+<div id="taxExplain"></div>
+</div>
+
+<div class="card" style="border:2px solid var(--neon-blue)">
+<h3>🤖 AI Помощник</h3>
+<div id="aiHelper" style="font-size:0.8rem;line-height:1.6;color:#94a3b8"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const S={
+a:2,k:3,r:1500,h:1200,nk:1.10,l:220,cf:40,
+rate:0.70,cd:9000,
+rateAuto:true,childAuto:true,
+sel:'Zurich',lg:0,mobile:false
+};
+
+const T={
+family:['Семейство','Family','Familie','Familia','Famille'],
+adults:['Възрастни','Adults','Erwachsene','Adultos','Adultes'],
+children:['Деца','Children','Kinder','Niños','Enfants'],
+rent:['Месечен наем (€)','Monthly rent (€)','Monatsmiete (€)','Alquiler mensual (€)','Loyer mensuel (€)'],
+rentHint:['Препоръчително за града:','Recommended for city:','Empfohlen für Stadt:','Recomendado para ciudad:','Recommandé pour ville:'],
+budget:['Бюджет живот (€/мес)','Living budget (€/mo)','Lebensbudget (€/Mon)','Presupuesto (€/mes)','Budget vie (€/mois)'],
+budgetHint:['Препоръчително за семейство от','Recommended for family of','Empfohlen für Familie von','Recomendado para familia de','Recommandé pour famille de'],
+netKm:['Базов нет €/км','Base net €/km','Basis netto €/km','Base neto €/km','Base net €/km'],
+netHint:['Препоръчително за града:','Recommended for city:','Empfohlen für Stadt:','Recomendado para ciudad:','Recommandé pour ville:'],
+km:['Километри/ден','Km per day','Km pro Tag','Km por día','Km par jour'],
+comfort:['Comfort % (premium)','Comfort % (premium)','Comfort % (Premium)','Comfort % (premium)','Comfort % (premium)'],
+taxDeductions:['Данъчни приспадания','Tax Deductions','Steuerabzüge','Deducciones fiscales','Déductions fiscales'],
+cities:['Градове - кликни за детайли','Cities - click for details','Städte - klicken für Details','Ciudades - clic para detalles','Villes - cliquer pour détails'],
+selected:['Избери град','Select city','Stadt wählen','Elegir ciudad','Sélectionner ville'],
+};
+
+function updateText(){
+document.querySelectorAll('[data-t]').forEach(el=>{
+const key=el.getAttribute('data-t');
+if(T[key])el.textContent=T[key][S.lg];
+});
+}
+
+const D={
+Zurich:{n:'Zürich',c:'🇨🇭',tr:20,cb:215,cd:9000,rate:0.70,rm:2600,rx:6800,avgRent:3200,avgBudget:1800,baseNet:1.20},
+Zug:{n:'Zug',c:'🇨🇭',tr:18,cb:215,cd:9000,rate:0.70,rm:2600,rx:6500,avgRent:3000,avgBudget:1700,baseNet:1.15},
+Geneva:{n:'Geneva',c:'🇨🇭',tr:22,cb:311,cd:11000,rate:0.70,rm:2500,rx:6200,avgRent:2800,avgBudget:1600,baseNet:1.10},
+Oslo:{n:'Oslo',c:'🇳🇴',tr:32,cb:150,cd:7000,rate:0.50,rm:1900,rx:3600,avgRent:2200,avgBudget:1500,baseNet:0.95},
+Berlin:{n:'Berlin',c:'🇩🇪',tr:25,cb:255,cd:9000,rate:0.30,rm:1500,rx:3200,avgRent:1800,avgBudget:1200,baseNet:0.80},
+Munich:{n:'München',c:'🇩🇪',tr:27,cb:255,cd:9000,rate:0.30,rm:2000,rx:4500,avgRent:2200,avgBudget:1400,baseNet:0.90},
+Vienna:{n:'Wien',c:'🇦🇹',tr:28,cb:148,cd:6500,rate:0.42,rm:1600,rx:3000,avgRent:1800,avgBudget:1100,baseNet:0.75},
+Amsterdam:{n:'Amsterdam',c:'🇳🇱',tr:30,cb:130,cd:6000,rate:0.19,rm:2200,rx:4000,avgRent:2400,avgBudget:1300,baseNet:0.80},
+Paris:{n:'Paris',c:'🇫🇷',tr:30,cb:142,cd:7500,rate:0.50,rm:1800,rx:3800,avgRent:2000,avgBudget:1300,baseNet:0.75},
+London:{n:'London',c:'🇬🇧',tr:32,cb:102,cd:5500,rate:0.45,rm:2400,rx:5000,avgRent:2800,avgBudget:1500,baseNet:0.85},
+Brussels:{n:'Brussels',c:'🇧🇪',tr:28,cb:180,cd:7000,rate:0.35,rm:1400,rx:2800,avgRent:1600,avgBudget:1100,baseNet:0.70},
+Barcelona:{n:'Barcelona',c:'🇪🇸',tr:24,cb:58,cd:3500,rate:0.19,rm:1400,rx:2600,avgRent:1600,avgBudget:900,baseNet:0.60},
+Madrid:{n:'Madrid',c:'🇪🇸',tr:24,cb:58,cd:3500,rate:0.19,rm:1300,rx:2400,avgRent:1500,avgBudget:850,baseNet:0.58},
+Lisbon:{n:'Lisboa',c:'🇵🇹',tr:22,cb:63,cd:3200,rate:0.36,rm:1200,rx:2200,avgRent:1400,avgBudget:800,baseNet:0.55},
+Rome:{n:'Roma',c:'🇮🇹',tr:26,cb:50,cd:3000,rate:0.20,rm:1400,rx:2600,avgRent:1600,avgBudget:900,baseNet:0.62},
+Prague:{n:'Praha',c:'🇨🇿',tr:20,cb:30,cd:2500,rate:0.28,rm:1200,rx:2000,avgRent:1300,avgBudget:700,baseNet:0.50},
+Warsaw:{n:'Warszawa',c:'🇵🇱',tr:18,cb:30,cd:2000,rate:0.30,rm:1000,rx:1800,avgRent:1100,avgBudget:650,baseNet:0.48},
+Budapest:{n:'Budapest',c:'🇭🇺',tr:16,cb:25,cd:1800,rate:0.25,rm:900,rx:1600,avgRent:1000,avgBudget:600,baseNet:0.45},
+Sofia:{n:'София',c:'🇧🇬',tr:10,cb:20,cd:1500,rate:0.35,rm:650,rx:1600,avgRent:800,avgBudget:500,baseNet:0.42},
+};
+
+function toggleLang(){
+document.getElementById('langMenu').classList.toggle('show');
+}
+
+function setLang(i){
+S.lg=i;
+const flags=['🇧🇬','🇬🇧','🇩🇪','🇪🇸','🇫🇷'];
+const names=['BG','EN','DE','ES','FR'];
+document.getElementById('curFlag').textContent=flags[i];
+document.getElementById('curLang').textContent=names[i];
+document.querySelectorAll('.lang-opt').forEach((el,idx)=>{
+el.classList.toggle('active',idx===i);
+});
+document.getElementById('langMenu').classList.remove('show');
+updateText();
+calc();
+}
+
+function toggleView(){
+S.mobile=!S.mobile;
+document.body.classList.toggle('mobile');
+document.getElementById('viewBtn').textContent=S.mobile?'📱 Mobile':'💻 Desktop';
+}
+
+function togAuto(t){
+if(t==='rate'){
+S.rateAuto=!S.rateAuto;
+document.getElementById('rateBtn').textContent=S.rateAuto?'AUTO':'MANUAL';
+document.getElementById('rateBtn').classList.toggle('man');
+document.getElementById('sRate').disabled=S.rateAuto;
+}else if(t==='child'){
+S.childAuto=!S.childAuto;
+document.getElementById('childBtn').textContent=S.childAuto?'AUTO':'MANUAL';
+document.getElementById('childBtn').classList.toggle('man');
+document.getElementById('sChild').disabled=S.childAuto;
+}
+calc();
+}
+
+function calc(){
+const sc=D[S.sel];
+
+// Recommended values based on city + family size
+const familySize=S.a+S.k;
+const budgetMultiplier=familySize<=3?1.0:familySize===4?1.15:familySize===5?1.3:1.5;
+
+const recRent=sc.avgRent||1500;
+const recBudget=Math.round((sc.avgBudget||1200)*budgetMultiplier);
+const recNet=sc.baseNet||1.0;
+const autoRate=sc.rate||0.70;
+const autoChild=sc.cd||9000;
+
+// Use CURRENT values (user can adjust)
+const currentRate=S.rateAuto?autoRate:S.rate;
+const currentChild=S.childAuto?autoChild:S.cd;
+
+// Location efficiency (higher rent = closer to center)
+let eff=0;
+if(S.r>sc.rm){
+const pct=(S.r-sc.rm)/(sc.rx-sc.rm);
+eff=Math.min(pct*0.45,0.55);
+}
+const realNetKm=S.nk+eff;
+
+// Comfort bonus
+const comfortBonus=realNetKm*(S.cf/100)*0.25;
+const finalNetKm=realNetKm+comfortBonus;
+
+// Monthly calculations (WITHOUT tax savings - those are yearly)
+const monthlyInc=Math.round(finalNetKm*S.l*22);
+const monthlyAllow=S.k*sc.cb;
+const monthlyOut=S.r+S.h+(S.a*300);
+const netMo=monthlyInc+monthlyAllow-monthlyOut;
+
+// Tax calculations (YEARLY ONLY)
+const totalKmYear=S.l*22*12;
+const kmTaxBasis=totalKmYear*currentRate;
+const kmTaxSaved=kmTaxBasis*(sc.tr/100);
+
+const childTaxBasis=S.k*currentChild;
+const childTaxSaved=childTaxBasis*(sc.tr/100);
+
+const totalTaxSaved=kmTaxSaved+childTaxSaved;
+const yearlyTotal=netMo*12+totalTaxSaved;
+
+// AI Helper Logic
+let aiAdvice='';
+if(netMo<500){
+aiAdvice='<b style="color:var(--neon-red)">⚠️ Критично!</b> Месечният остатък е много нисък.<br>';
+if(S.r>recRent+500){
+aiAdvice+=`💡 Наемът (${S.r}€) е твърде висок. Препоръчително: ${recRent}€<br>`;
+}
+if(S.l<200){
+aiAdvice+=`💡 Караш малко (${S.l} км/ден). Увеличи до 250-300 км за по-добър доход.<br>`;
+}
+if(finalNetKm<0.80){
+aiAdvice+=`💡 Нетната печалба €/км е ниска (${finalNetKm.toFixed(2)}). Препоръчително: ${recNet.toFixed(2)}€<br>`;
+}
+}else if(netMo<1500){
+aiAdvice='<b style="color:var(--neon-blue)">✓ Стабилно</b> но има потенциал за подобрение.<br>';
+if(S.r>recRent){
+aiAdvice+=`💡 Можеш да спестиш ${S.r-recRent}€ като намалиш наема до ${recRent}€.<br>`;
+}
+if(S.l<250){
+aiAdvice+=`💡 Увеличи километрите до 250-280/ден за +${Math.round((250-S.l)*finalNetKm*22)}€/мес.<br>`;
+}
+}else if(netMo<3000){
+aiAdvice='<b style="color:var(--neon-green)">✓✓ Отлично!</b> Балансиран бюджет.<br>';
+aiAdvice+=`💡 За още по-добри резултати: Увеличи Comfort% до 60-70% или пробвай ${S.l+30} км/ден.<br>`;
+}else{
+aiAdvice='<b style="color:var(--neon-green)">🌟 Перфектно!</b> Много силна финансова позиция!<br>';
+aiAdvice+=`💡 Спестявай максимално - разглеждай имот или инвестиции с годишните ${yearlyTotal.toLocaleString()}€!<br>`;
+}
+
+// Compare with other cities
+const bestCity=Object.keys(D).reduce((best,k)=>{
+const ct=D[k];
+const testNet=(ct.baseNet||1.0)*S.l*22+(S.k*ct.cb)-(ct.avgRent||1500)-(ct.avgBudget||1200)*budgetMultiplier;
+const bestNetCalc=(D[best].baseNet||1.0)*S.l*22+(S.k*D[best].cb)-(D[best].avgRent||1500)-(D[best].avgBudget||1200)*budgetMultiplier;
+return testNet>bestNetCalc?k:best;
+},'Zurich');
+
+if(bestCity!==S.sel&&Math.abs(netMo)<2000){
+aiAdvice+=`<br>💡 <b>Важно:</b> В ${D[bestCity].c} ${D[bestCity].n} можеш да печелиш повече при същите параметри!`;
+}
+
+// Update ALL displays
+document.getElementById('va').textContent=S.a;
+document.getElementById('vk').textContent=S.k;
+document.getElementById('vr').textContent='-'+S.r;
+document.getElementById('vh').textContent='-'+S.h;
+document.getElementById('vnk').textContent=finalNetKm.toFixed(2);
+document.getElementById('vl').textContent=S.l;
+document.getElementById('vcf').textContent=S.cf+'%';
+document.getElementById('vrate').textContent=currentRate.toFixed(2);
+document.getElementById('vcd').textContent=currentChild.toLocaleString();
+
+// Show recommendations
+document.getElementById('famSize').textContent=familySize;
+document.getElementById('rentRec').textContent=recRent+'€';
+document.getElementById('budgetRec').textContent=recBudget+'€';
+document.getElementById('netRec').textContent=recNet.toFixed(2)+'€';
+
+document.getElementById('rateHint').textContent=S.rateAuto?`${currentRate.toFixed(2)}€/км (${sc.n})`:'Ръчна ставка';
+document.getElementById('childHint').textContent=S.childAuto?`${currentChild.toLocaleString()}€ (${sc.n})`:'Ръчна квота';
+
+if(!S.rateAuto)document.getElementById('sRate').value=S.rate;
+if(!S.childAuto)document.getElementById('sChild').value=S.cd;
+
+// City grid
+const g=document.getElementById('grid');
+g.innerHTML='';
+Object.keys(D).forEach(k=>{
+const ct=D[k];
+const d=document.createElement('div');
+d.className=`city-card ${S.sel===k?'sel':''} ${netMo>=0?'ok':'bad'}`;
+d.innerHTML=`
+<div class="city-name">${ct.c} ${ct.n}</div>
+<div class="city-val">${netMo>=0?'+':''}${netMo}€/мес</div>
+`;
+d.onclick=()=>{
+S.sel=k;
+// Auto-set recommended values when selecting city
+S.r=D[k].avgRent||S.r;
+S.h=Math.round((D[k].avgBudget||S.h)*budgetMultiplier);
+S.nk=D[k].baseNet||S.nk;
+document.getElementById('sRent').value=S.r;
+document.getElementById('sBudget').value=S.h;
+document.getElementById('sNet').value=S.nk;
+calc();
+};
+g.appendChild(d);
+});
+
+// Results
+document.getElementById('selTitle').innerHTML=`🎯 ${sc.c} ${sc.n}`;
+document.getElementById('results').innerHTML=`
+<div class="res-box">
+<div class="line"><span>Приход (работа):</span><strong class="pos">+${monthlyInc.toLocaleString()}€</strong></div>
+<div class="line"><span>Надбавки (деца):</span><strong class="pos">+${monthlyAllow}€</strong></div>
+<div class="line"><span>Разходи (всичко):</span><strong class="neg">-${monthlyOut.toLocaleString()}€</strong></div>
+<div class="line" style="border-top:2px solid var(--neon-blue);margin-top:8px;padding-top:8px;font-size:0.95rem">
+<span><b>ОСТАТЪК (месец):</b></span>
+<strong class="${netMo>=0?'pos':'neg'}">${netMo>=0?'+':''}${netMo.toLocaleString()}€</strong>
+</div>
+</div>
+
+<div style="font-size:0.75rem;color:#64748b;margin:12px 0;padding:10px;background:rgba(0,243,255,0.05);border-radius:6px;border-left:3px solid var(--neon-blue)">
+💡 <b>Забележка:</b> Данъчните облекчения (километраж + деца) се прилагат само при годишната декларация, не месечно.
+</div>
+
+<div class="big-result">
+<div class="label">💰 Годишен баланс (с данъчни спестявания)</div>
+<div class="value">+${yearlyTotal.toLocaleString()} €</div>
+<div style="font-size:0.7rem;color:#64748b;margin-top:8px">
+От работа: ${(netMo*12).toLocaleString()}€ + Спестен данък в края на годината: +${Math.round(totalTaxSaved).toLocaleString()}€
+</div>
+</div>
+`;
+
+// Tax explanation
+document.getElementById('taxExplain').innerHTML=`
+<div class="tax-box">
+<div class="tax-title">💡 Как работи данъчното спестяване?</div>
+<div class="tax-info">
+<b style="color:var(--neon-red)">⚠️ Важно:</b> Тези облекчения са <b>ГОДИШНИ</b> - получаваш ги при подаване на данъчна декларация!<br><br>
+
+В ${sc.n} данъкът е <b>${sc.tr}%</b>.<br><br>
+
+<b>📍 Километри:</b><br>
+Изминаваш ${totalKmYear.toLocaleString()} км годишно.<br>
+Държавата признава <b>${kmTaxBasis.toLocaleString()}€</b> разход (${currentRate.toFixed(2)}€/км).<br>
+Не плащаш ${sc.tr}% данък върху тях → Спестяваш <b>+${Math.round(kmTaxSaved).toLocaleString()}€ ГОДИШНО</b><br><br>
+
+<b>👶 Деца:</b><br>
+За ${S.k} деца квотата е <b>${childTaxBasis.toLocaleString()}€</b> (${currentChild.toLocaleString()}€/дете).<br>
+Не плащаш ${sc.tr}% данък върху тях → Спестяваш <b>+${Math.round(childTaxSaved).toLocaleString()}€ ГОДИШНО</b><br><br>
+
+<b style="color:var(--neon-green)">💰 Общо спестени данъци в края на годината: +${Math.round(totalTaxSaved).toLocaleString()}€</b>
+</div>
+</div>
+`;
+
+// AI Helper
+document.getElementById('aiHelper').innerHTML=aiAdvice;
+}
+
+// Close dropdown on outside click
+document.addEventListener('click',e=>{
+const menu=document.getElementById('langMenu');
+const btn=document.getElementById('langBtn');
+if(menu&&!menu.contains(e.target)&&!btn.contains(e.target)){
+menu.classList.remove('show');
+}
+});
+
+calc();
+</script>
+</body>
+</html>
