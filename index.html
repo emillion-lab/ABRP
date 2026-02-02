@@ -638,30 +638,29 @@ calc();
 function calcNet(cityKey,rentLevel){
 const c=CITIES[cityKey];
 
-// Базова печалба расте линейно с наема (по-скъп район = по-добри цени)
+// Базова печалба расте линейно с наема
 const pct = Math.max(0, Math.min(1, (rentLevel - c.rm) / (c.rx - c.rm)));
 const baseNetKm = c.baseNet + (c.maxBoost * pct);
 
-// ПРАЗНИ КИЛОМЕТРИ зависят от наема (локация)
-// Оптималната зона е при avgRent - минимум празни км
-let emptyKmPenalty;
-const distanceFromOptimal = Math.abs(rentLevel - c.avgRent);
-const optimalRange = (c.rx - c.rm) * 0.25; // 25% от range-а е "добра зона"
-
-if(distanceFromOptimal <= optimalRange){
-// Близо до optimal: малко празни км (5-10%)
-const factor = distanceFromOptimal / optimalRange;
-emptyKmPenalty = 0.95 - (factor * 0.15); // 0.95 до 0.80
+// ПРАЗНИ КИЛОМЕТРИ намаляват монотонно с по-висок наем
+// По-скъп наем = по-близо до център = по-малко празни км
+// При rm (евтино): 40% празни км
+// При avgRent (оптимално): 5% празни км  
+// При rx (център): 2% празни км
+let emptyKmFactor;
+if(rentLevel <= c.avgRent){
+// От евтино до оптимално: 40% → 5%
+const progress = (rentLevel - c.rm) / (c.avgRent - c.rm);
+emptyKmFactor = 0.60 + (progress * 0.35); // 0.60 → 0.95
 }else{
-// Далеч от optimal: много празни км (20-40%)
-const excessDistance = distanceFromOptimal - optimalRange;
-const maxExcess = Math.max(c.avgRent - c.rm, c.rx - c.avgRent);
-const excessPct = Math.min(1, excessDistance / maxExcess);
-emptyKmPenalty = 0.80 - (excessPct * 0.30); // 0.80 до 0.50
+// От оптимално до скъпо: 5% → 2%
+const progress = (rentLevel - c.avgRent) / (c.rx - c.avgRent);
+emptyKmFactor = 0.95 + (progress * 0.03); // 0.95 → 0.98
 }
 
 // Effective net/km след отчитане на празните километри
-return baseNetKm * emptyKmPenalty;
+// Този ВИНАГИ расте с наема!
+return baseNetKm * emptyKmFactor;
 }
 
 function updateFamily(){
@@ -911,10 +910,13 @@ let resultsHTML=`
 </div>
 ${statusBadge}
 <div class="big-result${isWarn?' warn':(isBad?' bad':'')}">
-<div class="label">💰 ${T.yearlyBalance[S.lang]}</div>
-<div class="value">${yearlyTotal>=0?'+':''}${yearlyTotal.toLocaleString()} €</div>
-<div style="font-size:0.7rem;color:#64748b;margin-top:8px">
-${T.fromWork[S.lang]}: ${(netMo*12).toLocaleString()}€ + <b style="color:var(${isWarn?'--neon-orange':(isBad?'--neon-red':'--neon-green')})">+${Math.round(totalTaxSaved).toLocaleString()}€</b>
+<div class="label">💰 ${S.lang==='bg'?'Месечен баланс':'Monthly Balance'}</div>
+<div class="value">${netMo>=0?'+':''}${netMo.toLocaleString()} €</div>
+<div style="font-size:0.7rem;color:#64748b;margin-top:8px;line-height:1.6">
+📅 ${S.lang==='bg'?'Реално в джоба годишно':'Real in pocket yearly'}: <b>${(netMo*12).toLocaleString()}€</b><br>
+<span style="font-size:0.65rem;color:#94a3b8;font-style:italic">
+${S.lang==='bg'?'(Виж "Данъчна математика" за данъчни облекчения)':'(See "Tax Mathematics" for tax benefits)'}
+</span>
 </div>
 </div>
 `;
