@@ -162,6 +162,24 @@ width:100%;height:6px;background:var(--border);
 -webkit-appearance:none;margin:10px 0;outline:none;
 border-radius:3px;
 }
+
+/* Mobile: Moderate safe zones around sliders */
+@media(max-width:1000px){
+input[type=range]{
+width:calc(100% - 60px);
+margin:20px 30px;
+padding:0;
+}
+}
+
+/* Desktop: Smaller safe zones */
+@media(min-width:1001px){
+input[type=range]{
+width:calc(100% - 40px);
+margin:15px 20px;
+}
+}
+
 input[type=range]::-webkit-slider-thumb{
 -webkit-appearance:none;width:20px;height:20px;
 background:var(--neon-blue);border-radius:3px;cursor:pointer;
@@ -332,6 +350,21 @@ animation:pulse-critical 3s ease-in-out infinite;
 .main{grid-template-columns:1fr;padding:12px}
 .grid{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
 }
+/* Mobile: More compact layout */
+@media(max-width:1000px){
+.card{
+padding:12px;
+margin-bottom:10px;
+}
+h3{
+font-size:0.8rem;
+margin-bottom:8px;
+padding-bottom:4px;
+}
+.row{
+margin-bottom:12px;
+}
+}
 </style>
 </head>
 <body>
@@ -473,7 +506,7 @@ animation:pulse-critical 3s ease-in-out infinite;
 <span class="val" id="vrate">0.70</span>
 <button class="auto-btn" id="rateBtn" onclick="toggleAuto('rate')">AUTO</button>
 </div>
-<input type="range" min="0.30" max="1.00" step="0.01" value="0.70" id="sRate" disabled oninput="S.rate=+this.value;calc()">
+<input type="range" min="0.00" max="1.00" step="0.01" value="0.70" id="sRate" disabled oninput="S.rate=+this.value;calc()">
 </div>
 <div class="inp">
 <div class="inp-head">
@@ -583,42 +616,42 @@ danger:{bg:'🚨 ЗАГУБА',en:'🚨 LOSS',de:'🚨 VERLUST',es:'🚨 PÉRDID
 };
 
 const CITIES={
-zurich:{flag:'ch',name:{bg:'Цюрих',en:'Zurich',de:'Zürich',es:'Zúrich',fr:'Zurich'},baseNet:1.00,maxBoost:1.40,avgRent:4400,rm:1000,rx:8000,avgBudget:1800,rate:0.75,cb:250,cd:9000,tr:25},
-geneva:{flag:'ch',name:{bg:'Женева',en:'Geneva',de:'Genf',es:'Ginebra',fr:'Genève'},baseNet:0.98,maxBoost:0.58,avgRent:3400,rm:2700,rx:7200,avgBudget:1900,rate:0.75,cb:250,cd:9000,tr:25},
-basel:{flag:'ch',name:{bg:'Базел',en:'Basel',de:'Basel',es:'Basilea',fr:'Bâle'},baseNet:0.95,maxBoost:0.55,avgRent:2800,rm:2200,rx:6500,avgBudget:1600,rate:0.75,cb:250,cd:9000,tr:24},
-bern:{flag:'ch',name:{bg:'Берн',en:'Bern',de:'Bern',es:'Berna',fr:'Berne'},baseNet:0.92,maxBoost:0.52,avgRent:2600,rm:2000,rx:6000,avgBudget:1500,rate:0.75,cb:250,cd:9000,tr:23},
-munich:{flag:'de',name:{bg:'Мюнхен',en:'Munich',de:'München',es:'Múnich',fr:'Munich'},baseNet:0.85,maxBoost:0.40,avgRent:2200,rm:1700,rx:4500,avgBudget:1400,rate:0.30,cb:219,cd:8952,tr:30},
-berlin:{flag:'de',name:{bg:'Берлин',en:'Berlin',de:'Berlin',es:'Berlín',fr:'Berlin'},baseNet:0.75,maxBoost:0.35,avgRent:1800,rm:1300,rx:3800,avgBudget:1200,rate:0.30,cb:219,cd:8952,tr:28},
-frankfurt:{flag:'de',name:{bg:'Франкфурт',en:'Frankfurt',de:'Frankfurt',es:'Fráncfort',fr:'Francfort'},baseNet:0.80,maxBoost:0.38,avgRent:2000,rm:1500,rx:4200,avgBudget:1300,rate:0.30,cb:219,cd:8952,tr:29},
-hamburg:{flag:'de',name:{bg:'Хамбург',en:'Hamburg',de:'Hamburg',es:'Hamburgo',fr:'Hambourg'},baseNet:0.78,maxBoost:0.36,avgRent:1900,rm:1400,rx:4000,avgBudget:1250,rate:0.30,cb:219,cd:8952,tr:28},
-vienna:{flag:'at',name:{bg:'Виена',en:'Vienna',de:'Wien',es:'Viena',fr:'Vienne'},baseNet:0.70,maxBoost:0.32,avgRent:1600,rm:1200,rx:3500,avgBudget:1100,rate:0.50,cb:174,cd:8388,tr:32},
-amsterdam:{flag:'nl',name:{bg:'Амстердам',en:'Amsterdam',de:'Amsterdam',es:'Ámsterdam',fr:'Amsterdam'},baseNet:0.88,maxBoost:0.45,avgRent:2400,rm:1900,rx:4800,avgBudget:1500,rate:0.68,cb:275,cd:10284,tr:37},
-brussels:{flag:'be',name:{bg:'Брюксел',en:'Brussels',de:'Brüssel',es:'Bruselas',fr:'Bruxelles'},baseNet:0.73,maxBoost:0.33,avgRent:1700,rm:1300,rx:3600,avgBudget:1200,rate:0.62,cb:180,cd:8990,tr:35},
-luxembourg:{flag:'lu',name:{bg:'Люксембург',en:'Luxembourg',de:'Luxemburg',es:'Luxemburgo',fr:'Luxembourg'},baseNet:0.93,maxBoost:0.48,avgRent:2800,rm:2200,rx:5500,avgBudget:1700,rate:0.72,cb:265,cd:11520,tr:28},
-paris:{flag:'fr',name:{bg:'Париж',en:'Paris',de:'Paris',es:'París',fr:'Paris'},baseNet:0.82,maxBoost:0.42,avgRent:2300,rm:1800,rx:4600,avgBudget:1450,rate:0.66,cb:185,cd:8547,tr:33},
-london:{flag:'gb',name:{bg:'Лондон',en:'London',de:'London',es:'Londres',fr:'Londres'},baseNet:0.90,maxBoost:0.50,avgRent:2900,rm:2300,rx:5800,avgBudget:1750,rate:0.69,cb:240,cd:12570,tr:31},
-dublin:{flag:'ie',name:{bg:'Дъблин',en:'Dublin',de:'Dublin',es:'Dublín',fr:'Dublin'},baseNet:0.86,maxBoost:0.44,avgRent:2500,rm:2000,rx:5000,avgBudget:1550,rate:0.67,cb:220,cd:9360,tr:29},
-copenhagen:{flag:'dk',name:{bg:'Копенхаген',en:'Copenhagen',de:'Kopenhagen',es:'Copenhague',fr:'Copenhague'},baseNet:0.87,maxBoost:0.44,avgRent:2400,rm:1900,rx:4800,avgBudget:1650,rate:0.68,cb:290,cd:10872,tr:36},
-stockholm:{flag:'se',name:{bg:'Стокхолм',en:'Stockholm',de:'Stockholm',es:'Estocolmo',fr:'Stockholm'},baseNet:0.85,maxBoost:0.42,avgRent:2200,rm:1700,rx:4400,avgBudget:1500,rate:0.67,cb:250,cd:9576,tr:32},
-oslo:{flag:'no',name:{bg:'Осло',en:'Oslo',de:'Oslo',es:'Oslo',fr:'Oslo'},baseNet:0.94,maxBoost:0.48,avgRent:2600,rm:2100,rx:5200,avgBudget:1700,rate:0.75,cb:310,cd:11064,tr:30},
-helsinki:{flag:'fi',name:{bg:'Хелзинки',en:'Helsinki',de:'Helsinki',es:'Helsinki',fr:'Helsinki'},baseNet:0.83,maxBoost:0.40,avgRent:2000,rm:1500,rx:4000,avgBudget:1450,rate:0.66,cb:260,cd:9240,tr:31},
-reykjavik:{flag:'is',name:{bg:'Рейкявик',en:'Reykjavik',de:'Reykjavík',es:'Reikiavik',fr:'Reykjavik'},baseNet:0.88,maxBoost:0.44,avgRent:2300,rm:1800,rx:4600,avgBudget:1550,rate:0.68,cb:280,cd:10200,tr:33},
-madrid:{flag:'es',name:{bg:'Мадрид',en:'Madrid',de:'Madrid',es:'Madrid',fr:'Madrid'},baseNet:0.60,maxBoost:0.20,avgRent:1400,rm:1000,rx:2800,avgBudget:1050,rate:0.58,cb:145,cd:6936,tr:27},
-barcelona:{flag:'es',name:{bg:'Барселона',en:'Barcelona',de:'Barcelona',es:'Barcelona',fr:'Barcelone'},baseNet:0.62,maxBoost:0.22,avgRent:1600,rm:1200,rx:3200,avgBudget:1150,rate:0.58,cb:145,cd:6936,tr:27},
-rome:{flag:'it',name:{bg:'Рим',en:'Rome',de:'Rom',es:'Roma',fr:'Rome'},baseNet:0.58,maxBoost:0.18,avgRent:1500,rm:1100,rx:3000,avgBudget:1100,rate:0.57,cb:167,cd:7452,tr:29},
-milan:{flag:'it',name:{bg:'Милано',en:'Milan',de:'Mailand',es:'Milán',fr:'Milan'},baseNet:0.63,maxBoost:0.24,avgRent:1800,rm:1400,rx:3600,avgBudget:1200,rate:0.59,cb:167,cd:7452,tr:30},
-lisbon:{flag:'pt',name:{bg:'Лисабон',en:'Lisbon',de:'Lissabon',es:'Lisboa',fr:'Lisbonne'},baseNet:0.55,maxBoost:0.16,avgRent:1300,rm:900,rx:2600,avgBudget:1000,rate:0.55,cb:140,cd:6480,tr:26},
-athens:{flag:'gr',name:{bg:'Атина',en:'Athens',de:'Athen',es:'Atenas',fr:'Athènes'},baseNet:0.52,maxBoost:0.14,avgRent:1100,rm:800,rx:2200,avgBudget:950,rate:0.53,cb:135,cd:5880,tr:24},
-warsaw:{flag:'pl',name:{bg:'Варшава',en:'Warsaw',de:'Warschau',es:'Varsovia',fr:'Varsovie'},baseNet:0.49,maxBoost:0.12,avgRent:1000,rm:700,rx:2000,avgBudget:850,rate:0.52,cb:92,cd:4392,tr:22},
-prague:{flag:'cz',name:{bg:'Прага',en:'Prague',de:'Prag',es:'Praga',fr:'Prague'},baseNet:0.53,maxBoost:0.15,avgRent:1200,rm:900,rx:2400,avgBudget:950,rate:0.54,cb:105,cd:4968,tr:23},
-budapest:{flag:'hu',name:{bg:'Будапеща',en:'Budapest',de:'Budapest',es:'Budapest',fr:'Budapest'},baseNet:0.47,maxBoost:0.10,avgRent:950,rm:650,rx:1900,avgBudget:800,rate:0.51,cb:88,cd:4080,tr:20},
-bucharest:{flag:'ro',name:{bg:'Букурещ',en:'Bucharest',de:'Bukarest',es:'Bucarest',fr:'Bucarest'},baseNet:0.44,maxBoost:0.09,avgRent:850,rm:600,rx:1700,avgBudget:750,rate:0.49,cb:82,cd:3720,tr:18},
-sofia:{flag:'bg',name:{bg:'София',en:'Sofia',de:'Sofia',es:'Sofía',fr:'Sofia'},baseNet:0.42,maxBoost:0.08,avgRent:750,rm:500,rx:1500,avgBudget:650,rate:0.35,cb:75,cd:3360,tr:10}
+zurich:{flag:'ch',name:{bg:'Цюрих',en:'Zurich',de:'Zürich',es:'Zúrich',fr:'Zurich'},baseNet:1.68,maxBoost:1.12,avgRent:4400,rm:1000,rx:8000,avgBudget:1800,rate:0.75,cb:250,cd:9000,tr:25,ha:350,hc:120},
+geneva:{flag:'ch',name:{bg:'Женева',en:'Geneva',de:'Genf',es:'Ginebra',fr:'Genève'},baseNet:1.71,maxBoost:1.14,avgRent:4600,rm:1000,rx:8200,avgBudget:1900,rate:0.75,cb:250,cd:9000,tr:25,ha:350,hc:120},
+basel:{flag:'ch',name:{bg:'Базел',en:'Basel',de:'Basel',es:'Basilea',fr:'Bâle'},baseNet:1.56,maxBoost:1.04,avgRent:3800,rm:1000,rx:7500,avgBudget:1600,rate:0.75,cb:250,cd:9000,tr:24,ha:350,hc:120},
+bern:{flag:'ch',name:{bg:'Берн',en:'Bern',de:'Bern',es:'Berna',fr:'Berne'},baseNet:1.53,maxBoost:1.02,avgRent:3600,rm:1000,rx:7000,avgBudget:1500,rate:0.75,cb:250,cd:9000,tr:23,ha:350,hc:120},
+munich:{flag:'de',name:{bg:'Мюнхен',en:'Munich',de:'München',es:'Múnich',fr:'Munich'},baseNet:1.26,maxBoost:0.95,avgRent:3000,rm:1000,rx:5500,avgBudget:1400,rate:0.30,cb:219,cd:8952,tr:30,ha:180,hc:0},
+berlin:{flag:'de',name:{bg:'Берлин',en:'Berlin',de:'Berlin',es:'Berlín',fr:'Berlin'},baseNet:1.20,maxBoost:0.90,avgRent:2500,rm:800,rx:4800,avgBudget:1200,rate:0.30,cb:219,cd:8952,tr:28,ha:180,hc:0},
+frankfurt:{flag:'de',name:{bg:'Франкфурт',en:'Frankfurt',de:'Frankfurt',es:'Fráncfort',fr:'Francfort'},baseNet:1.23,maxBoost:0.92,avgRent:2800,rm:900,rx:5200,avgBudget:1300,rate:0.30,cb:219,cd:8952,tr:29,ha:180,hc:0},
+hamburg:{flag:'de',name:{bg:'Хамбург',en:'Hamburg',de:'Hamburg',es:'Hamburgo',fr:'Hambourg'},baseNet:1.20,maxBoost:0.90,avgRent:2600,rm:850,rx:5000,avgBudget:1250,rate:0.30,cb:219,cd:8952,tr:28,ha:180,hc:0},
+vienna:{flag:'at',name:{bg:'Виена',en:'Vienna',de:'Wien',es:'Viena',fr:'Vienne'},baseNet:1.11,maxBoost:0.93,avgRent:2400,rm:800,rx:4500,avgBudget:1100,rate:0.42,cb:120,cd:5000,tr:32,ha:150,hc:0},
+amsterdam:{flag:'nl',name:{bg:'Амстердам',en:'Amsterdam',de:'Amsterdam',es:'Ámsterdam',fr:'Amsterdam'},baseNet:1.32,maxBoost:0.88,avgRent:3200,rm:1000,rx:5800,avgBudget:1500,rate:0.23,cb:200,cd:7500,tr:37,ha:130,hc:0},
+brussels:{flag:'be',name:{bg:'Брюксел',en:'Brussels',de:'Brüssel',es:'Bruselas',fr:'Bruxelles'},baseNet:1.17,maxBoost:0.98,avgRent:2400,rm:900,rx:4600,avgBudget:1200,rate:0.43,cb:130,cd:6000,tr:35,ha:100,hc:0},
+luxembourg:{flag:'lu',name:{bg:'Люксембург',en:'Luxembourg',de:'Luxemburg',es:'Luxemburgo',fr:'Luxembourg'},baseNet:1.38,maxBoost:0.92,avgRent:3800,rm:1200,rx:6500,avgBudget:1700,rate:0.40,cb:200,cd:8500,tr:28,ha:140,hc:0},
+paris:{flag:'fr',name:{bg:'Париж',en:'Paris',de:'Paris',es:'París',fr:'Paris'},baseNet:0.90,maxBoost:0.75,avgRent:3000,rm:1000,rx:5600,avgBudget:1450,rate:0.40,cb:140,cd:6000,tr:33,ha:80,hc:0},
+london:{flag:'gb',name:{bg:'Лондон',en:'London',de:'London',es:'Londres',fr:'Londres'},baseNet:1.38,maxBoost:0.92,avgRent:3800,rm:1200,rx:6800,avgBudget:1750,rate:0.52,cb:180,cd:9000,tr:31,ha:0,hc:0},
+dublin:{flag:'ie',name:{bg:'Дъблин',en:'Dublin',de:'Dublin',es:'Dublín',fr:'Dublin'},baseNet:1.20,maxBoost:0.90,avgRent:3200,rm:1100,rx:6000,avgBudget:1550,rate:0.40,cb:220,cd:9360,tr:29,ha:60,hc:0},
+copenhagen:{flag:'dk',name:{bg:'Копенхаген',en:'Copenhagen',de:'Kopenhagen',es:'Copenhague',fr:'Copenhague'},baseNet:1.20,maxBoost:0.90,avgRent:3200,rm:1000,rx:5800,avgBudget:1650,rate:0.45,cb:290,cd:10872,tr:36,ha:0,hc:0},
+stockholm:{flag:'se',name:{bg:'Стокхолм',en:'Stockholm',de:'Stockholm',es:'Estocolmo',fr:'Stockholm'},baseNet:1.14,maxBoost:0.95,avgRent:3000,rm:950,rx:5400,avgBudget:1500,rate:0.40,cb:250,cd:9576,tr:32,ha:0,hc:0},
+oslo:{flag:'no',name:{bg:'Осло',en:'Oslo',de:'Oslo',es:'Oslo',fr:'Oslo'},baseNet:1.26,maxBoost:0.95,avgRent:3400,rm:1100,rx:6200,avgBudget:1700,rate:0.31,cb:310,cd:11064,tr:30,ha:180,hc:0,ha:0,hc:0},
+helsinki:{flag:'fi',name:{bg:'Хелзинки',en:'Helsinki',de:'Helsinki',es:'Helsinki',fr:'Helsinki'},baseNet:1.08,maxBoost:0.90,avgRent:2800,rm:900,rx:5000,avgBudget:1450,rate:0.40,cb:260,cd:9240,tr:31,ha:0,hc:0},
+reykjavik:{flag:'is',name:{bg:'Рейкявик',en:'Reykjavik',de:'Reykjavik',es:'Reikiavik',fr:'Reykjavik'},baseNet:1.17,maxBoost:0.98,avgRent:2800,rm:1000,rx:5200,avgBudget:1600,rate:0.35,cb:230,cd:9120,tr:33,ha:50,hc:0},
+madrid:{flag:'es',name:{bg:'Мадрид',en:'Madrid',de:'Madrid',es:'Madrid',fr:'Madrid'},baseNet:0.72,maxBoost:0.60,avgRent:2000,rm:700,rx:4000,avgBudget:1100,rate:0.19,cb:100,cd:3600,tr:27,ha:50,hc:0},
+barcelona:{flag:'es',name:{bg:'Барселона',en:'Barcelona',de:'Barcelona',es:'Barcelona',fr:'Barcelone'},baseNet:0.75,maxBoost:0.63,avgRent:2200,rm:800,rx:4200,avgBudget:1150,rate:0.19,cb:100,cd:3600,tr:27,ha:50,hc:0},
+rome:{flag:'it',name:{bg:'Рим',en:'Rome',de:'Rom',es:'Roma',fr:'Rome'},baseNet:0.66,maxBoost:0.55,avgRent:2100,rm:750,rx:4100,avgBudget:1200,rate:0.20,cb:120,cd:4200,tr:30,ha:180,hc:0,ha:0,hc:0},
+milan:{flag:'it',name:{bg:'Милано',en:'Milan',de:'Mailand',es:'Milán',fr:'Milan'},baseNet:0.72,maxBoost:0.60,avgRent:2400,rm:900,rx:4600,avgBudget:1200,rate:0.20,cb:120,cd:4200,tr:30,ha:180,hc:0,ha:0,hc:0},
+lisbon:{flag:'pt',name:{bg:'Лисабон',en:'Lisbon',de:'Lissabon',es:'Lisboa',fr:'Lisbonne'},baseNet:0.57,maxBoost:0.47,avgRent:1800,rm:650,rx:3800,avgBudget:1050,rate:0.20,cb:90,cd:3000,tr:28,ha:0,hc:0},
+athens:{flag:'gr',name:{bg:'Атина',en:'Athens',de:'Athen',es:'Atenas',fr:'Athènes'},baseNet:0.51,maxBoost:0.43,avgRent:1600,rm:600,rx:3400,avgBudget:950,rate:0.00,cb:80,cd:2500,tr:29,ha:50,hc:0},
+warsaw:{flag:'pl',name:{bg:'Варшава',en:'Warsaw',de:'Warschau',es:'Varsovia',fr:'Varsovie'},baseNet:0.60,maxBoost:0.50,avgRent:1400,rm:550,rx:3000,avgBudget:900,rate:0.00,cb:110,cd:3500,tr:26,ha:0,hc:0},
+prague:{flag:'cz',name:{bg:'Прага',en:'Prague',de:'Prag',es:'Praga',fr:'Prague'},baseNet:0.63,maxBoost:0.53,avgRent:1600,rm:600,rx:3200,avgBudget:950,rate:0.00,cb:105,cd:3200,tr:23,ha:350,hc:120,ha:0,hc:0},
+budapest:{flag:'hu',name:{bg:'Будапеща',en:'Budapest',de:'Budapest',es:'Budapest',fr:'Budapest'},baseNet:0.57,maxBoost:0.47,avgRent:1300,rm:500,rx:2800,avgBudget:850,rate:0.00,cb:100,cd:3000,tr:24,ha:350,hc:120,ha:0,hc:0},
+bucharest:{flag:'ro',name:{bg:'Букурещ',en:'Bucharest',de:'Bukarest',es:'Bucarest',fr:'Bucarest'},baseNet:0.54,maxBoost:0.45,avgRent:1100,rm:450,rx:2500,avgBudget:750,rate:0.00,cb:90,cd:2800,tr:22,ha:0,hc:0},
+sofia:{flag:'bg',name:{bg:'София',en:'Sofia',de:'Sofia',es:'Sofía',fr:'Sofia'},baseNet:0.42,maxBoost:0.35,avgRent:900,rm:400,rx:2200,avgBudget:650,rate:0.00,cb:50,cd:2400,tr:20,ha:0,hc:0}
 };
 
 const S={
 a:2,k:1,r:3200,h:1800,nk:1.20,l:250,wd:22,cf:50,tips:300,income:3000,
-rate:0.75,cd:9000,rateAuto:true,childAuto:true,sel:'zurich',uberMode:true,hintMode:false,lang:'bg'
+rate:0.75,cb:250,cd:9000,rateAuto:true,childAuto:true,sel:'zurich',uberMode:true,hintMode:false,lang:'bg'
 };
 
 function toggleLangMenu(){document.getElementById('langMenu').classList.toggle('show')}
@@ -642,24 +675,31 @@ const c=CITIES[cityKey];
 const pct = Math.max(0, Math.min(1, (rentLevel - c.rm) / (c.rx - c.rm)));
 const baseNetKm = c.baseNet + (c.maxBoost * pct);
 
-// ПРАЗНИ КИЛОМЕТРИ намаляват монотонно с по-висок наем
-// По-скъп наем = по-близо до център = по-малко празни км
-// При rm (евтино): 40% празни км
-// При avgRent (оптимално): 5% празни км  
-// При rx (център): 2% празни км
+// ГЛАДКА парабола за празни километри
+// При rm: 40% празни км (emptyKmFactor = 0.60)
+// При avgRent: 5% празни км (emptyKmFactor = 0.95)
+// При rx: 2% празни км (emptyKmFactor = 0.98)
+// Парабола с връх при avgRent (максимална ефективност)
+
+const normalized = (rentLevel - c.rm) / (c.rx - c.rm); // 0 до 1
+const fromCenter = normalized - ((c.avgRent - c.rm) / (c.rx - c.rm)); // разстояние от center
+
+// Парабола: f(x) = max_value - k*x^2
+// При center: f = 0.95 (максимум)
+// При rm: f = 0.60
+// При rx: f = 0.98
+const maxEmpty = 0.95;
+const k = 0.35 / Math.pow((c.avgRent - c.rm) / (c.rx - c.rm), 2); // за левата страна
+
 let emptyKmFactor;
-if(rentLevel <= c.avgRent){
-// От евтино до оптимално: 40% → 5%
-const progress = (rentLevel - c.rm) / (c.avgRent - c.rm);
-emptyKmFactor = 0.60 + (progress * 0.35); // 0.60 → 0.95
-}else{
-// От оптимално до скъпо: 5% → 2%
-const progress = (rentLevel - c.avgRent) / (c.rx - c.avgRent);
-emptyKmFactor = 0.95 + (progress * 0.03); // 0.95 → 0.98
+if(rentLevel <= c.avgRent) {
+  const leftDist = (rentLevel - c.rm) / (c.avgRent - c.rm);
+  emptyKmFactor = 0.60 + (0.35 * leftDist * (2 - leftDist)); // smooth parabola on left
+} else {
+  const rightDist = (rentLevel - c.avgRent) / (c.rx - c.avgRent);
+  emptyKmFactor = 0.95 + (0.03 * rightDist * rightDist); // smooth parabola on right
 }
 
-// Effective net/km след отчитане на празните километри
-// Този ВИНАГИ расте с наема!
 return baseNetKm * emptyKmFactor;
 }
 
@@ -740,11 +780,36 @@ else if(f===4)m=1.3;
 else if(f===5)m=1.6;
 else if(f>=6)m=2.0;
 
-const recRent=c.avgRent||3200;
-const recBudget=Math.round((c.avgBudget||1800)*m);
-const recNet=calcNet(S.sel,recRent);
-const autoRate=c.rate||0.70;
-const autoChild=c.cd||9000;
+// Интелигентни препоръки - намери оптимален наем за положителен баланс
+let recRent = c.avgRent || 3200;
+const recBudget = Math.round((c.avgBudget || 1800) * m);
+
+// Проверка дали текущите настройки водят до загуба
+const testNet = calcNet(S.sel, recRent);
+const testIncome = testNet * 1.2 * S.l * S.wd + S.tips;
+const testExpenses = recRent + recBudget;
+const testBalance = testIncome - testExpenses;
+
+// Ако е на загуба, намери по-евтин наем
+if(testBalance < 200) {
+  // Търси наем който дава поне +200€ баланс
+  for(let testRent = c.rm; testRent <= c.rx; testRent += 100) {
+    const net = calcNet(S.sel, testRent);
+    const income = net * 1.2 * S.l * S.wd + S.tips;
+    const budget = Math.round((c.avgBudget || 1800) * m);
+    const expenses = testRent + budget;
+    const balance = income - expenses;
+    
+    if(balance >= 200) {
+      recRent = testRent;
+      break;
+    }
+  }
+}
+
+const recNet = calcNet(S.sel, recRent);
+const autoRate=(c.rate !== undefined && c.rate !== null) ? c.rate : 0.70;
+const autoChild=(c.cd !== undefined && c.cd !== null) ? c.cd : 9000;
 const curRate=S.rateAuto?autoRate:S.rate;
 const curChild=S.childAuto?autoChild:S.cd;
 
@@ -869,8 +934,21 @@ d.className=cityClass;
 d.innerHTML=`<div class="city-flag"><img src="${FLAGS_URL}${ct.flag}.svg" class="flag-big" alt="${ct.flag}"></div><div class="city-name">${ct.name[S.lang]}</div><div class="${valClass}">${cityNet>=0?'+':''}${cityNet}€</div>`;
 d.onclick=()=>{
 S.sel=k;
-S.r=CITIES[k].avgRent||S.r;
-S.h=Math.round((CITIES[k].avgBudget||S.h)*m);
+S.r=ct.avgRent||S.r;
+S.h=Math.round((ct.avgBudget||S.h)*m);
+
+// Автоматична промяна на rate според града
+if(S.rateAuto){
+S.rate=ct.rate;
+document.getElementById('sRate').value=S.rate;
+}
+
+// Автоматична промяна на child quota според града
+if(S.childAuto){
+S.cb=ct.cb;
+document.getElementById('sChild').value=S.cb;
+}
+
 if(S.uberMode){
 S.nk=calcNet(k,S.r);
 document.getElementById('sNet').value=S.nk;
