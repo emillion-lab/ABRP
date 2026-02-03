@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>A Better Root Planting</title>
+<style>
+:root{
+--bg:#050a15;--card:#0d1525;--border:#1e293b;
+--neon-green:#4ade80;--neon-blue:#38bdf8;--neon-red:#dc2626;--neon-orange:#fb923c;
+--text:#e2e8f0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+
+header{
+background:var(--card);border-bottom:2px solid var(--neon-blue);
+padding:12px 20px;display:flex;justify-content:space-between;
+align-items:center;position:sticky;top:0;z-index:100;
+box-shadow:0 4px 20px rgba(56,189,248,0.5),0 0 40px rgba(56,189,248,0.2);
+transition:transform 0.3s ease, opacity 0.3s ease;
+}
+header.collapsed{
+transform:translateY(-100%);
+opacity:0;
+pointer-events:none;
+}
+.header-toggle{
+position:fixed;top:10px;right:10px;
+background:var(--neon-blue);color:#000;
+border:none;border-radius:50%;
+width:44px;height:44px;
+cursor:pointer;font-size:1.2rem;
+z-index:101;
+box-shadow:0 4px 12px rgba(56,189,248,0.6),0 0 20px rgba(56,189,248,0.4);
+transition:0.2s;
+display:none;
+}
+.header-toggle:active{transform:scale(0.95)}
+.header-toggle.show{display:block}
+.logo-area{display:flex;align-items:center;gap:12px}
+.logo-svg{width:40px;height:40px;filter:drop-shadow(0 0 12px var(--neon-green)) drop-shadow(0 0 20px var(--neon-green))}
+h1{font-size:1.1rem;color:var(--neon-green);text-transform:uppercase;letter-spacing:1px;
+text-shadow:0 0 10px var(--neon-green),0 0 20px var(--neon-green),0 0 30px rgba(74,222,128,0.3);}
+
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button{
+background:transparent;border:1px solid var(--border);color:var(--text);
+padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;
+transition:all 0.3s ease;font-weight:600;
+}
+button:hover{border-color:var(--neon-blue);color:var(--neon-blue);
+transform:translateY(-2px);box-shadow:0 4px 16px rgba(56,189,248,0.4),0 0 20px rgba(56,189,248,0.2);}
+button.active{background:var(--neon-green);color:#000;border-color:var(--neon-green);
+box-shadow:0 0 15px rgba(74,222,128,0.6),0 0 30px rgba(74,222,128,0.3);
+animation:button-pulse 2s ease-in-out infinite;
+}
+
+@keyframes button-pulse{
+0%,100%{box-shadow:0 0 15px rgba(74,222,128,0.6),0 0 30px rgba(74,222,128,0.3)}
+50%{box-shadow:0 0 20px rgba(74,222,128,0.8),0 0 40px rgba(74,222,128,0.5)}
+}
+box-shadow:0 0 15px rgba(74,222,128,0.6);}
+
+.dropdown{position:relative;display:inline-block}
+.dropdown-btn{display:flex;align-items:center;gap:6px}
+.dropdown-content{
+display:none;position:absolute;top:calc(100% + 4px);right:0;
+background:var(--card);border:1px solid var(--border);
+border-radius:8px;min-width:160px;
+box-shadow:0 8px 24px rgba(0,0,0,0.8);z-index:200;
+}
+.dropdown-content.show{display:block}
+.dropdown-item{
+padding:10px 14px;cursor:pointer;transition:0.2s;
+border-bottom:1px solid var(--border);
+display:flex;align-items:center;gap:10px;font-size:0.85rem;
+}
+.dropdown-item:last-child{border-bottom:none}
+.dropdown-item:hover{background:rgba(56,189,248,0.15);transform:translateX(3px)}
+
+.flag-img{width:20px;height:15px;object-fit:cover;border-radius:2px}
+.flag-big{width:28px;height:21px;object-fit:cover;border-radius:3px;
+box-shadow:0 2px 8px rgba(0,0,0,0.4)}
+
+.main{
+max-width:1700px;margin:15px auto;padding:0 15px;
+display:grid;grid-template-columns:380px 1fr 420px;gap:15px;
+}
+
+.card{
+background:var(--card);border:1px solid var(--border);
+border-radius:10px;padding:16px;margin-bottom:15px;
+box-shadow:0 4px 12px rgba(0,0,0,0.3);
+transition:0.2s;
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.5)}
+
+h3{
+color:var(--neon-blue);font-size:0.85rem;text-transform:uppercase;
+margin-bottom:12px;border-bottom:1px solid var(--border);
+padding-bottom:6px;letter-spacing:0.5px;
+text-shadow:0 0 8px rgba(56,189,248,0.4);
+}
+
+.inp{margin-bottom:14px}
+.inp-head{display:flex;justify-content:space-between;margin-bottom:4px;align-items:center}
+.lbl{color:#8b9eb8;font-size:0.8rem;font-weight:600}
+.val{
+font-weight:900;font-family:monospace;font-size:1.05rem;
+color:var(--neon-blue);
+}
+.val.pos{
+color:var(--neon-green);
+text-shadow:0 0 8px var(--neon-green);
+animation:pulse-glow-green 2s ease-in-out infinite;
+}
+.val.neg{
+color:var(--neon-red);
+text-shadow:0 0 10px var(--neon-red);
+font-size:1.15rem;
+animation:pulse-glow-red 2s ease-in-out infinite;
+}
+.val.warn{
+color:var(--neon-orange);
+animation:pulse-glow-orange 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-green{
+0%,100%{text-shadow:0 0 5px var(--neon-green)}
+50%{text-shadow:0 0 15px var(--neon-green),0 0 25px var(--neon-green)}
+}
+
+@keyframes pulse-glow-orange{
+0%,100%{text-shadow:0 0 5px var(--neon-orange)}
+50%{text-shadow:0 0 15px var(--neon-orange),0 0 25px var(--neon-orange)}
+}
+
+@keyframes pulse-glow-red{
+0%,100%{text-shadow:0 0 5px var(--neon-red)}
+50%{text-shadow:0 0 20px var(--neon-red),0 0 30px var(--neon-red)}
+}
+
+@keyframes pulse-critical{
+0%,20%{text-shadow:0 0 8px var(--neon-red);transform:scale(1)}
+10%{text-shadow:0 0 25px var(--neon-red);transform:scale(1.08)}
+20%,100%{text-shadow:0 0 8px var(--neon-red);transform:scale(1)}
+}
+
+.auto-btn{
+display:inline-flex;align-items:center;gap:4px;
+background:var(--neon-green);color:#000;border:none;
+border-radius:5px;padding:3px 8px;font-size:0.65rem;
+cursor:pointer;font-weight:900;text-transform:uppercase;
+transition:0.2s;box-shadow:0 0 10px rgba(74,222,128,0.4);
+}
+.auto-btn:hover{transform:scale(1.05);box-shadow:0 0 15px rgba(74,222,128,0.6)}
+.auto-btn.man{background:var(--neon-red);box-shadow:0 0 10px rgba(220,38,38,0.4)}
+
+input[type=range]{
+width:100%;height:6px;background:var(--border);
+-webkit-appearance:none;margin:10px 0;outline:none;
+border-radius:3px;
+}
+
+/* Mobile: Moderate safe zones around sliders */
+@media(max-width:1000px){
+input[type=range]{
+width:calc(100% - 60px);
+margin:20px 30px;
+padding:0;
+}
+}
+
+/* Desktop: Smaller safe zones */
+@media(min-width:1001px){
+input[type=range]{
+width:calc(100% - 40px);
+margin:15px 20px;
+}
+}
+
+input[type=range]::-webkit-slider-thumb{
+-webkit-appearance:none;width:20px;height:20px;
+background:var(--neon-blue);border-radius:3px;cursor:pointer;
+box-shadow:0 0 12px var(--neon-blue);
+}
+input[type=range]::-moz-range-thumb{
+width:20px;height:20px;background:var(--neon-blue);
+border-radius:3px;cursor:pointer;box-shadow:0 0 12px var(--neon-blue);
+}
+input[type=range]:disabled{opacity:0.3;cursor:not-allowed}
+
+.grid{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
+gap:10px;
+}
+.city-card{
+background:rgba(255,255,255,0.02);border:1px solid var(--border);
+padding:12px;border-radius:6px;cursor:pointer;text-align:center;
+font-size:0.75rem;transition:0.2s;position:relative;
+}
+.city-card:hover{border-color:var(--neon-blue);transform:translateY(-3px) scale(1.02);
+box-shadow:0 8px 20px rgba(56,189,248,0.3)}
+
+.city-card.green{
+border-color:var(--neon-green);
+box-shadow:0 0 20px rgba(74,222,128,0.4);
+background:rgba(74,222,128,0.05);
+}
+.city-card.orange{
+border-color:var(--neon-orange);
+box-shadow:0 0 20px rgba(251,146,60,0.4);
+background:rgba(251,146,60,0.05);
+}
+.city-card.red{
+border-color:var(--neon-red);
+box-shadow:0 0 20px rgba(220,38,38,0.4);
+background:rgba(220,38,38,0.05);
+}
+
+.city-card.sel{
+border:3px solid var(--neon-green);
+animation:breathe 3s ease-in-out infinite;
+transform:scale(1.05);
+box-shadow:0 0 30px rgba(74,222,128,0.6),0 0 50px rgba(74,222,128,0.3);
+}
+.city-card.sel::before{
+content:'';position:absolute;top:-3px;left:-3px;right:-3px;bottom:-3px;
+border-radius:6px;
+box-shadow:0 0 40px rgba(74,222,128,0.9),0 0 60px rgba(74,222,128,0.5);
+animation:breathe-shadow 3s ease-in-out infinite;
+pointer-events:none;
+}
+
+@keyframes breathe{
+0%,100%{box-shadow:0 0 30px rgba(74,222,128,0.6),0 0 50px rgba(74,222,128,0.3)}
+50%{box-shadow:0 0 50px rgba(74,222,128,1),0 0 80px rgba(74,222,128,0.6)}
+}
+
+@keyframes breathe-shadow{
+0%,100%{opacity:0.8}
+50%{opacity:1}
+}
+
+.city-name{font-weight:900;font-size:0.9rem;margin-bottom:6px}
+.city-val{font-family:monospace;font-size:0.85rem;margin-top:4px;font-weight:800}
+.city-val.pos{color:var(--neon-green);text-shadow:0 0 10px var(--neon-green),0 0 20px rgba(74,222,128,0.5)}
+.city-val.warn{color:var(--neon-orange);text-shadow:0 0 10px var(--neon-orange),0 0 20px rgba(251,146,60,0.5)}
+.city-val.neg{color:var(--neon-red);animation:pulse-critical 3s ease-in-out infinite}
+.city-flag{margin-bottom:8px;display:flex;justify-content:center}
+
+.hint-box{
+background:rgba(251,146,60,0.1);border:2px dashed var(--neon-orange);
+padding:12px;border-radius:8px;margin-top:12px;
+font-size:0.75rem;line-height:1.8;color:#94a3b8;
+box-shadow:0 0 15px rgba(251,146,60,0.2);
+}
+.hint-box b{color:var(--neon-orange);font-weight:900;text-shadow:0 0 5px var(--neon-orange)}
+.hint-box ul{margin:8px 0 0 20px}
+.hint-box li{margin:4px 0}
+
+.res-box{
+background:rgba(0,0,0,0.4);padding:12px;border-radius:6px;
+margin-bottom:12px;border-left:3px solid var(--neon-blue);
+box-shadow:inset 0 2px 10px rgba(0,0,0,0.3);
+}
+.line{
+display:flex;justify-content:space-between;padding:6px 0;
+border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.8rem;
+}
+.line:last-child{border-bottom:none}
+.line strong{font-family:monospace;font-size:0.95rem;font-weight:900}
+
+.tax-box{
+border:2px dashed var(--neon-green);
+background:rgba(74,222,128,0.05);
+padding:14px;border-radius:8px;margin-top:12px;
+box-shadow:0 0 15px rgba(74,222,128,0.2);
+}
+.tax-title{
+color:var(--neon-green);font-weight:900;font-size:0.9rem;
+margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;
+text-shadow:0 0 8px var(--neon-green);
+}
+.tax-info{
+font-size:0.75rem;color:#94a3b8;line-height:1.8;
+margin-top:8px;
+}
+.tax-info b{color:var(--neon-green);font-weight:900}
+
+.big-result{
+text-align:center;padding:20px;
+background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(56,189,248,0.15));
+border:3px solid var(--neon-green);border-radius:12px;
+margin-top:12px;
+box-shadow:0 0 30px rgba(74,222,128,0.4),inset 0 2px 20px rgba(74,222,128,0.1);
+}
+.big-result .label{
+font-size:0.7rem;color:var(--neon-green);
+text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;
+text-shadow:0 0 8px var(--neon-green);
+}
+.big-result .value{
+font-size:2.2rem;font-weight:900;font-family:monospace;
+color:var(--neon-green);
+text-shadow:0 0 15px var(--neon-green),0 0 30px var(--neon-green);
+animation:pulse-glow-green 2s ease-in-out infinite;
+}
+.big-result.warn{
+border-color:var(--neon-orange);
+background:linear-gradient(135deg,rgba(251,146,60,0.2),rgba(251,146,60,0.05));
+box-shadow:0 0 30px rgba(251,146,60,0.4),inset 0 2px 20px rgba(251,146,60,0.1);
+}
+.big-result.warn .label{color:var(--neon-orange);text-shadow:0 0 8px var(--neon-orange)}
+.big-result.warn .value{color:var(--neon-orange);animation:pulse-glow-orange 2s ease-in-out infinite}
+.big-result.bad{
+border-color:var(--neon-red);
+background:linear-gradient(135deg,rgba(220,38,38,0.2),rgba(220,38,38,0.05));
+box-shadow:0 0 30px rgba(220,38,38,0.5),inset 0 2px 20px rgba(220,38,38,0.1);
+}
+.big-result.bad .label{color:var(--neon-red);text-shadow:0 0 8px var(--neon-red)}
+.big-result.bad .value{color:var(--neon-red);animation:pulse-critical 3s ease-in-out infinite}
+
+.status-badge{
+display:inline-block;padding:4px 12px;border-radius:20px;
+font-size:0.7rem;font-weight:900;text-transform:uppercase;
+margin-top:8px;letter-spacing:0.5px;
+}
+.status-badge.profit{
+background:rgba(74,222,128,0.2);color:var(--neon-green);
+border:1px solid var(--neon-green);
+box-shadow:0 0 10px rgba(74,222,128,0.3);
+}
+.status-badge.warning{
+background:rgba(251,146,60,0.2);color:var(--neon-orange);
+border:1px solid var(--neon-orange);
+box-shadow:0 0 10px rgba(251,146,60,0.3);
+}
+.status-badge.danger{
+background:rgba(220,38,38,0.2);color:var(--neon-red);
+border:1px solid var(--neon-red);
+box-shadow:0 0 10px rgba(220,38,38,0.3);
+animation:pulse-critical 3s ease-in-out infinite;
+}
+
+.hidden{display:none}
+
+@media(max-width:1200px){
+.main{grid-template-columns:1fr;padding:12px}
+.grid{grid-template-columns:repeat(auto-fit,minmax(90px,1fr))}
+}
+/* Mobile: More compact layout */
+@media(max-width:1000px){
+.card{
+padding:12px;
+margin-bottom:10px;
+}
+h3{
+font-size:0.8rem;
+margin-bottom:8px;
+padding-bottom:4px;
+}
+.row{
+margin-bottom:12px;
+}
+}
+</style>
+</head>
+<body>
+
+<button class="header-toggle" id="headerToggle" onclick="toggleHeader()">☰</button>
+
+<header id="mainHeader">
+<div class="logo-area">
+<svg class="logo-svg" viewBox="0 0 120 140">
+<ellipse cx="60" cy="110" rx="50" ry="10" fill="#4ade80" opacity="0.2"/>
+<path d="M60,85 Q50,95 35,105 M60,85 Q55,98 45,108 M60,85 Q60,98 60,110 M60,85 Q65,98 75,108 M60,85 Q70,95 85,105" stroke="#4ade80" stroke-width="2.5" fill="none"/>
+<circle cx="35" cy="105" r="2" fill="#4ade80"/>
+<circle cx="45" cy="108" r="2" fill="#4ade80"/>
+<circle cx="60" cy="110" r="2" fill="#4ade80"/>
+<circle cx="75" cy="108" r="2" fill="#4ade80"/>
+<circle cx="85" cy="105" r="2" fill="#4ade80"/>
+<path d="M55,85 Q54,60 52,40 Q50,20 55,10 Q58,5 60,5 Q62,5 65,10 Q70,20 68,40 Q66,60 65,85 Z" fill="#5d4a3a" stroke="#4ade80" stroke-width="1"/>
+<ellipse cx="60" cy="45" rx="25" ry="20" fill="#4ade80" opacity="0.6"/>
+<ellipse cx="60" cy="35" rx="28" ry="22" fill="#4ade80" opacity="0.7"/>
+<ellipse cx="60" cy="25" rx="24" ry="18" fill="#4ade80" opacity="0.8"/>
+</svg>
+<h1 data-i18n="title">A Better Root Planting</h1>
+</div>
+<div class="btns">
+<button id="uberBtn" class="active" onclick="toggleUber()"><span data-i18n="uberMode">🚗 Uber Mode</span></button>
+<button id="hintBtn" onclick="toggleHint()"><span data-i18n="hintMode">💡 Hint Mode</span></button>
+<div class="dropdown">
+<button class="dropdown-btn" onclick="toggleLangMenu()">
+<img id="currentFlag" class="flag-img" src="https://flagcdn.com/bg.svg" alt="BG">
+<span id="currentLang">BG</span>
+▼
+</button>
+<div class="dropdown-content" id="langMenu">
+<div class="dropdown-item" onclick="setLang('bg')"><img class="flag-img" src="https://flagcdn.com/bg.svg"> <span>Български</span></div>
+<div class="dropdown-item" onclick="setLang('en')"><img class="flag-img" src="https://flagcdn.com/gb.svg"> <span>English</span></div>
+<div class="dropdown-item" onclick="setLang('de')"><img class="flag-img" src="https://flagcdn.com/de.svg"> <span>Deutsch</span></div>
+<div class="dropdown-item" onclick="setLang('es')"><img class="flag-img" src="https://flagcdn.com/es.svg"> <span>Español</span></div>
+<div class="dropdown-item" onclick="setLang('fr')"><img class="flag-img" src="https://flagcdn.com/fr.svg"> <span>Français</span></div>
+</div>
+</div>
+<button onclick="location.reload()">🔄</button>
+</div>
+</header>
+
+<div class="main">
+<div class="col">
+
+<div class="card">
+<h3 data-i18n="family">👨‍👩‍👧‍👦 Family</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="adults">Adults</span>
+<span class="val" id="va">2</span>
+</div>
+<input type="range" min="1" max="4" value="2" id="sAdults" oninput="S.a=+this.value;updateFamily();calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="kids">Kids</span>
+<span class="val" id="vk">1</span>
+</div>
+<input type="range" min="0" max="5" value="1" id="sKids" oninput="S.k=+this.value;updateFamily();calc()">
+</div>
+</div>
+
+<div class="card">
+<h3 data-i18n="living">🏠 Living & Expenses</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="rent">Rent (€/mo)</span>
+<span class="val neg" id="vr">-3200</span>
+</div>
+<input type="range" min="500" max="9000" step="50" value="3200" id="sRent" oninput="S.r=+this.value;updateNet();calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="budget">Budget (€/mo)</span>
+<span class="val neg" id="vh">-1800</span>
+</div>
+<input type="range" min="400" max="5000" step="50" value="1800" id="sBudget" oninput="S.h=+this.value;calc()">
+</div>
+</div>
+
+<div class="card" id="uberCard">
+<h3 data-i18n="uber">🚗 Uber Parameters</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="netkm">Net profit (€/km)</span>
+<span class="val pos" id="vnk">1.20</span>
+</div>
+<input type="range" min="0.30" max="2.50" step="0.01" value="1.20" id="sNet" oninput="S.nk=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="kmday">Kilometers/day</span>
+<span class="val" id="vl">250</span>
+</div>
+<input type="range" min="100" max="400" step="10" value="250" id="sKm" oninput="S.l=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="workdays">Working days/month</span>
+<span class="val" id="vwd">22</span>
+</div>
+<input type="range" min="15" max="28" step="1" value="22" id="sWorkDays" oninput="S.wd=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="comfort">Comfort %</span>
+<span class="val" id="vcf">50%</span>
+</div>
+<input type="range" min="0" max="100" step="5" value="50" id="sComfort" oninput="S.cf=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="tips">💶 Tips (€/mo)</span>
+<span class="val pos" id="vtips">300</span>
+</div>
+<input type="range" min="100" max="1000" step="50" value="300" id="sTips" oninput="S.tips=+this.value;calc()">
+</div>
+</div>
+
+<div class="card hidden" id="incomeCard">
+<h3 data-i18n="income">💼 Income</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="monthlyIncome">Monthly income (€)</span>
+<span class="val pos" id="vIncome">3000</span>
+</div>
+<input type="range" min="1000" max="15000" step="100" value="3000" id="sIncome" oninput="S.income=+this.value;calc()">
+</div>
+</div>
+
+<div class="card" id="taxCard">
+<h3 data-i18n="tax">💰 Tax Benefits</h3>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="kmrate">€/km rate</span>
+<span class="val" id="vrate">0.70</span>
+<button class="auto-btn" id="rateBtn" onclick="toggleAuto('rate')">AUTO</button>
+</div>
+<input type="range" min="0.00" max="1.00" step="0.01" value="0.70" id="sRate" disabled oninput="S.rate=+this.value;calc()">
+</div>
+<div class="inp">
+<div class="inp-head">
+<span class="lbl" data-i18n="childded">Quota/child (€)</span>
+<span class="val" id="vcd">9000</span>
+<button class="auto-btn" id="childBtn" onclick="toggleAuto('child')">AUTO</button>
+</div>
+<input type="range" min="3000" max="15000" step="500" value="9000" id="sChild" disabled oninput="S.cd=+this.value;calc()">
+</div>
+</div>
+
+<div class="card">
+<h3 data-i18n="recommended">💡 Recommendations</h3>
+<div style="font-size:0.75rem;color:#94a3b8;line-height:1.8">
+<div><span data-i18n="recFamily">Family</span>: <b style="color:var(--neon-blue)" id="famSize">3</b></div>
+<div><span data-i18n="recRent">Rent</span>: <b style="color:var(--neon-blue)" id="rentRec">3200€</b></div>
+<div><span data-i18n="recBudget">Budget</span>: <b style="color:var(--neon-blue)" id="budgetRec">1800€</b></div>
+<div id="netRecLine"><span data-i18n="recNetkm">Net/km</span>: <b style="color:var(--neon-blue)" id="netRec">1.20€</b></div>
+</div>
+</div>
+
+<div class="card hidden" id="hintCard">
+<h3 data-i18n="hints">🎯 Hint Suggestions</h3>
+<div id="hintContent"></div>
+</div>
+
+</div>
+
+<div class="col">
+<div class="card">
+<h3 id="selTitle" data-i18n="cities">🌍 Cities</h3>
+<div class="grid" id="grid"></div>
+</div>
+</div>
+
+<div class="col">
+<div class="card">
+<h3 data-i18n="results">📊 Results</h3>
+<div id="results"></div>
+</div>
+
+<div class="card" id="taxExplainCard">
+<h3 data-i18n="taxinfo">📋 Tax Mathematics</h3>
+<div id="taxExplain"></div>
+</div>
+
+<div class="card">
+<h3 data-i18n="aihelper">🤖 AI Financial Analysis</h3>
+<div id="aiHelper" style="font-size:0.78rem;color:#94a3b8;line-height:1.8"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+const FLAGS_URL='https://flagcdn.com/';
+
+const FLAG_CODES={
+bg:'bg',en:'gb',de:'de',es:'es',fr:'fr'
+};
+
+const T={
+title:{bg:'A Better Root Planting',en:'A Better Root Planting',de:'Eine bessere Wurzelpflanzung',es:'Una Mejor Plantación de Raíces',fr:'Une Meilleure Plantation de Racines'},
+uberMode:{bg:'🚗 Uber Режим',en:'🚗 Uber Mode',de:'🚗 Uber Modus',es:'🚗 Modo Uber',fr:'🚗 Mode Uber'},
+hintMode:{bg:'💡 Hint Режим',en:'💡 Hint Mode',de:'💡 Hinweis-Modus',es:'💡 Modo Sugerencia',fr:'💡 Mode Conseil'},
+hints:{bg:'🎯 Hint Препоръки',en:'🎯 Hint Suggestions',de:'🎯 Hinweis-Vorschläge',es:'🎯 Sugerencias Hint',fr:'🎯 Suggestions Hint'},
+langBg:{bg:'Български',en:'Bulgarian',de:'Bulgarisch',es:'Búlgaro',fr:'Bulgare'},
+langEn:{bg:'Английски',en:'English',de:'Englisch',es:'Inglés',fr:'Anglais'},
+langDe:{bg:'Немски',en:'German',de:'Deutsch',es:'Alemán',fr:'Allemand'},
+langEs:{bg:'Испански',en:'Spanish',de:'Spanisch',es:'Español',fr:'Espagnol'},
+langFr:{bg:'Френски',en:'French',de:'Französisch',es:'Francés',fr:'Français'},
+family:{bg:'👨‍👩‍👧‍👦 Семейство',en:'👨‍👩‍👧‍👦 Family',de:'👨‍👩‍👧‍👦 Familie',es:'👨‍👩‍👧‍👦 Familia',fr:'👨‍👩‍👧‍👦 Famille'},
+adults:{bg:'Възрастни',en:'Adults',de:'Erwachsene',es:'Adultos',fr:'Adultes'},
+kids:{bg:'Деца',en:'Kids',de:'Kinder',es:'Niños',fr:'Enfants'},
+living:{bg:'🏠 Жилище & Разходи',en:'🏠 Living & Expenses',de:'🏠 Wohnen & Ausgaben',es:'🏠 Vivienda & Gastos',fr:'🏠 Logement & Dépenses'},
+rent:{bg:'Наем (€/мес)',en:'Rent (€/mo)',de:'Miete (€/Monat)',es:'Alquiler (€/mes)',fr:'Loyer (€/mois)'},
+budget:{bg:'Бюджет (€/мес)',en:'Budget (€/mo)',de:'Budget (€/Monat)',es:'Presupuesto (€/mes)',fr:'Budget (€/mois)'},
+uber:{bg:'🚗 Uber Параметри',en:'🚗 Uber Parameters',de:'🚗 Uber Parameter',es:'🚗 Parámetros Uber',fr:'🚗 Paramètres Uber'},
+netkm:{bg:'Нетна печалба (€/км)',en:'Net profit (€/km)',de:'Nettogewinn (€/km)',es:'Beneficio neto (€/km)',fr:'Bénéfice net (€/km)'},
+kmday:{bg:'Километри/ден',en:'Kilometers/day',de:'Kilometer/Tag',es:'Kilómetros/día',fr:'Kilomètres/jour'},
+workdays:{bg:'Работни дни/месец',en:'Working days/month',de:'Arbeitstage/Monat',es:'Días laborables/mes',fr:'Jours ouvrables/mois'},
+comfort:{bg:'Comfort %',en:'Comfort %',de:'Comfort %',es:'Comfort %',fr:'Comfort %'},
+tips:{bg:'💶 Бакшиш (€/мес)',en:'💶 Tips (€/mo)',de:'💶 Trinkgeld (€/Monat)',es:'💶 Propinas (€/mes)',fr:'💶 Pourboires (€/mois)'},
+income:{bg:'💼 Приходи',en:'💼 Income',de:'💼 Einkommen',es:'💼 Ingresos',fr:'💼 Revenus'},
+monthlyIncome:{bg:'Месечен доход (€)',en:'Monthly income (€)',de:'Monatliches Einkommen (€)',es:'Ingresos mensuales (€)',fr:'Revenu mensuel (€)'},
+tax:{bg:'💰 Данъчни облекчения',en:'💰 Tax Benefits',de:'💰 Steuervergünstigungen',es:'💰 Beneficios fiscales',fr:'💰 Avantages fiscaux'},
+kmrate:{bg:'€/км ставка',en:'€/km rate',de:'€/km Satz',es:'€/km tarifa',fr:'€/km tarif'},
+childded:{bg:'Квота/дете (€)',en:'Quota/child (€)',de:'Quote/Kind (€)',es:'Cuota/niño (€)',fr:'Quota/enfant (€)'},
+recommended:{bg:'💡 Препоръки',en:'💡 Recommendations',de:'💡 Empfehlungen',es:'💡 Recomendaciones',fr:'💡 Recommandations'},
+recFamily:{bg:'Семейство',en:'Family',de:'Familie',es:'Familia',fr:'Famille'},
+recRent:{bg:'Наем',en:'Rent',de:'Miete',es:'Alquiler',fr:'Loyer'},
+recBudget:{bg:'Бюджет',en:'Budget',de:'Budget',es:'Presupuesto',fr:'Budget'},
+recNetkm:{bg:'Нетно/км',en:'Net/km',de:'Netto/km',es:'Neto/km',fr:'Net/km'},
+cities:{bg:'🌍 Градове',en:'🌍 Cities',de:'🌍 Städte',es:'🌍 Ciudades',fr:'🌍 Villes'},
+results:{bg:'📊 Резултати',en:'📊 Results',de:'📊 Ergebnisse',es:'📊 Resultados',fr:'📊 Résultats'},
+taxinfo:{bg:'📋 Данъчна математика',en:'📋 Tax Mathematics',de:'📋 Steuermathematik',es:'📋 Matemáticas Fiscales',fr:'📋 Mathématiques Fiscales'},
+aihelper:{bg:'🤖 AI Финансов Анализ',en:'🤖 AI Financial Analysis',de:'🤖 KI-Finanzanalyse',es:'🤖 Análisis Financiero IA',fr:'🤖 Analyse Financière IA'},
+incomeLabel:{bg:'Приход',en:'Income',de:'Einkommen',es:'Ingresos',fr:'Revenus'},
+benefitsLabel:{bg:'Надбавки',en:'Benefits',de:'Leistungen',es:'Beneficios',fr:'Prestations'},
+expensesLabel:{bg:'Разходи',en:'Expenses',de:'Ausgaben',es:'Gastos',fr:'Dépenses'},
+balanceLabel:{bg:'ОСТАТЪК',en:'BALANCE',de:'SALDO',es:'SALDO',fr:'SOLDE'},
+yearlyBalance:{bg:'Годишен баланс',en:'Yearly Balance',de:'Jahresbilanz',es:'Balance Anual',fr:'Bilan Annuel'},
+fromWork:{bg:'От работа',en:'From work',de:'Aus Arbeit',es:'Del trabajo',fr:'Du travail'},
+profit:{bg:'💰 ПЕЧАЛБА',en:'💰 PROFIT',de:'💰 GEWINN',es:'💰 GANANCIA',fr:'💰 BÉNÉFICE'},
+warning:{bg:'⚠️ РИСК',en:'⚠️ RISK',de:'⚠️ RISIKO',es:'⚠️ RIESGO',fr:'⚠️ RISQUE'},
+danger:{bg:'🚨 ЗАГУБА',en:'🚨 LOSS',de:'🚨 VERLUST',es:'🚨 PÉRDIDA',fr:'🚨 PERTE'}
+};
+
+const CITIES={
+zurich:{flag:'ch',name:{bg:'Цюрих',en:'Zurich',de:'Zürich',es:'Zúrich',fr:'Zurich'},baseNet:1.68,maxBoost:1.12,avgRent:4400,rm:1000,rx:8000,avgBudget:1800,rate:0.75,cb:250,cd:9000,tr:25,ha:350,hc:120},
+geneva:{flag:'ch',name:{bg:'Женева',en:'Geneva',de:'Genf',es:'Ginebra',fr:'Genève'},baseNet:1.71,maxBoost:1.14,avgRent:4600,rm:1000,rx:8200,avgBudget:1900,rate:0.75,cb:250,cd:9000,tr:25,ha:350,hc:120},
+basel:{flag:'ch',name:{bg:'Базел',en:'Basel',de:'Basel',es:'Basilea',fr:'Bâle'},baseNet:1.56,maxBoost:1.04,avgRent:3800,rm:1000,rx:7500,avgBudget:1600,rate:0.75,cb:250,cd:9000,tr:24,ha:350,hc:120},
+bern:{flag:'ch',name:{bg:'Берн',en:'Bern',de:'Bern',es:'Berna',fr:'Berne'},baseNet:1.53,maxBoost:1.02,avgRent:3600,rm:1000,rx:7000,avgBudget:1500,rate:0.75,cb:250,cd:9000,tr:23,ha:350,hc:120},
+munich:{flag:'de',name:{bg:'Мюнхен',en:'Munich',de:'München',es:'Múnich',fr:'Munich'},baseNet:1.26,maxBoost:0.95,avgRent:3000,rm:1000,rx:5500,avgBudget:1400,rate:0.30,cb:219,cd:8952,tr:30,ha:180,hc:0},
+berlin:{flag:'de',name:{bg:'Берлин',en:'Berlin',de:'Berlin',es:'Berlín',fr:'Berlin'},baseNet:1.20,maxBoost:0.90,avgRent:2500,rm:800,rx:4800,avgBudget:1200,rate:0.30,cb:219,cd:8952,tr:28,ha:180,hc:0},
+frankfurt:{flag:'de',name:{bg:'Франкфурт',en:'Frankfurt',de:'Frankfurt',es:'Fráncfort',fr:'Francfort'},baseNet:1.23,maxBoost:0.92,avgRent:2800,rm:900,rx:5200,avgBudget:1300,rate:0.30,cb:219,cd:8952,tr:29,ha:180,hc:0},
+hamburg:{flag:'de',name:{bg:'Хамбург',en:'Hamburg',de:'Hamburg',es:'Hamburgo',fr:'Hambourg'},baseNet:1.20,maxBoost:0.90,avgRent:2600,rm:850,rx:5000,avgBudget:1250,rate:0.30,cb:219,cd:8952,tr:28,ha:180,hc:0},
+vienna:{flag:'at',name:{bg:'Виена',en:'Vienna',de:'Wien',es:'Viena',fr:'Vienne'},baseNet:1.11,maxBoost:0.93,avgRent:2400,rm:800,rx:4500,avgBudget:1100,rate:0.42,cb:120,cd:5000,tr:32,ha:150,hc:0},
+amsterdam:{flag:'nl',name:{bg:'Амстердам',en:'Amsterdam',de:'Amsterdam',es:'Ámsterdam',fr:'Amsterdam'},baseNet:1.32,maxBoost:0.88,avgRent:3200,rm:1000,rx:5800,avgBudget:1500,rate:0.23,cb:200,cd:7500,tr:37,ha:130,hc:0},
+brussels:{flag:'be',name:{bg:'Брюксел',en:'Brussels',de:'Brüssel',es:'Bruselas',fr:'Bruxelles'},baseNet:1.17,maxBoost:0.98,avgRent:2400,rm:900,rx:4600,avgBudget:1200,rate:0.43,cb:130,cd:6000,tr:35,ha:100,hc:0},
+luxembourg:{flag:'lu',name:{bg:'Люксембург',en:'Luxembourg',de:'Luxemburg',es:'Luxemburgo',fr:'Luxembourg'},baseNet:1.38,maxBoost:0.92,avgRent:3800,rm:1200,rx:6500,avgBudget:1700,rate:0.40,cb:200,cd:8500,tr:28,ha:140,hc:0},
+paris:{flag:'fr',name:{bg:'Париж',en:'Paris',de:'Paris',es:'París',fr:'Paris'},baseNet:0.90,maxBoost:0.75,avgRent:3000,rm:1000,rx:5600,avgBudget:1450,rate:0.40,cb:140,cd:6000,tr:33,ha:80,hc:0},
+london:{flag:'gb',name:{bg:'Лондон',en:'London',de:'London',es:'Londres',fr:'Londres'},baseNet:1.38,maxBoost:0.92,avgRent:3800,rm:1200,rx:6800,avgBudget:1750,rate:0.52,cb:180,cd:9000,tr:31,ha:0,hc:0},
+dublin:{flag:'ie',name:{bg:'Дъблин',en:'Dublin',de:'Dublin',es:'Dublín',fr:'Dublin'},baseNet:1.20,maxBoost:0.90,avgRent:3200,rm:1100,rx:6000,avgBudget:1550,rate:0.40,cb:220,cd:9360,tr:29,ha:60,hc:0},
+copenhagen:{flag:'dk',name:{bg:'Копенхаген',en:'Copenhagen',de:'Kopenhagen',es:'Copenhague',fr:'Copenhague'},baseNet:1.20,maxBoost:0.90,avgRent:3200,rm:1000,rx:5800,avgBudget:1650,rate:0.45,cb:290,cd:10872,tr:36,ha:0,hc:0},
+stockholm:{flag:'se',name:{bg:'Стокхолм',en:'Stockholm',de:'Stockholm',es:'Estocolmo',fr:'Stockholm'},baseNet:1.14,maxBoost:0.95,avgRent:3000,rm:950,rx:5400,avgBudget:1500,rate:0.40,cb:250,cd:9576,tr:32,ha:0,hc:0},
+oslo:{flag:'no',name:{bg:'Осло',en:'Oslo',de:'Oslo',es:'Oslo',fr:'Oslo'},baseNet:1.26,maxBoost:0.95,avgRent:3400,rm:1100,rx:6200,avgBudget:1700,rate:0.31,cb:310,cd:11064,tr:30,ha:180,hc:0,ha:0,hc:0},
+helsinki:{flag:'fi',name:{bg:'Хелзинки',en:'Helsinki',de:'Helsinki',es:'Helsinki',fr:'Helsinki'},baseNet:1.08,maxBoost:0.90,avgRent:2800,rm:900,rx:5000,avgBudget:1450,rate:0.40,cb:260,cd:9240,tr:31,ha:0,hc:0},
+reykjavik:{flag:'is',name:{bg:'Рейкявик',en:'Reykjavik',de:'Reykjavik',es:'Reikiavik',fr:'Reykjavik'},baseNet:1.17,maxBoost:0.98,avgRent:2800,rm:1000,rx:5200,avgBudget:1600,rate:0.35,cb:230,cd:9120,tr:33,ha:50,hc:0},
+madrid:{flag:'es',name:{bg:'Мадрид',en:'Madrid',de:'Madrid',es:'Madrid',fr:'Madrid'},baseNet:0.72,maxBoost:0.60,avgRent:2000,rm:700,rx:4000,avgBudget:1100,rate:0.19,cb:100,cd:3600,tr:27,ha:50,hc:0},
+barcelona:{flag:'es',name:{bg:'Барселона',en:'Barcelona',de:'Barcelona',es:'Barcelona',fr:'Barcelone'},baseNet:0.75,maxBoost:0.63,avgRent:2200,rm:800,rx:4200,avgBudget:1150,rate:0.19,cb:100,cd:3600,tr:27,ha:50,hc:0},
+rome:{flag:'it',name:{bg:'Рим',en:'Rome',de:'Rom',es:'Roma',fr:'Rome'},baseNet:0.66,maxBoost:0.55,avgRent:2100,rm:750,rx:4100,avgBudget:1200,rate:0.20,cb:120,cd:4200,tr:30,ha:180,hc:0,ha:0,hc:0},
+milan:{flag:'it',name:{bg:'Милано',en:'Milan',de:'Mailand',es:'Milán',fr:'Milan'},baseNet:0.72,maxBoost:0.60,avgRent:2400,rm:900,rx:4600,avgBudget:1200,rate:0.20,cb:120,cd:4200,tr:30,ha:180,hc:0,ha:0,hc:0},
+lisbon:{flag:'pt',name:{bg:'Лисабон',en:'Lisbon',de:'Lissabon',es:'Lisboa',fr:'Lisbonne'},baseNet:0.57,maxBoost:0.47,avgRent:1800,rm:650,rx:3800,avgBudget:1050,rate:0.20,cb:90,cd:3000,tr:28,ha:0,hc:0},
+athens:{flag:'gr',name:{bg:'Атина',en:'Athens',de:'Athen',es:'Atenas',fr:'Athènes'},baseNet:0.51,maxBoost:0.43,avgRent:1600,rm:600,rx:3400,avgBudget:950,rate:0.00,cb:80,cd:2500,tr:29,ha:50,hc:0},
+warsaw:{flag:'pl',name:{bg:'Варшава',en:'Warsaw',de:'Warschau',es:'Varsovia',fr:'Varsovie'},baseNet:0.60,maxBoost:0.50,avgRent:1400,rm:550,rx:3000,avgBudget:900,rate:0.00,cb:110,cd:3500,tr:26,ha:0,hc:0},
+prague:{flag:'cz',name:{bg:'Прага',en:'Prague',de:'Prag',es:'Praga',fr:'Prague'},baseNet:0.63,maxBoost:0.53,avgRent:1600,rm:600,rx:3200,avgBudget:950,rate:0.00,cb:105,cd:3200,tr:23,ha:350,hc:120,ha:0,hc:0},
+budapest:{flag:'hu',name:{bg:'Будапеща',en:'Budapest',de:'Budapest',es:'Budapest',fr:'Budapest'},baseNet:0.57,maxBoost:0.47,avgRent:1300,rm:500,rx:2800,avgBudget:850,rate:0.00,cb:100,cd:3000,tr:24,ha:350,hc:120,ha:0,hc:0},
+bucharest:{flag:'ro',name:{bg:'Букурещ',en:'Bucharest',de:'Bukarest',es:'Bucarest',fr:'Bucarest'},baseNet:0.54,maxBoost:0.45,avgRent:1100,rm:450,rx:2500,avgBudget:750,rate:0.00,cb:90,cd:2800,tr:22,ha:0,hc:0},
+sofia:{flag:'bg',name:{bg:'София',en:'Sofia',de:'Sofia',es:'Sofía',fr:'Sofia'},baseNet:0.42,maxBoost:0.35,avgRent:900,rm:400,rx:2200,avgBudget:650,rate:0.00,cb:50,cd:2400,tr:20,ha:0,hc:0}
+};
+
+const S={
+a:2,k:1,r:3200,h:1800,nk:1.20,l:250,wd:22,cf:50,tips:300,income:3000,
+rate:0.75,cb:250,cd:9000,rateAuto:true,childAuto:true,sel:'zurich',uberMode:true,hintMode:false,lang:'bg'
+};
+
+function toggleLangMenu(){document.getElementById('langMenu').classList.toggle('show')}
+
+function setLang(lang){
+S.lang=lang;
+document.getElementById('currentFlag').src=FLAGS_URL+FLAG_CODES[lang]+'.svg';
+document.getElementById('currentLang').textContent=lang.toUpperCase();
+document.getElementById('langMenu').classList.remove('show');
+document.querySelectorAll('[data-i18n]').forEach(el=>{
+const key=el.getAttribute('data-i18n');
+if(T[key]&&T[key][lang])el.textContent=T[key][lang];
+});
+calc();
+}
+
+function calcNet(cityKey,rentLevel){
+const c=CITIES[cityKey];
+
+// Базова печалба расте линейно с наема
+const pct = Math.max(0, Math.min(1, (rentLevel - c.rm) / (c.rx - c.rm)));
+const baseNetKm = c.baseNet + (c.maxBoost * pct);
+
+// ГЛАДКА парабола за празни километри
+// При rm: 40% празни км (emptyKmFactor = 0.60)
+// При avgRent: 5% празни км (emptyKmFactor = 0.95)
+// При rx: 2% празни км (emptyKmFactor = 0.98)
+// Парабола с връх при avgRent (максимална ефективност)
+
+const normalized = (rentLevel - c.rm) / (c.rx - c.rm); // 0 до 1
+const fromCenter = normalized - ((c.avgRent - c.rm) / (c.rx - c.rm)); // разстояние от center
+
+// Парабола: f(x) = max_value - k*x^2
+// При center: f = 0.95 (максимум)
+// При rm: f = 0.60
+// При rx: f = 0.98
+const maxEmpty = 0.95;
+const k = 0.35 / Math.pow((c.avgRent - c.rm) / (c.rx - c.rm), 2); // за левата страна
+
+let emptyKmFactor;
+if(rentLevel <= c.avgRent) {
+  const leftDist = (rentLevel - c.rm) / (c.avgRent - c.rm);
+  emptyKmFactor = 0.60 + (0.35 * leftDist * (2 - leftDist)); // smooth parabola on left
+} else {
+  const rightDist = (rentLevel - c.avgRent) / (c.rx - c.avgRent);
+  emptyKmFactor = 0.95 + (0.03 * rightDist * rightDist); // smooth parabola on right
+}
+
+return baseNetKm * emptyKmFactor;
+}
+
+function updateFamily(){
+const f=S.a+S.k;
+const c=CITIES[S.sel];
+let m=1.0;
+if(f===2)m=0.85;
+else if(f===3)m=1.0;
+else if(f===4)m=1.3;
+else if(f===5)m=1.6;
+else if(f>=6)m=2.0;
+S.h=Math.round((c.avgBudget||1500)*m);
+document.getElementById('sBudget').value=S.h;
+}
+
+function updateNet(){
+S.nk=Math.round(calcNet(S.sel,S.r)*100)/100;
+document.getElementById('sNet').value=S.nk;
+}
+
+let viewMode='auto';
+let headerCollapsed=false;
+
+function toggleHeader(){
+const header=document.getElementById('mainHeader');
+const toggle=document.getElementById('headerToggle');
+headerCollapsed=!headerCollapsed;
+if(headerCollapsed){
+header.classList.add('collapsed');
+toggle.textContent='▼';
+}else{
+header.classList.remove('collapsed');
+toggle.textContent='☰';
+}
+}
+
+function toggleUber(){
+S.uberMode=!S.uberMode;
+document.getElementById('uberBtn').classList.toggle('active',S.uberMode);
+document.getElementById('uberCard').classList.toggle('hidden',!S.uberMode);
+document.getElementById('incomeCard').classList.toggle('hidden',S.uberMode);
+document.getElementById('taxCard').classList.toggle('hidden',!S.uberMode);
+document.getElementById('taxExplainCard').classList.toggle('hidden',!S.uberMode);
+document.getElementById('netRecLine').classList.toggle('hidden',!S.uberMode);
+calc();
+}
+
+function toggleHint(){
+S.hintMode=!S.hintMode;
+document.getElementById('hintBtn').classList.toggle('active',S.hintMode);
+document.getElementById('hintCard').classList.toggle('hidden',!S.hintMode);
+calc();
+}
+
+function toggleAuto(t){
+if(t==='rate'){
+S.rateAuto=!S.rateAuto;
+document.getElementById('rateBtn').textContent=S.rateAuto?'AUTO':'MANUAL';
+document.getElementById('rateBtn').classList.toggle('man');
+document.getElementById('sRate').disabled=S.rateAuto;
+}else{
+S.childAuto=!S.childAuto;
+document.getElementById('childBtn').textContent=S.childAuto?'AUTO':'MANUAL';
+document.getElementById('childBtn').classList.toggle('man');
+document.getElementById('sChild').disabled=S.childAuto;
+}
+calc();
+}
+
+function calc(){
+const c=CITIES[S.sel];
+const f=S.a+S.k;
+let m=1.0;
+if(f===2)m=0.85;
+else if(f===3)m=1.0;
+else if(f===4)m=1.3;
+else if(f===5)m=1.6;
+else if(f>=6)m=2.0;
+
+// Интелигентни препоръки - намери оптимален наем за положителен баланс
+let recRent = c.avgRent || 3200;
+const recBudget = Math.round((c.avgBudget || 1800) * m);
+
+// Проверка дали текущите настройки водят до загуба
+const testNet = calcNet(S.sel, recRent);
+const testIncome = testNet * 1.2 * S.l * S.wd + S.tips;
+const testExpenses = recRent + recBudget;
+const testBalance = testIncome - testExpenses;
+
+// Ако е на загуба, намери по-евтин наем
+if(testBalance < 200) {
+  // Търси наем който дава поне +200€ баланс
+  for(let testRent = c.rm; testRent <= c.rx; testRent += 100) {
+    const net = calcNet(S.sel, testRent);
+    const income = net * 1.2 * S.l * S.wd + S.tips;
+    const budget = Math.round((c.avgBudget || 1800) * m);
+    const expenses = testRent + budget;
+    const balance = income - expenses;
+    
+    if(balance >= 200) {
+      recRent = testRent;
+      break;
+    }
+  }
+}
+
+const recNet = calcNet(S.sel, recRent);
+const autoRate=(c.rate !== undefined && c.rate !== null) ? c.rate : 0.70;
+const autoChild=(c.cd !== undefined && c.cd !== null) ? c.cd : 9000;
+const curRate=S.rateAuto?autoRate:S.rate;
+const curChild=S.childAuto?autoChild:S.cd;
+
+let monthlyInc=0;
+let finalNetKm=0;
+
+if(S.uberMode){
+const comfortBonus=S.nk*(S.cf/100)*0.20;
+finalNetKm=S.nk+comfortBonus;
+monthlyInc=Math.round(finalNetKm*S.l*S.wd)+S.tips;
+}else{
+monthlyInc=S.income;
+}
+
+const monthlyAllow=S.k*c.cb;
+const monthlyOut=S.r+S.h+(S.a*300);
+const netMo=monthlyInc+monthlyAllow-monthlyOut;
+
+let totalTaxSaved=0;
+if(S.uberMode){
+const totalKmYear=S.l*S.wd*12;
+const kmTaxBasis=totalKmYear*curRate;
+const kmTaxSaved=kmTaxBasis*(c.tr/100);
+const childTaxBasis=S.k*curChild;
+const childTaxSaved=childTaxBasis*(c.tr/100);
+totalTaxSaved=kmTaxSaved+childTaxSaved;
+}
+
+const yearlyTotal=netMo*12+totalTaxSaved;
+const isWarn=netMo>=-500&&netMo<=500;
+const isBad=netMo<-500;
+
+if(S.hintMode){
+let hints='';
+if(isBad){
+const neededKm=Math.ceil((monthlyOut-monthlyAllow-S.tips)/(finalNetKm*S.wd));
+const rentReduce=Math.abs(netMo)+500;
+const budgetReduce=Math.round(Math.abs(netMo)*0.6);
+hints=`<div class="hint-box">
+<b>⚠️ ${S.lang==='bg'?'КРИТИЧНА СИТУАЦИЯ':'CRITICAL SITUATION'}!</b><br><br>
+${S.lang==='bg'?'Параметри за промяна':'Parameters to change'}:<br>
+<ul>
+<li><b>${S.lang==='bg'?'Километри/ден':'Km/day'}:</b> ${S.lang==='bg'?'Увеличи на':'Increase to'} <b>${neededKm} км</b></li>
+<li><b>${S.lang==='bg'?'Наем':'Rent'}:</b> ${S.lang==='bg'?'Намали с':'Reduce by'} <b>${rentReduce}€</b></li>
+<li><b>${S.lang==='bg'?'Бюджет':'Budget'}:</b> ${S.lang==='bg'?'Намали с':'Reduce by'} <b>${budgetReduce}€</b></li>
+<li><b>Comfort %:</b> ${S.lang==='bg'?'Увеличи до':'Increase to'} <b>70-80%</b></li>
+</ul>
+</div>`;
+}else if(isWarn){
+const safeKm=Math.ceil((monthlyOut+1000-monthlyAllow-S.tips)/(finalNetKm*S.wd));
+hints=`<div class="hint-box">
+<b>⚠️ ${S.lang==='bg'?'РИСКОВА ЗОНА':'RISK ZONE'}!</b><br><br>
+${S.lang==='bg'?'Препоръчителни промени':'Recommended changes'}:<br>
+<ul>
+<li><b>${S.lang==='bg'?'Километри/ден':'Km/day'}:</b> ${S.lang==='bg'?'Увеличи на':'Increase to'} <b>${safeKm} км</b></li>
+<li><b>${S.lang==='bg'?'Работни дни':'Work days'}:</b> ${S.lang==='bg'?'Добави':'Add'} <b>2-3 ${S.lang==='bg'?'дни':'days'}</b></li>
+<li><b>Comfort %:</b> ${S.lang==='bg'?'Оптимизирай до':'Optimize to'} <b>60-70%</b></li>
+</ul>
+</div>`;
+}else{
+hints=`<div class="hint-box">
+<b>✅ ${S.lang==='bg'?'СТАБИЛНА КОНФИГУРАЦИЯ':'STABLE CONFIGURATION'}!</b><br><br>
+${S.lang==='bg'?'Спестявания':'Savings'}: ${Math.round(netMo*0.6)}€/мес → ${Math.round(netMo*0.6*12).toLocaleString()}€/${S.lang==='bg'?'година':'year'}
+</div>`;
+}
+document.getElementById('hintContent').innerHTML=hints;
+}
+
+document.getElementById('va').textContent=S.a;
+document.getElementById('vk').textContent=S.k;
+document.getElementById('vr').textContent='-'+S.r;
+document.getElementById('vh').textContent='-'+S.h;
+
+if(S.uberMode){
+document.getElementById('vnk').textContent=finalNetKm.toFixed(2);
+document.getElementById('vl').textContent=S.l;
+document.getElementById('vwd').textContent=S.wd;
+document.getElementById('vcf').textContent=S.cf+'%';
+document.getElementById('vtips').textContent='+'+S.tips;
+document.getElementById('vrate').textContent=curRate.toFixed(2);
+document.getElementById('vcd').textContent=curChild.toLocaleString();
+}else{
+document.getElementById('vIncome').textContent=S.income;
+}
+
+document.getElementById('famSize').textContent=f;
+document.getElementById('rentRec').textContent=recRent+'€';
+document.getElementById('budgetRec').textContent=recBudget+'€';
+if(S.uberMode)document.getElementById('netRec').textContent=recNet.toFixed(2)+'€';
+
+const g=document.getElementById('grid');
+g.innerHTML='';
+Object.keys(CITIES).forEach(k=>{
+const ct=CITIES[k];
+let cityInc=0;
+if(S.uberMode){
+const cityComfortBonus=S.nk*(S.cf/100)*0.20;
+const cityNetKm=S.nk+cityComfortBonus;
+cityInc=Math.round(cityNetKm*S.l*S.wd)+S.tips;
+}else{
+cityInc=S.income;
+}
+const cityAllow=S.k*ct.cb;
+const cityOut=S.r+S.h+(S.a*300);
+const cityNet=cityInc+cityAllow-cityOut;
+const isNearZero=cityNet>=-500&&cityNet<=500;
+const isCityBad=cityNet<-500;
+
+let cityClass='city-card';
+if(S.sel===k)cityClass+=' sel';
+if(isCityBad)cityClass+=' red';
+else if(isNearZero)cityClass+=' orange';
+else if(cityNet>500)cityClass+=' green';
+
+let valClass='city-val';
+if(isCityBad)valClass+=' neg';
+else if(isNearZero)valClass+=' warn';
+else if(cityNet>500)valClass+=' pos';
+
+const d=document.createElement('div');
+d.className=cityClass;
+d.innerHTML=`<div class="city-flag"><img src="${FLAGS_URL}${ct.flag}.svg" class="flag-big" alt="${ct.flag}"></div><div class="city-name">${ct.name[S.lang]}</div><div class="${valClass}">${cityNet>=0?'+':''}${cityNet}€</div>`;
+d.onclick=()=>{
+S.sel=k;
+S.r=ct.avgRent||S.r;
+S.h=Math.round((ct.avgBudget||S.h)*m);
+
+// Автоматична промяна на rate според града
+if(S.rateAuto){
+S.rate=ct.rate;
+document.getElementById('sRate').value=S.rate;
+}
+
+// Автоматична промяна на child quota според града
+if(S.childAuto){
+S.cb=ct.cb;
+document.getElementById('sChild').value=S.cb;
+}
+
+if(S.uberMode){
+S.nk=calcNet(k,S.r);
+document.getElementById('sNet').value=S.nk;
+}
+document.getElementById('sRent').value=S.r;
+document.getElementById('sBudget').value=S.h;
+calc();
+};
+g.appendChild(d);
+});
+
+document.getElementById('selTitle').innerHTML=`🎯 <img src="${FLAGS_URL}${c.flag}.svg" class="flag-img" style="vertical-align:middle"> ${c.name[S.lang]}`;
+
+let incomeClass='pos';
+let benefitsClass='pos';
+let expensesClass='neg';
+let balanceClass=isWarn?'warn':(isBad?'neg':'pos');
+
+let statusBadge='';
+if(isBad){
+statusBadge=`<div class="status-badge danger">${T.danger[S.lang]}</div>`;
+}else if(isWarn){
+statusBadge=`<div class="status-badge warning">${T.warning[S.lang]}</div>`;
+}else{
+statusBadge=`<div class="status-badge profit">${T.profit[S.lang]}</div>`;
+}
+
+let resultsHTML=`
+<div class="res-box">
+<div class="line"><span>${T.incomeLabel[S.lang]}:</span><strong class="${incomeClass}">+${monthlyInc.toLocaleString()}€</strong></div>
+<div class="line"><span>${T.benefitsLabel[S.lang]}:</span><strong class="${benefitsClass}">+${monthlyAllow}€</strong></div>
+<div class="line"><span>${T.expensesLabel[S.lang]}:</span><strong class="${expensesClass}">-${monthlyOut.toLocaleString()}€</strong></div>
+<div class="line" style="border-top:2px solid var(--neon-blue);margin-top:8px;padding-top:8px">
+<span><b>${T.balanceLabel[S.lang]}:</b></span>
+<strong class="${balanceClass}">${netMo>=0?'+':''}${netMo.toLocaleString()}€</strong>
+</div>
+</div>
+${statusBadge}
+<div class="big-result${isWarn?' warn':(isBad?' bad':'')}">
+<div class="label">💰 ${S.lang==='bg'?'Месечен баланс':'Monthly Balance'}</div>
+<div class="value">${netMo>=0?'+':''}${netMo.toLocaleString()} €</div>
+<div style="font-size:0.7rem;color:#64748b;margin-top:8px;line-height:1.6">
+📅 ${S.lang==='bg'?'Реално в джоба годишно':'Real in pocket yearly'}: <b>${(netMo*12).toLocaleString()}€</b><br>
+<span style="font-size:0.65rem;color:#94a3b8;font-style:italic">
+${S.lang==='bg'?'(Виж "Данъчна математика" за данъчни облекчения)':'(See "Tax Mathematics" for tax benefits)'}
+</span>
+</div>
+</div>
+`;
+document.getElementById('results').innerHTML=resultsHTML;
+
+if(S.uberMode){
+const kmPerYear=S.l*S.wd*12;
+const kmTaxBasis=kmPerYear*curRate;
+const kmTaxSaved=kmTaxBasis*(c.tr/100);
+const childTaxBasis=S.k*curChild;
+const childTaxSaved=childTaxBasis*(c.tr/100);
+
+document.getElementById('taxExplain').innerHTML=`
+<div class="tax-box">
+<div class="tax-title">💡 ${S.lang==='bg'?'Данъчна математика':'Tax Mathematics'}</div>
+<div class="tax-info">
+<b style="color:var(--neon-green)">📊 ${S.lang==='bg'?'КИЛОМЕТРАЖ':'MILEAGE'}:</b><br>
+🚗 ${S.lang==='bg'?'Годишно':'Yearly'}: ${S.l} км × ${S.wd} ${S.lang==='bg'?'дни':'days'} × 12 = <b>${kmPerYear.toLocaleString()} км</b><br><br>
+
+<b style="color:var(--neon-green)">💰 ${S.lang==='bg'?'ДАНЪЧНА СТАВКА':'TAX RATE'}:</b><br>
+📋 ${kmPerYear.toLocaleString()} км × ${curRate.toFixed(2)}€ = <b>${kmTaxBasis.toLocaleString()}€</b><br>
+📋 ${S.lang==='bg'?'Данък':'Tax'} ${c.tr}%: <b>-${kmTaxSaved.toLocaleString()}€</b><br>
+📋 ${S.lang==='bg'?'Месечно':'Monthly'}: <b>${Math.round(kmTaxSaved/12).toLocaleString()}€</b><br><br>
+
+${S.k>0?`<b style="color:var(--neon-green)">👶 ${S.lang==='bg'?'ДЕЦА':'CHILDREN'} (${S.k}):</b><br>
+📋 ${S.k} × ${curChild.toLocaleString()}€ = <b>${childTaxBasis.toLocaleString()}€</b><br>
+📋 ${S.lang==='bg'?'Данък':'Tax'} ${c.tr}%: <b>-${childTaxSaved.toLocaleString()}€</b><br>
+📋 ${S.lang==='bg'?'Месечно':'Monthly'}: <b>${Math.round(childTaxSaved/12).toLocaleString()}€</b><br><br>`:''}
+
+<b style="color:var(--neon-green)">🎯 ${S.lang==='bg'?'ОБЩО':'TOTAL'}:</b><br>
+✅ ${S.lang==='bg'?'Годишно':'Yearly'}: <b>${Math.round(totalTaxSaved).toLocaleString()}€</b><br>
+✅ ${S.lang==='bg'?'Месечно':'Monthly'}: <b>${Math.round(totalTaxSaved/12).toLocaleString()}€</b>
+</div>
+</div>
+`;
+}
+
+let aiAdvice='';
+if(netMo<-500){
+aiAdvice=`<b style="color:var(--neon-red)">🚨 ${S.lang==='bg'?'КРИТИЧНО':'CRITICAL'}!</b><br><br>
+${S.lang==='bg'?'Месечен дефицит':'Monthly deficit'}: ${Math.abs(netMo).toLocaleString()}€`;
+}else if(netMo<500){
+aiAdvice=`<b style="color:var(--neon-orange)">⚠️ ${S.lang==='bg'?'РИСК':'RISK'}!</b><br><br>
+${S.lang==='bg'?'Баланс':'Balance'}: ${netMo}€`;
+}else if(netMo<1500){
+aiAdvice=`<b style="color:var(--neon-blue)">✓ ${S.lang==='bg'?'СТАБИЛНО':'STABLE'}</b><br><br>
+${S.lang==='bg'?'Излишък':'Surplus'}: ${netMo.toLocaleString()}€/мес`;
+}else if(netMo<3000){
+aiAdvice=`<b style="color:var(--neon-green)">✓✓ ${S.lang==='bg'?'ОТЛИЧНО':'EXCELLENT'}!</b><br><br>
+${S.lang==='bg'?'Излишък':'Surplus'}: ${netMo.toLocaleString()}€/мес`;
+}else{
+aiAdvice=`<b style="color:var(--neon-green)">🌟 ${S.lang==='bg'?'ПЕРФЕКТНО':'PERFECT'}!</b><br><br>
+${S.lang==='bg'?'Годишен баланс':'Yearly'}: ${yearlyTotal.toLocaleString()}€`;
+}
+document.getElementById('aiHelper').innerHTML=aiAdvice;
+}
+
+document.addEventListener('click',(e)=>{
+if(!e.target.closest('.dropdown')){
+document.getElementById('langMenu').classList.remove('show');
+}
+});
+
+setLang('bg');
+updateFamily();
+updateNet();
+calc();
+
+if(window.innerWidth<=1000){
+document.getElementById('headerToggle').classList.add('show');
+}
+
+window.addEventListener('resize',()=>{
+const toggle=document.getElementById('headerToggle');
+if(window.innerWidth<=1000){
+toggle.classList.add('show');
+}else{
+toggle.classList.remove('show');
+headerCollapsed=false;
+document.getElementById('mainHeader').classList.remove('collapsed');
+toggle.textContent='☰';
+}
+});
+
+let scrollTimeout;
+window.addEventListener('scroll',()=>{
+if(window.innerWidth<=1000&&!headerCollapsed){
+clearTimeout(scrollTimeout);
+scrollTimeout=setTimeout(()=>{
+if(window.scrollY>100){
+toggleHeader();
+}
+},150);
+}
+});
+calc();
+</script>
+
+</body>
+</html>
