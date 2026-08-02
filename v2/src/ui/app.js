@@ -1,147 +1,202 @@
 import { CITIES, CITY_KEYS } from '../data/cities.js';
+import { applyTax } from '../data/tax.js';
 import { PLATFORMS, PLATFORM_KEYS, defaultPlatform } from '../data/platforms.js';
-import { shift, month, bestStrategy } from '../core/economics.js';
+import { PRESETS, PRESET_KEYS } from '../data/presets.js';
+import { TIPS, GENERIC_TIPS } from '../data/tips.js';
+import { t, tx, setLang, getLang } from '../data/i18n.js';
+import { month, bestStrategy } from '../core/economics.js';
 import { household, familyMultiplier } from '../core/household.js';
 
 const FLAGS = 'https://flagcdn.com/';
+applyTax(CITIES);
 
 const S = {
-  sel: 'sofia',
-  platform: 'taxime',
+  sel: 'sofia', platform: 'taxime',
   commissionPct: 15, commissionFixed: 0,
-  adults: 2, kids: 3,
-  rent: 900, budget: 1040,
-  hours: 8, commitHours: 12, workDays: 22,
-  peakFocus: 0.70,
-  maxKmDay: 250,
-  strategy: 0.80,
-  flow: 0.20,
-  comfort: 0.50,
-  carCost: 200,
-  tips: 150
+  adults: 2, kids: 3, rent: 900, budget: 1040,
+  hours: 10, commitHours: 12, workDays: 26, peakFocus: 0.60,
+  maxKmDay: 250, strategy: 0.80, flow: 0.20, comfort: 0.50,
+  carCost: 200, tips: 150
 };
 
 const $ = id => document.getElementById(id);
-const fmt = n => Math.round(n).toLocaleString('bg-BG');
+const fmt = n => Math.round(n).toLocaleString(getLang() === 'bg' ? 'bg-BG' : 'en-GB');
 
 function compute(over) {
   const p = Object.assign({}, S, over || {});
   const c = CITIES[p.sel];
   const m = month(c, p);
-  const h = household(c, p, m);
-  return { c, p, m, h };
+  return { c, p, m, h: household(c, p, m) };
+}
+
+function syncSliders() {
+  const map = { sAdults:'adults', sKids:'kids', sRent:'rent', sBudget:'budget',
+    sHours:'hours', sCommit:'commitHours', sDays:'workDays', sKm:'maxKmDay',
+    sCar:'carCost', sTips:'tips', sComm:'commissionPct' };
+  Object.keys(map).forEach(id => { if ($(id)) $(id).value = S[map[id]]; });
+  $('sPeak').value     = Math.round(S.peakFocus * 100);
+  $('sStrategy').value = Math.round(S.strategy * 100);
+  $('sFlow').value     = Math.round(S.flow * 100);
+  $('sComfort').value  = Math.round(S.comfort * 100);
+}
+
+function applyPreset(key) {
+  const p = PRESETS[key];
+  if (!p) return;
+  if (p.city) selectCity(p.city, true);
+  Object.assign(S, p.set);
+  const c = CITIES[S.sel];
+  if (!p.set.rent) S.rent = c.rentAvg;
+  S.budget = Math.round(c.budget * familyMultiplier(S.adults + S.kids));
+  $('presetDesc').textContent = tx(p.desc);
+  syncSliders();
+  render();
+}
+
+function strategyLabel(s) {
+  if (s < 0.2) return t('stayPut');
+  if (s < 0.45) return t('mostlyStay');
+  if (s < 0.7) return t('mixed');
+  if (s < 0.9) return t('mostlyMove');
+  return t('alwaysMove');
+}
+
+function sunClass(sun) {
+  return sun >= 2400 ? 'sun-hi' : sun >= 1750 ? 'sun-mid' : 'sun-lo';
+}
+
+function renderTips() {
+  const { c, h } = compute();
+  const list = (TIPS[S.sel] || []).slice();
+  const box = $('tipsOut');
+  let html = '';
+
+  list.forEach((tip, i) => {
+    const gain = tip.gain ? `<span class="${tip.gain > 0 ? 'good' : 'bad'}">${tip.gain > 0 ? '+' : ''}${fmt(tip.gain)}€</span>` : '';
+    const btn = tip.apply
+      ? `<button class="tipBtn" data-tip="${i}">${t('apply')}</button>` : '';
+    html += `<div class="tip"><div class="tipTxt">${tx(tip)}</div>
+             <div class="tipFoot">${gain}${btn}</div></div>`;
+  });
+
+  if (!list.length) {
+    GENERIC_TIPS.forEach(g => {
+      html += `<div class="tip"><div class="tipTxt">${tx(g)}</div></div>`;
+    });
+  }
+
+  // винаги: състояние на данъчните данни
+  const verKey = c.taxVer === 'V' ? 'taxVerV' : c.taxVer === 'P' ? 'taxVerP' : 'taxVerE';
+  html += `<div class="tip ver-${c.taxVer}"><div class="tipTxt">
+           <b>${t(verKey)}</b><br><span class="src">${c.taxSrc || ''}</span></div></div>`;
+
+  box.innerHTML = html;
+  box.querySelectorAll('.tipBtn').forEach(b => {
+    b.onclick = () => {
+      Object.assign(S, list[+b.dataset.tip].apply);
+      syncSliders(); render();
+    };
+  });
 }
 
 function render() {
   const { c, m, h } = compute();
+  const L = getLang();
 
-  $('vAdults').textContent   = S.adults;
-  $('vKids').textContent     = S.kids;
-  $('vRent').textContent     = '-' + fmt(S.rent) + '€';
-  $('vBudget').textContent   = '-' + fmt(S.budget) + '€';
-  $('vHours').textContent    = S.hours + 'ч';
-  $('vCommit').textContent   = Math.max(S.commitHours, S.hours) + 'ч';
-  $('vPeak').textContent     = Math.round(S.peakFocus * 100) + '%';
-  $('vDays').textContent     = S.workDays;
-  $('vKm').textContent       = S.maxKmDay + ' км';
-  $('vCar').textContent      = '-' + fmt(S.carCost) + '€';
-  $('vTips').textContent     = '+' + fmt(S.tips) + '€';
-  $('vComfort').textContent  = Math.round(S.comfort * 100) + '%';
-  $('vFlow').textContent     = Math.round(S.flow * 100) + '%';
+  $('vAdults').textContent = S.adults;
+  $('vKids').textContent   = S.kids;
+  $('vRent').textContent   = '-' + fmt(S.rent) + '€';
+  $('vBudget').textContent = '-' + fmt(S.budget) + '€';
+  $('vHours').textContent  = S.hours + 'h';
+  $('vCommit').textContent = Math.max(S.commitHours, S.hours) + 'h';
+  $('vPeak').textContent   = Math.round(S.peakFocus * 100) + '%';
+  $('vDays').textContent   = S.workDays;
+  $('vKm').textContent     = S.maxKmDay + ' km';
+  $('vCar').textContent    = '-' + fmt(S.carCost) + '€';
+  $('vTips').textContent   = '+' + fmt(S.tips) + '€';
+  $('vComfort').textContent = Math.round(S.comfort * 100) + '%';
+  $('vFlow').textContent   = Math.round(S.flow * 100) + '%';
   $('vStrategy').textContent = strategyLabel(S.strategy);
-  $('vComm').textContent     = S.commissionPct + '%';
+  $('vComm').textContent   = S.commissionPct + '%';
 
   const d = m.day;
   const callRow = d.callPart > 0
-    ? `<div class="row sub2"><span>&nbsp;&nbsp;повикване</span><b>${fmt(d.callPart)}€</b></div>` : '';
+    ? `<div class="row sub2"><span>&nbsp;&nbsp;${t('callPart')}</span><b>${fmt(d.callPart)}€</b></div>` : '';
   const kmWarn = d.kmLimited
-    ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ опряло в тавана за км</span><b></b></div>` : '';
+    ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ ${t('warnKmCap')}</span><b></b></div>` : '';
   const peakNote = S.peakFocus > d.peakShare + 0.02
-    ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ смяната надхвърля пиковете — реално ${Math.round(d.peakShare*100)}%</span><b></b></div>` : '';
+    ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ ${t('warnPeak')} ${Math.round(d.peakShare*100)}%</span><b></b></div>` : '';
 
   $('shiftOut').innerHTML = `
-    <div class="row"><span>Курсове</span><b>${d.jobs.toFixed(1)} · ${d.jobsPerHour.toFixed(2)}/ч</b></div>
-    <div class="row sub2"><span>&nbsp;&nbsp;натовареност ${(d.util*100).toFixed(0)}% от таван ${d.ceiling.toFixed(1)}/ч</span><b></b></div>
+    <div class="row"><span>${t('jobs')}</span><b>${d.jobs.toFixed(1)} · ${d.jobsPerHour.toFixed(2)}/h</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;${t('util')} ${(d.util*100).toFixed(0)}% ${t('ofCeiling')} ${d.ceiling.toFixed(1)}</span><b></b></div>
     ${peakNote}
-    <div class="row"><span>Среден курс</span><b>${c.avgTrip} км · ${d.avgFare.toFixed(2)}€</b></div>
-    <div class="row sub2"><span>&nbsp;&nbsp;километри</span><b>${fmt(d.kmPart)}€</b></div>
-    <div class="row sub2"><span>&nbsp;&nbsp;начална такса + престой</span><b>${fmt(d.basePart)}€</b></div>
+    <div class="row"><span>${t('avgFare')}</span><b>${c.avgTrip} km · ${d.avgFare.toFixed(2)}€</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;${t('kmPart')}</span><b>${fmt(d.kmPart)}€</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;${t('basePart')}</span><b>${fmt(d.basePart)}€</b></div>
     ${callRow}
-    <div class="row"><span>Натоварени км</span><b>${fmt(d.loadedKm)}</b></div>
-    <div class="row"><span>Празни км</span><b class="bad">${fmt(d.emptyKm)}</b></div>
-    <div class="row"><span>Общо км/ден</span><b>${fmt(d.totalKm)}</b></div>
+    <div class="row"><span>${t('loadedKm')}</span><b>${fmt(d.loadedKm)}</b></div>
+    <div class="row"><span>${t('emptyKm')}</span><b class="bad">${fmt(d.emptyKm)}</b></div>
+    <div class="row"><span>${t('totalKm')}</span><b>${fmt(d.totalKm)}</b></div>
     ${kmWarn}
-    <div class="row"><span>Заетост на км</span><b>${(d.occupancy*100).toFixed(0)}%</b></div>
-    <div class="row"><span>Оборот на апарата</span><b>${fmt(d.gross)}€</b></div>
-    <div class="row hi"><span>В джоба за смяна</span><b>${fmt(m.netPerShift)}€</b></div>
-    <div class="row hi"><span>На час зад волана</span><b>${m.netPerHour.toFixed(2)}€</b></div>
-    <div class="row hi"><span>На час извън дома</span><b>${m.netPerCommitHour.toFixed(2)}€</b></div>`;
+    <div class="row"><span>${t('occupancy')}</span><b>${(d.occupancy*100).toFixed(0)}%</b></div>
+    <div class="row"><span>${t('meterGross')}</span><b>${fmt(d.gross)}€</b></div>
+    <div class="row hi"><span>${t('perShift')}</span><b>${fmt(m.netPerShift)}€</b></div>
+    <div class="row hi"><span>${t('perHour')}</span><b>${m.netPerHour.toFixed(2)}€</b></div>
+    <div class="row hi"><span>${t('perAway')}</span><b>${m.netPerCommitHour.toFixed(2)}€</b></div>`;
 
   const best = bestStrategy(c, S);
   const diff = best.profit - m.profit;
   $('advice').innerHTML = diff > 30
-    ? `<b>${strategyLabel(best.strategy)}</b> е по-добре тук — с ${fmt(diff)}€/мес.`
-    : `Стратегията ти е близо до оптималната за ${c.name.bg}.`;
+    ? `<b>${strategyLabel(best.strategy)}</b> ${t('betterHere')} ${fmt(diff)}€/mo.`
+    : `${t('nearOptimal')} ${tx(c.name)}.`;
 
   const commLine = m.commission > 0
-    ? `<div class="row"><span>Комисионна ${S.commissionPct}%</span><b class="bad">-${fmt(m.commission)}€</b></div>` : '';
+    ? `<div class="row"><span>${t('commission')} ${S.commissionPct}%</span><b class="bad">-${fmt(m.commission)}€</b></div>` : '';
+  const socLabel = h.socialFixed > 0 && !c.sc
+    ? `${t('social')} (${fmt(h.socialFixed)}€/mo)` : `${t('social')} ${c.sc}%`;
 
   const cls = h.balance < -300 ? 'bad' : (h.balance < 300 ? 'warn' : 'good');
   $('monthOut').innerHTML = `
-    <div class="row"><span>Оборот по апарата</span><b class="good">+${fmt(m.fares)}€</b></div>
+    <div class="row"><span>${t('fares')}</span><b class="good">+${fmt(m.fares)}€</b></div>
     ${commLine}
-    <div class="row"><span>Бакшиши</span><b class="good">+${fmt(m.tips)}€</b></div>
-    <div class="row"><span>Кола (всичко)</span><b class="bad">-${fmt(m.carCost)}€</b></div>
-    <div class="row"><span>Печалба</span><b>${fmt(m.profit)}€</b></div>
-    <div class="row"><span>Осигуровки ${c.sc}%</span><b class="bad">-${fmt(h.social)}€</b></div>
-    <div class="row"><span>Данък ${c.tr}%</span><b class="bad">-${fmt(h.tax)}€</b></div>
-    <div class="row"><span>Детски</span><b class="good">+${fmt(h.benefits)}€</b></div>
-    <div class="row"><span>Наем + бюджет</span><b class="bad">-${fmt(h.rent+h.budget)}€</b></div>
-    ${h.health ? `<div class="row"><span>Здравно</span><b class="bad">-${fmt(h.health)}€</b></div>` : ''}
-    <div class="row"><span>Основни</span><b class="bad">-${fmt(h.basic)}€</b></div>
-    <div class="row sub2"><span>&nbsp;&nbsp;${fmt(m.monthHours)}ч зад волана · ${fmt(m.monthCommit)}ч извън дома</span><b></b></div>`;
+    <div class="row"><span>${t('tips')}</span><b class="good">+${fmt(m.tips)}€</b></div>
+    <div class="row"><span>${t('car')}</span><b class="bad">-${fmt(m.carCost)}€</b></div>
+    <div class="row"><span>${t('profit')}</span><b>${fmt(m.profit)}€</b></div>
+    <div class="row"><span>${socLabel}</span><b class="bad">-${fmt(h.social)}€</b></div>
+    <div class="row"><span>${t('tax')} ${c.tr}%</span><b class="bad">-${fmt(h.tax)}€</b></div>
+    <div class="row"><span>${t('benefits')}</span><b class="good">+${fmt(h.benefits)}€</b></div>
+    <div class="row"><span>${t('rentBudget')}</span><b class="bad">-${fmt(h.rent+h.budget)}€</b></div>
+    ${h.health ? `<div class="row"><span>${t('health')}</span><b class="bad">-${fmt(h.health)}€</b></div>` : ''}
+    <div class="row"><span>${t('basicExp')}</span><b class="bad">-${fmt(h.basic)}€</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;${fmt(m.monthHours)}${t('atWheel')} · ${fmt(m.monthCommit)}${t('away')}</span><b></b></div>`;
 
   const vehLine = h.useKmRate
-    ? `<div class="row"><span>Квота ${c.kmRate.toFixed(2)}€/км над реалните</span><b class="good">-${fmt(h.vehicleExtra)}€</b></div>
-       <div class="row sub2"><span>&nbsp;&nbsp;квота ${fmt(h.kmDeduct)}€ вместо реални ${fmt(h.carYear)}€</span><b></b></div>`
-    : `<div class="row"><span>Кола — реални разходи</span><b class="good">вече в печалбата</b></div>
-       <div class="row sub2"><span>&nbsp;&nbsp;реални ${fmt(h.carYear)}€ &gt; квота ${fmt(h.kmDeduct)}€</span><b></b></div>`;
+    ? `<div class="row"><span>${t('kmQuota')} ${c.kmRate.toFixed(2)}€/km ${t('overActual')}</span><b class="good">-${fmt(h.vehicleExtra)}€</b></div>`
+    : `<div class="row"><span>${t('carActual')}</span><b class="good">${t('alreadyIn')}</b></div>`;
 
   $('taxOut').innerHTML = `
-    <div class="row"><span>Пробег</span><b>${fmt(m.km)} км/мес · ${fmt(h.kmYear)} км/год</b></div>
-    <div class="row"><span>Печалба преди квоти</span><b>${fmt(m.profit*12)}€/год</b></div>
-    <div class="row"><span>Осигуровки</span><b class="good">-${fmt(h.social*12)}€</b></div>
+    <div class="row"><span>${t('mileage')}</span><b>${fmt(m.km)} km/mo · ${fmt(h.kmYear)} km/yr</b></div>
+    <div class="row"><span>${t('profitPre')}</span><b>${fmt(m.profit*12)}€/yr</b></div>
+    <div class="row"><span>${t('social')}</span><b class="good">-${fmt(h.social*12)}€</b></div>
     ${vehLine}
-    <div class="row"><span>Квота ${S.kids} деца × ${fmt(c.cd)}€</span><b class="good">-${fmt(h.childDeduct)}€</b></div>
-    <div class="row"><span>Облагаема основа</span><b>${fmt(h.taxableYear)}€/год</b></div>
-    <div class="row hi"><span>Квотите спестяват</span><b class="good">${fmt(h.reliefYear)}€/год</b></div>
-    <div class="row hi"><span>Ефективна ставка</span><b>${h.effectiveRate.toFixed(1)}%</b></div>
-    <div class="row sub2"><span>&nbsp;&nbsp;ℹ наемът е личен разход и не намалява основата</span><b></b></div>
-    ${h.taxableYear <= 0 ? '<div class="row sub2"><span>&nbsp;&nbsp;ℹ квотите надвишават печалбата — данъкът е нула</span><b></b></div>' : ''}
-    ${c.kmRate === 0 ? '<div class="row sub2"><span>&nbsp;&nbsp;⚠ няма километрична квота в тази държава</span><b></b></div>' : ''}`;
+    <div class="row"><span>${t('childQuota')} ${S.kids} × ${fmt(c.cd)}€</span><b class="good">-${fmt(h.childDeduct)}€</b></div>
+    <div class="row"><span>${t('taxable')}</span><b>${fmt(h.taxableYear)}€/yr</b></div>
+    <div class="row hi"><span>${t('quotaSaves')}</span><b class="good">${fmt(h.reliefYear)}€/yr</b></div>
+    <div class="row hi"><span>${t('effRate')}</span><b>${h.effectiveRate.toFixed(1)}%</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;ℹ ${t('rentNote')}</span><b></b></div>
+    ${h.taxableYear <= 0 ? `<div class="row sub2"><span>&nbsp;&nbsp;ℹ ${t('zeroTax')}</span><b></b></div>` : ''}
+    ${c.kmRate === 0 ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ ${t('noKmRate')}</span><b></b></div>` : ''}`;
 
   $('balance').className = 'balance ' + cls;
   $('balance').innerHTML =
-    `<div class="lbl">Остава месечно</div>
+    `<div class="lbl">${t('surplus')}</div>
      <div class="num">${h.balance >= 0 ? '+' : ''}${fmt(h.balance)} €</div>
-     <div class="sub">Годишно ${fmt(h.balanceYear)}€<br>
-     Праг на рентабилност: <b>${h.breakEvenKm} км/ден</b></div>`;
+     <div class="sub">${t('yearly')} ${fmt(h.balanceYear)}€<br>
+     ${t('breakEven')}: <b>${h.breakEvenKm} ${t('perDay')}</b></div>`;
 
   renderGrid();
-}
-
-function strategyLabel(s) {
-  if (s < 0.2) return 'Стоя на място';
-  if (s < 0.45) return 'Предимно стоя';
-  if (s < 0.7) return 'Смесено';
-  if (s < 0.9) return 'Предимно се местя';
-  return 'Местя се постоянно';
-}
-
-function sunClass(sun) {
-  if (sun >= 2400) return 'sun-hi';
-  if (sun >= 1750) return 'sun-mid';
-  return 'sun-lo';
+  renderTips();
 }
 
 function renderGrid() {
@@ -162,10 +217,10 @@ function renderGrid() {
     const d = document.createElement('div');
     d.className = 'city' + (S.sel === r.k ? ' sel' : '') + (r.c.note ? ' star' : '');
     d.innerHTML = `<img src="${FLAGS}${r.c.flag}.svg" alt="">
-      <div class="cn">${r.c.name.bg}${r.c.src === 'D' ? '<i title="непроверено">~</i>' : ''}</div>
+      <div class="cn">${tx(r.c.name)}</div>
       <div class="cv ${cls}">${r.bal >= 0 ? '+' : ''}${fmt(r.bal)}€</div>
-      <div class="cs ${sunClass(r.c.sun)}">☀ ${r.c.sun}ч</div>`;
-    d.title = r.c.note || '';
+      <div class="cs ${sunClass(r.c.sun)}">☀ ${r.c.sun}</div>`;
+    d.title = tx(r.c.note ? { bg:r.c.note, en:r.c.note } : {}) || '';
     d.onclick = () => selectCity(r.k);
     g.appendChild(d);
   });
@@ -179,7 +234,7 @@ function setPlatform(key) {
   $('sComm').value = S.commissionPct;
 }
 
-function selectCity(k) {
+function selectCity(k, quiet) {
   const c = CITIES[k];
   S.sel = k;
   S.rent = c.rentAvg;
@@ -188,10 +243,10 @@ function selectCity(k) {
   $('sRent').min = c.rentMin; $('sRent').max = c.rentMax; $('sRent').value = S.rent;
   $('sBudget').value = S.budget;
   $('cityName').innerHTML =
-    `<img src="${FLAGS}${c.flag}.svg" alt=""> ${c.name.bg}
-     <small>тарифа ${c.dt.toFixed(2)} €/км · таван ${c.maxJobsHour} курса/ч · ☀ ${c.sun}ч/год${c.src === 'D' ? ' · непроверено' : ''}</small>
+    `<img src="${FLAGS}${c.flag}.svg" alt=""> ${tx(c.name)}
+     <small>${t('tariff')} ${c.dt.toFixed(2)} €/km · ${t('ceiling')} ${c.maxJobsHour} ${t('jobsPerH')} · ☀ ${c.sun}${t('sunYear')}${c.src === 'D' ? ' · ' + t('unverified') : ''}</small>
      ${c.note ? `<small class="note">${c.note}</small>` : ''}`;
-  render();
+  if (!quiet) render();
 }
 
 function bind(id, key, transform) {
@@ -205,16 +260,11 @@ function bind(id, key, transform) {
   });
 }
 
-function initLock() {
-  const btn = $('lockBtn');
-  let locked = false;
-  const apply = () => {
-    document.body.classList.toggle('locked', locked);
-    btn.textContent = locked ? '🔒 Заключено' : '🔓 Отключено';
-    btn.classList.toggle('on', locked);
-  };
-  btn.addEventListener('click', () => { locked = !locked; apply(); });
-  apply();
+function paintLabels() {
+  document.querySelectorAll('[data-t]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-t'));
+  });
+  document.title = t('title');
 }
 
 export function init() {
@@ -227,22 +277,49 @@ export function init() {
   });
   sel.addEventListener('change', e => { setPlatform(e.target.value); render(); });
 
-  bind('sAdults', 'adults');
-  bind('sKids', 'kids');
-  bind('sRent', 'rent');
-  bind('sBudget', 'budget');
-  bind('sHours', 'hours');
-  bind('sCommit', 'commitHours');
-  bind('sPeak', 'peakFocus', v => v / 100);
-  bind('sDays', 'workDays');
-  bind('sKm', 'maxKmDay');
-  bind('sCar', 'carCost');
-  bind('sTips', 'tips');
-  bind('sComm', 'commissionPct');
-  bind('sStrategy', 'strategy', v => v / 100);
-  bind('sFlow', 'flow', v => v / 100);
-  bind('sComfort', 'comfort', v => v / 100);
+  const ps = $('sPreset');
+  PRESET_KEYS.forEach(k => {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = tx(PRESETS[k].name);
+    ps.appendChild(o);
+  });
+  ps.addEventListener('change', e => applyPreset(e.target.value));
 
-  initLock();
-  selectCity(S.sel);
+  $('langBtn').addEventListener('click', () => {
+    setLang(getLang() === 'bg' ? 'en' : 'bg');
+    $('langBtn').textContent = getLang() === 'bg' ? '🇬🇧 EN' : '🇧🇬 BG';
+    ps.innerHTML = '';
+    PRESET_KEYS.forEach(k => {
+      const o = document.createElement('option');
+      o.value = k; o.textContent = tx(PRESETS[k].name);
+      ps.appendChild(o);
+    });
+    ps.value = $('sPreset').value;
+    paintLabels();
+    selectCity(S.sel);
+  });
+
+  let locked = false;
+  $('lockBtn').addEventListener('click', () => {
+    locked = !locked;
+    document.body.classList.toggle('locked', locked);
+    $('lockBtn').textContent = locked ? t('locked') : t('unlocked');
+    $('lockBtn').classList.toggle('on', locked);
+  });
+
+  bind('sAdults','adults'); bind('sKids','kids');
+  bind('sRent','rent'); bind('sBudget','budget');
+  bind('sHours','hours'); bind('sCommit','commitHours');
+  bind('sPeak','peakFocus', v => v/100);
+  bind('sDays','workDays'); bind('sKm','maxKmDay');
+  bind('sCar','carCost'); bind('sTips','tips');
+  bind('sComm','commissionPct');
+  bind('sStrategy','strategy', v => v/100);
+  bind('sFlow','flow', v => v/100);
+  bind('sComfort','comfort', v => v/100);
+
+  paintLabels();
+  $('lockBtn').textContent = t('unlocked');
+  ps.value = 'sofia_now';
+  applyPreset('sofia_now');
 }
