@@ -51,9 +51,9 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;background:var(--b);
 .cn{font-weight:800;font-size:.75rem;margin:5px 0 3px}
 .cn i{color:var(--o);font-style:normal}
 .cv{font-family:monospace;font-weight:800;font-size:.8rem}
-#cityName{display:flex;align-items:center;gap:8px;font-size:.95rem;font-weight:800;margin-bottom:10px}
+#cityName{display:flex;align-items:center;gap:8px;font-size:.95rem;font-weight:800;margin-bottom:10px;flex-wrap:wrap}
 #cityName img{width:28px;height:21px;border-radius:3px}
-#cityName small{color:#64748b;font-weight:400;font-size:.7rem}
+#cityName small{color:#64748b;font-weight:400;font-size:.7rem;width:100%}
 #advice{font-size:.75rem;color:#94a3b8;background:rgba(251,146,60,.1);
   border:1px dashed var(--o);border-radius:6px;padding:9px;margin-top:8px;line-height:1.5}
 #advice b{color:var(--o)}
@@ -107,6 +107,11 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;background:var(--b);
         <input type="range" id="sHours" min="6" max="14" value="10"></div>
       <div class="inp"><div class="ih"><span class="lb">Дни/месец</span><span class="vl" id="vDays"></span></div>
         <input type="range" id="sDays" min="15" max="28" value="22"></div>
+      <div class="inp">
+        <div class="ih"><span class="lb">Таван км/ден</span><span class="vl" id="vKm"></span></div>
+        <input type="range" id="sKm" min="80" max="450" step="10" value="250">
+        <div class="ends"><span>колко си готов да изминеш</span></div>
+      </div>
       <div class="inp">
         <div class="ih"><span class="lb">Кола — всичко</span><span class="vl bad" id="vCar"></span></div>
         <input type="range" id="sCar" min="100" max="2500" step="50" value="200">
