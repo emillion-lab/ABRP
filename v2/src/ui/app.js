@@ -1,9 +1,10 @@
 import { CITIES, CITY_KEYS } from '../data/cities.js';
 import { applyTax } from '../data/tax.js';
+import { climateOf } from '../data/climate.js';
 import { PLATFORMS, PLATFORM_KEYS, defaultPlatform } from '../data/platforms.js';
 import { PRESETS, PRESET_KEYS } from '../data/presets.js';
 import { TIPS, GENERIC_TIPS } from '../data/tips.js';
-import { DIMS, DIM_KEYS, score, display, badgeMap } from '../data/scores.js';
+import { DIMS, DIM_KEYS, computeScores, display, badgeMap } from '../data/scores.js';
 import { t, tx, setLang, getLang } from '../data/i18n.js';
 import { month, bestStrategy } from '../core/economics.js';
 import { household, familyMultiplier } from '../core/household.js';
@@ -12,7 +13,7 @@ const FLAGS = 'https://flagcdn.com/';
 applyTax(CITIES);
 
 const S = {
-  sel:'sofia', platform:'taxime', sortBy:'balance',
+  sel:'sofia', platform:'taxime', sortBy:'overall',
   commissionPct:15, commissionFixed:0,
   adults:2, kids:3, rent:900, budget:1040,
   hours:10, commitHours:12, workDays:26, peakFocus:0.60,
@@ -63,7 +64,7 @@ function strategyLabel(s) {
 }
 
 function cityRows() {
-  return CITY_KEYS.map(k => {
+  const rows = CITY_KEYS.map(k => {
     const c = CITIES[k];
     const pf = PLATFORMS[defaultPlatform(k)];
     const p = Object.assign({}, S, {
@@ -72,11 +73,9 @@ function cityRows() {
       budget: Math.round(c.budget * familyMultiplier(S.adults + S.kids))
     });
     const m = month(c, p);
-    const h = household(c, p, m);
-    const scores = {};
-    DIM_KEYS.forEach(d => { scores[d] = score(d, c, k, m, h); });
-    return { k, c, m, h, scores };
+    return { k, c, m, h: household(c, p, m) };
   });
+  return computeScores(rows);
 }
 
 function renderFilters() {
@@ -84,28 +83,30 @@ function renderFilters() {
   bar.innerHTML = '';
   DIM_KEYS.forEach(d => {
     const b = document.createElement('button');
-    b.className = 'fbtn' + (S.sortBy === d ? ' on' : '');
+    b.className = 'fbtn' + (S.sortBy === d ? ' on' : '') + (d === 'overall' ? ' star' : '');
     b.innerHTML = `<span class="fi">${DIMS[d].icon}</span><span class="fl">${tx(DIMS[d].label)}</span>`;
     b.onclick = () => { S.sortBy = d; render(); };
     bar.appendChild(b);
   });
 }
 
+let ROWS = [];
+
 function renderGrid() {
-  const rows = cityRows();
-  const badges = badgeMap(rows);
-  rows.sort((a, b) => b.scores[S.sortBy] - a.scores[S.sortBy]);
+  ROWS = cityRows();
+  const badges = badgeMap(ROWS);
+  ROWS.sort((a, b) => b.scores[S.sortBy] - a.scores[S.sortBy]);
 
   const g = $('grid');
   g.innerHTML = '';
-  rows.forEach(r => {
+  ROWS.forEach((r, i) => {
     const bal = r.h.balance;
     const cls = bal < -300 ? 'bad' : (bal < 300 ? 'warn' : 'good');
     const d = document.createElement('div');
-    d.className = 'city' + (S.sel === r.k ? ' sel' : '');
-    const main = display(S.sortBy, r.c, r.k, r.m, r.h);
+    d.className = 'city' + (S.sel === r.k ? ' sel' : '') + (i < 3 ? ' top' : '');
+    const main = display(S.sortBy, r);
     const sub = S.sortBy === 'balance'
-      ? `<div class="cs">☀ ${r.c.sun}</div>`
+      ? `<div class="cs">⭐ ${r.scores.overall}</div>`
       : `<div class="cs ${cls}">${bal >= 0 ? '+' : ''}${fmt(bal)}€</div>`;
     d.innerHTML = `<div class="cb">${badges[r.k].join('')}</div>
       <img src="${FLAGS}${r.c.flag}.svg" alt="">
@@ -115,6 +116,28 @@ function renderGrid() {
     g.appendChild(d);
   });
   $('gridUnit').textContent = tx(DIMS[S.sortBy].unit);
+}
+
+function renderClimate() {
+  const cl = climateOf(S.sel);
+  const c = CITIES[S.sel];
+  const row = ROWS.filter(r => r.k === S.sel)[0];
+  const pct = row ? row.climatePct : 0;
+  const overall = row ? row.scores.overall : 0;
+
+  const windTxt = cl.wind >= 5 ? 'bad' : cl.wind >= 4 ? 'warn' : 'good';
+  const darkTxt = cl.dark <= 5.5 ? 'bad' : cl.dark <= 7 ? 'warn' : 'good';
+
+  $('climateOut').innerHTML = `
+    <div class="row hi"><span>⭐ ${t('overallScore')}</span><b>${overall}/100</b></div>
+    <div class="row hi"><span>☀ ${t('climateScore')}</span><b>${pct}/100</b></div>
+    <div class="row"><span>${t('sunHours')}</span><b>${c.sun} ${t('sunYear')}</b></div>
+    <div class="row"><span>${t('windAvg')}</span><b class="${windTxt}">${cl.wind.toFixed(1)} m/s</b></div>
+    <div class="row"><span>${t('stormDays')}</span><b class="${cl.storm > 30 ? 'bad' : ''}">${cl.storm}</b></div>
+    <div class="row"><span>${t('rainDays')}</span><b class="${cl.rain > 170 ? 'bad' : ''}">${cl.rain}</b></div>
+    <div class="row"><span>${t('janTemp')}</span><b>${cl.jan > 0 ? '+' : ''}${cl.jan}°C</b></div>
+    <div class="row"><span>${t('decLight')}</span><b class="${darkTxt}">${cl.dark.toFixed(1)} h</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;ℹ ${t('climateEst')}</span><b></b></div>`;
 }
 
 function renderTips() {
@@ -236,6 +259,7 @@ function render() {
 
   renderFilters();
   renderGrid();
+  renderClimate();
   renderTips();
 }
 
@@ -248,8 +272,7 @@ function setPlatform(key) {
 }
 
 function fillPlatforms() {
-  const sel = $('sPlatform');
-  const cur = sel.value;
+  const sel = $('sPlatform'), cur = sel.value;
   sel.innerHTML = '';
   PLATFORM_KEYS.forEach(k => {
     const o = document.createElement('option');
@@ -261,8 +284,7 @@ function fillPlatforms() {
 }
 
 function fillPresets() {
-  const ps = $('sPreset');
-  const cur = ps.value;
+  const ps = $('sPreset'), cur = ps.value;
   ps.innerHTML = '';
   PRESET_KEYS.forEach(k => {
     const o = document.createElement('option');
@@ -308,7 +330,6 @@ function paintLabels() {
 export function init() {
   fillPlatforms();
   $('sPlatform').addEventListener('change', e => { setPlatform(e.target.value); render(); });
-
   fillPresets();
   $('sPreset').addEventListener('change', e => applyPreset(e.target.value));
 
