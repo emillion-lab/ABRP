@@ -61,7 +61,7 @@ function render() {
 
   $('shiftOut').innerHTML = `
     <div class="row"><span>Курсове</span><b>${d.jobs.toFixed(1)} · ${d.jobsPerHour.toFixed(2)}/ч</b></div>
-    <div class="row sub2"><span>&nbsp;&nbsp;таван при тези настройки</span><b>${d.ceiling.toFixed(2)}/ч</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;натовареност ${(d.util*100).toFixed(0)}% от таван ${d.ceiling.toFixed(1)}/ч</span><b></b></div>
     ${peakNote}
     <div class="row"><span>Среден курс</span><b>${c.avgTrip} км · ${d.avgFare.toFixed(2)}€</b></div>
     <div class="row sub2"><span>&nbsp;&nbsp;километри</span><b>${fmt(d.kmPart)}€</b></div>
@@ -71,7 +71,7 @@ function render() {
     <div class="row"><span>Празни км</span><b class="bad">${fmt(d.emptyKm)}</b></div>
     <div class="row"><span>Общо км/ден</span><b>${fmt(d.totalKm)}</b></div>
     ${kmWarn}
-    <div class="row"><span>Натовареност</span><b>${(d.occupancy*100).toFixed(0)}%</b></div>
+    <div class="row"><span>Заетост на км</span><b>${(d.occupancy*100).toFixed(0)}%</b></div>
     <div class="row"><span>Оборот на апарата</span><b>${fmt(d.gross)}€</b></div>
     <div class="row hi"><span>В джоба за смяна</span><b>${fmt(m.netPerShift)}€</b></div>
     <div class="row hi"><span>На час зад волана</span><b>${m.netPerHour.toFixed(2)}€</b></div>
@@ -101,14 +101,16 @@ function render() {
     <div class="row"><span>Основни</span><b class="bad">-${fmt(h.basic)}€</b></div>
     <div class="row sub2"><span>&nbsp;&nbsp;${fmt(m.monthHours)}ч зад волана · ${fmt(m.monthCommit)}ч извън дома</span><b></b></div>`;
 
+  const zeroTax = h.taxableYear <= 0;
   $('taxOut').innerHTML = `
     <div class="row"><span>Пробег</span><b>${fmt(m.km)} км/мес · ${fmt(h.kmYear)} км/год</b></div>
+    <div class="row"><span>Печалба преди квоти</span><b>${fmt(m.profit*12)}€/год</b></div>
     <div class="row"><span>Километрична квота ${c.kmRate.toFixed(2)}€/км</span><b class="good">-${fmt(h.kmDeduct)}€</b></div>
     <div class="row"><span>Квота ${S.kids} деца × ${fmt(c.cd)}€</span><b class="good">-${fmt(h.childDeduct)}€</b></div>
     <div class="row"><span>Облагаема основа</span><b>${fmt(h.taxableYear)}€/год</b></div>
-    <div class="row"><span>Данък ${c.tr}%</span><b class="bad">${fmt(h.taxYear)}€/год</b></div>
     <div class="row hi"><span>Квотите спестяват</span><b class="good">${fmt(h.reliefYear)}€/год</b></div>
     <div class="row hi"><span>Ефективна ставка</span><b>${h.effectiveRate.toFixed(1)}%</b></div>
+    ${zeroTax ? '<div class="row sub2"><span>&nbsp;&nbsp;ℹ квотите надвишават печалбата — данъкът вече е нула и повече не могат да спестят</span><b></b></div>' : ''}
     ${c.kmRate === 0 ? '<div class="row sub2"><span>&nbsp;&nbsp;⚠ няма километрична квота в тази държава</span><b></b></div>' : ''}`;
 
   $('balance').className = 'balance ' + cls;
