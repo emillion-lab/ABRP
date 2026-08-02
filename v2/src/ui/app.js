@@ -1,11 +1,14 @@
 import { CITIES, CITY_KEYS } from '../data/cities.js';
+import { PLATFORMS, PLATFORM_KEYS, defaultPlatform } from '../data/platforms.js';
 import { shift, month, bestStrategy } from '../core/economics.js';
-import { household, familyMultiplier, affordableRent } from '../core/household.js';
+import { household, familyMultiplier } from '../core/household.js';
 
 const FLAGS = 'https://flagcdn.com/';
 
 const S = {
   sel: 'sofia',
+  platform: 'taxime',
+  commissionPct: 0, commissionFixed: 120,
   adults: 2, kids: 3,
   rent: 900, budget: 1040,
   hours: 10, workDays: 22,
@@ -17,6 +20,7 @@ const S = {
 };
 
 const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toLocaleString('bg-BG');
 
 function compute(over) {
   const p = Object.assign({}, S, over || {});
@@ -26,12 +30,9 @@ function compute(over) {
   return { c, p, m, h };
 }
 
-function fmt(n) { return Math.round(n).toLocaleString('bg-BG'); }
-
 function render() {
   const { c, m, h } = compute();
 
-  // --- стойности до плъзгачите ---
   $('vAdults').textContent   = S.adults;
   $('vKids').textContent     = S.kids;
   $('vRent').textContent     = '-' + fmt(S.rent) + '€';
@@ -43,29 +44,34 @@ function render() {
   $('vComfort').textContent  = Math.round(S.comfort * 100) + '%';
   $('vFlow').textContent     = Math.round(S.flow * 100) + '%';
   $('vStrategy').textContent = strategyLabel(S.strategy);
+  $('vComm').textContent     = S.commissionPct > 0
+    ? S.commissionPct + '%' : (S.commissionFixed > 0 ? S.commissionFixed + '€/мес' : 'няма');
 
-  // --- смяната ---
   $('shiftOut').innerHTML = `
     <div class="row"><span>Курсове</span><b>${m.day.jobs.toFixed(1)}</b></div>
     <div class="row"><span>Натоварени км</span><b>${fmt(m.day.loadedKm)}</b></div>
     <div class="row"><span>Празни км</span><b class="bad">${fmt(m.day.emptyKm)}</b></div>
     <div class="row"><span>Общо км/ден</span><b>${fmt(m.day.totalKm)}</b></div>
     <div class="row"><span>Натовареност</span><b>${(m.day.occupancy*100).toFixed(0)}%</b></div>
-    <div class="row"><span>€/изминат км</span><b>${m.day.perKm.toFixed(2)}</b></div>
+    <div class="row"><span>Оборот на апарата</span><b>${fmt(m.day.gross)}€</b></div>
     <div class="row hi"><span>% от тарифата</span><b>${(m.day.tariffPct*100).toFixed(0)}%</b></div>
-    <div class="row"><span>Оборот/ден</span><b>${fmt(m.day.revenue)}€</b></div>`;
+    <div class="row hi"><span>В твоя джоб €/км</span><b>${m.netPerKm.toFixed(2)}</b></div>`;
 
-  // --- препоръка коя стратегия печели ---
   const best = bestStrategy(c, S);
   const diff = best.profit - m.profit;
   $('advice').innerHTML = diff > 30
     ? `<b>${strategyLabel(best.strategy)}</b> е по-добре тук — с ${fmt(diff)}€/мес.`
     : `Стратегията ти е близо до оптималната за ${c.name.bg}.`;
 
-  // --- месечно ---
+  const commLine = m.commission > 0
+    ? `<div class="row"><span>Комисионна ${PLATFORMS[S.platform].name}</span><b class="bad">-${fmt(m.commission)}€</b></div>`
+    : '';
+
   const cls = h.balance < -300 ? 'bad' : (h.balance < 300 ? 'warn' : 'good');
   $('monthOut').innerHTML = `
-    <div class="row"><span>Оборот</span><b class="good">+${fmt(m.revenue)}€</b></div>
+    <div class="row"><span>Оборот по апарата</span><b class="good">+${fmt(m.fares)}€</b></div>
+    ${commLine}
+    <div class="row"><span>Бакшиши</span><b class="good">+${fmt(m.tips)}€</b></div>
     <div class="row"><span>Кола (всичко)</span><b class="bad">-${fmt(m.carCost)}€</b></div>
     <div class="row"><span>Печалба</span><b>${fmt(m.profit)}€</b></div>
     <div class="row"><span>Осигуровки ${c.sc}%</span><b class="bad">-${fmt(h.social)}€</b></div>
@@ -95,16 +101,13 @@ function strategyLabel(s) {
 function renderGrid() {
   const g = $('grid');
   g.innerHTML = '';
-  const rows = CITY_KEYS.map(k => {
+  CITY_KEYS.map(k => {
     const c = CITIES[k];
     const p = Object.assign({}, S, { sel: k, rent: c.rentAvg,
       budget: Math.round(c.budget * familyMultiplier(S.adults + S.kids)) });
     const m = month(c, p);
-    const h = household(c, p, m);
-    return { k, c, bal: h.balance };
-  }).sort((a, b) => b.bal - a.bal);
-
-  rows.forEach(r => {
+    return { k, c, bal: household(c, p, m).balance };
+  }).sort((a, b) => b.bal - a.bal).forEach(r => {
     const cls = r.bal < -300 ? 'bad' : (r.bal < 300 ? 'warn' : 'good');
     const d = document.createElement('div');
     d.className = 'city' + (S.sel === r.k ? ' sel' : '');
@@ -116,11 +119,19 @@ function renderGrid() {
   });
 }
 
+function setPlatform(key) {
+  S.platform = key;
+  S.commissionPct = PLATFORMS[key].pct;
+  S.commissionFixed = PLATFORMS[key].fixed;
+  $('sPlatform').value = key;
+}
+
 function selectCity(k) {
   const c = CITIES[k];
   S.sel = k;
   S.rent = c.rentAvg;
   S.budget = Math.round(c.budget * familyMultiplier(S.adults + S.kids));
+  setPlatform(defaultPlatform(k));
   $('sRent').min = c.rentMin; $('sRent').max = c.rentMax; $('sRent').value = S.rent;
   $('sBudget').value = S.budget;
   $('cityName').innerHTML =
@@ -141,6 +152,17 @@ function bind(id, key, transform) {
 }
 
 export function init() {
+  const sel = $('sPlatform');
+  PLATFORM_KEYS.forEach(k => {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = PLATFORMS[k].name +
+      (PLATFORMS[k].pct ? ` — ${PLATFORMS[k].pct}%` :
+       PLATFORMS[k].fixed ? ` — ${PLATFORMS[k].fixed}€/мес` : ' — 0%');
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change', e => { setPlatform(e.target.value); render(); });
+
   bind('sAdults', 'adults');
   bind('sKids', 'kids');
   bind('sRent', 'rent');
@@ -152,5 +174,6 @@ export function init() {
   bind('sStrategy', 'strategy', v => v / 100);
   bind('sFlow', 'flow', v => v / 100);
   bind('sComfort', 'comfort', v => v / 100);
+
   selectCity(S.sel);
 }
