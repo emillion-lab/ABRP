@@ -1,28 +1,33 @@
 // ABRP v2 — модел на смяната.
 //
-// Плъзгачът за стратегия НЕ е "приложение срещу улица".
-// И в двата края поръчката идва от приложението. Разликата е:
-//   strategy = 0 → стоя където ме оставят;  1 → местя се към работата
+// city.maxJobsHour е НАЙ-ДОБРИЯТ случай: топ партньор, каране само в
+// пиковете, активно местене. Реалната стойност се получава чрез
+// натовареност (utilization), която е претеглена комбинация от трите
+// лоста и има ПОД — дори нов шофьор, който стои, взима някаква работа.
 //
-// ЧАСОВЕТЕ СА ДВА ВИДА:
-//   hours       — часове зад волана, генерират курсове
-//   commitHours — часове извън дома; при разделена смяна са повече.
+//   utilization = 0.28 + 0.68 × (0.45·поток + 0.30·пикове + 0.25·местене)
 //
-// ПИКОВЕ: city.maxJobsHour е УСРЕДНЕН за денонощието. Каране само в
-// пиковете вдига тавана с до 50%. Но пиковете са ~7 часа общо —
-// дълга смяна разрежда концентрацията.
-//   Цюрих: 1.0 средно → 1.5 при пълна концентрация (полево усещане).
+// Тежестите казват кое колко тежи: потокът (рангът в приложението) е
+// най-силният лост, после часът на деня, накрая позиционирането.
+//
+// Стар вариант умножаваше тавана директно по потока и даваше 0.54 курса/час
+// в Цюрих при бронз — един курс на два часа, което не е реалност.
 //
 // ТРИ ОГРАНИЧЕНИЯ: търсене · време на курс · таван километри
 
-const SEARCH_EFF   = 0.58; // каква част от тавана добира местенето при нулев поток
+const SEARCH_EFF   = 0.58; // остатък: колко местенето компенсира слаб поток
 const CRUISE_KMH   = 29;   // км, изгорени на час активно местене
 const PICKUP_KM    = 2.0;  // среден пробег до клиента
 const SERVICE_MIN  = 5;    // мин/курс: качване, плащане, чакане
 const COMFORT_MAX  = 0.30; // Model S / място за крака → +30% тарифен микс
 const STREET_MAX   = 0.10; // дял качвания от улицата — рядкост
-const PEAK_BONUS   = 0.50; // с колко пикът е над дневната средна
 const PEAK_HOURS   = 7;    // общо часове пик на ден (сутрин + вечер)
+
+const UTIL_FLOOR   = 0.28; // под: работа има дори при нула поток и стоене
+const UTIL_RANGE   = 0.68;
+const W_FLOW       = 0.45; // тежест на ранга в приложението
+const W_PEAK       = 0.30; // тежест на часа от деня
+const W_MOVE       = 0.25; // тежест на позиционирането
 
 export function shift(city, p) {
   const hours   = p.hours;
@@ -30,19 +35,22 @@ export function shift(city, p) {
   const flow    = clamp01(p.flow);
   const comfort = clamp01(p.comfort);
 
-  const wantPeak  = clamp01(p.peakFocus);
-  const peakShare = Math.min(wantPeak, PEAK_HOURS / Math.max(hours, 1));
-  const ceiling   = city.maxJobsHour * (1 + peakShare * PEAK_BONUS);
+  // Пиковете не могат да са повече от 7 часа — дълга смяна ги разрежда
+  const peakShare = Math.min(clamp01(p.peakFocus), PEAK_HOURS / Math.max(hours, 1));
 
-  let jobsPerHour = ceiling * (flow + s * SEARCH_EFF * (1 - flow));
+  const drivers = W_FLOW * flow + W_PEAK * peakShare + W_MOVE * s;
+  const util    = Math.min(1, UTIL_FLOOR + UTIL_RANGE * drivers);
 
+  let jobsPerHour = city.maxJobsHour * util;
+
+  // Време: един курс трае толкова, колкото трае
   const speed       = city.avgSpeed || 24;
   const hoursPerJob = (city.avgTrip + PICKUP_KM) / speed + SERVICE_MIN / 60;
   jobsPerHour = Math.min(jobsPerHour, 1 / hoursPerJob);
 
   let jobs     = jobsPerHour * hours;
   let loadedKm = jobs * city.avgTrip;
-  const saturation = Math.min(1, jobsPerHour / ceiling);
+  const saturation = Math.min(1, jobsPerHour / city.maxJobsHour);
   let pickupKm = jobs * PICKUP_KM;
   let cruiseKm = s * CRUISE_KMH * hours * (1 - saturation);
   let totalKm  = loadedKm + pickupKm + cruiseKm;
@@ -74,7 +82,7 @@ export function shift(city, p) {
 
   return {
     jobs, dispatchedJobs, streetShare, kmLimited,
-    peakShare, ceiling,
+    peakShare, util, ceiling: city.maxJobsHour,
     jobsPerHour: hours ? jobs / hours : 0,
     loadedKm, emptyKm, totalKm, gross,
     kmPart: kmPart * mix, basePart: basePart * mix, callPart: callPart * mix,
