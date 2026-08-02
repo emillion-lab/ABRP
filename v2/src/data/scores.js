@@ -1,16 +1,17 @@
-// ABRP v2 — оценки и подредба по критерий.
+// ABRP v2 — оценки, подредба и общ рейтинг.
 //
-// Пет измерения. Всяко има икона, начин на смятане и единица.
-// Иконата се показва на картата само ако градът е в горната трета
-// по това измерение — иначе иконите губят смисъл.
+// Всяко измерение поотделно подвежда: Ставангер печели по наем, губи по
+// вятър; Цюрих печели по доход, губи по наем. Затова има ⭐ общ рейтинг,
+// който ги нормализира и претегля.
 //
-// Забележка: ☀ и 🏠 идват от данни. 💲 и 🚕 се смятат от модела и се
-// менят с плъзгачите. 👨‍👩‍👧‍👦 е преценка, не измерване — виж FAMILY.
+// Нормализацията е min–max спрямо текущия списък градове, тоест
+// рейтингът е ОТНОСИТЕЛЕН — 100 значи "най-добрият тук", не "идеален".
 
-// Оценка за живот със семейство, 1–5.
-// Критерии: безопасност, училища и извънкласни дейности, зелени площи,
-// размер (пешеходност), здравеопазване, натиск на разходите.
-// ТОВА Е ПРЕЦЕНКА, НЕ ДАННИ.
+import { climateOf, CLIMATE_WEIGHTS } from './climate.js';
+
+// Оценка за живот със семейство, 1–5. ПРЕЦЕНКА, НЕ ДАННИ.
+// Критерии: безопасност, училища и извънкласни, зеленина, пешеходност,
+// здравеопазване, натиск на разходите.
 export const FAMILY = {
   zurich:4, geneva:4, basel:4, bern:5,
   winterthur:5, koeniz:5, baden:5, zug:5, lugano:4,
@@ -24,51 +25,112 @@ export const FAMILY = {
   ljubljana:5, warsaw:3, prague:4, budapest:3, bucharest:2, sofia:3
 };
 
+// Тежести на общия рейтинг. Парите тежат най-много, но не решават сами.
+export const OVERALL_WEIGHTS = {
+  money:   0.28,   // печалба след разходи по таксито
+  balance: 0.17,   // какво остава след семейството
+  rent:    0.13,   // достъпност на жилището
+  family:  0.20,   // условия за деца
+  climate: 0.22    // слънце, вятър, дъжд, зимна светлина
+};
+
 export const DIMS = {
+  overall: { icon:'⭐', label:{ bg:'Общ рейтинг', en:'Overall' },
+             unit:{ bg:'от 100', en:'of 100' }, badge:true },
   balance: { icon:'⚖', label:{ bg:'Остатък', en:'Surplus' },
              unit:{ bg:'€/мес', en:'€/mo' }, badge:false },
-  sun:     { icon:'☀', label:{ bg:'Слънце', en:'Sunshine' },
-             unit:{ bg:'ч/год', en:'h/yr' }, badge:true },
   money:   { icon:'💲', label:{ bg:'Доход', en:'Income' },
              unit:{ bg:'€/мес печалба', en:'€/mo profit' }, badge:true },
+  taxi:    { icon:'🚕', label:{ bg:'Доход от такси', en:'Taxi income' },
+             unit:{ bg:'€/ч зад волана', en:'€/h at the wheel' }, badge:true },
   rent:    { icon:'🏠', label:{ bg:'Нисък наем', en:'Low rent' },
              unit:{ bg:'€/мес', en:'€/mo' }, badge:true },
   family:  { icon:'👨‍👩‍👧‍👦', label:{ bg:'За семейство', en:'For family' },
              unit:{ bg:'от 5', en:'of 5' }, badge:true },
-  taxi:    { icon:'🚕', label:{ bg:'Доход от такси', en:'Taxi income' },
-             unit:{ bg:'€/ч зад волана', en:'€/h at the wheel' }, badge:true }
+  climate: { icon:'☀', label:{ bg:'Климат', en:'Climate' },
+             unit:{ bg:'от 100', en:'of 100' }, badge:true },
+  wind:    { icon:'💨', label:{ bg:'Завет', en:'Shelter' },
+             unit:{ bg:'м/с средно', en:'m/s average' }, badge:false }
 };
 
 export const DIM_KEYS = Object.keys(DIMS);
 
-/** Стойността на един град по едно измерение. По-високо = по-добре. */
-export function score(dim, city, key, m, h) {
-  switch (dim) {
-    case 'sun':     return city.sun;
-    case 'money':   return m.profit;
-    case 'rent':    return -city.rentAvg;      // по-нисък наем = по-добре
-    case 'family':  return FAMILY[key] || 3;
-    case 'taxi':    return m.netPerHour;
-    default:        return h.balance;
-  }
+function norm(v, lo, hi) { return hi > lo ? (v - lo) / (hi - lo) : 0.5; }
+
+/** Изчислява всички измерения за списък градове. Мутира rows. */
+export function computeScores(rows) {
+  // сурови стойности
+  rows.forEach(r => {
+    const cl = climateOf(r.k);
+    r.raw = {
+      money:   r.m.profit,
+      balance: r.h.balance,
+      rent:   -r.c.rentAvg,
+      family:  FAMILY[r.k] || 3,
+      taxi:    r.m.netPerHour,
+      sun:     r.c.sun,
+      wind:   -cl.wind,
+      rain:   -cl.rain,
+      dark:    cl.dark
+    };
+    r.climateData = cl;
+  });
+
+  const range = {};
+  ['money','balance','rent','family','taxi','sun','wind','rain','dark'].forEach(k => {
+    const vals = rows.map(r => r.raw[k]);
+    range[k] = { lo: Math.min.apply(null, vals), hi: Math.max.apply(null, vals) };
+  });
+
+  rows.forEach(r => {
+    const n = {};
+    Object.keys(range).forEach(k => { n[k] = norm(r.raw[k], range[k].lo, range[k].hi); });
+
+    const climate =
+      CLIMATE_WEIGHTS.sun  * n.sun  +
+      CLIMATE_WEIGHTS.wind * n.wind +
+      CLIMATE_WEIGHTS.rain * n.rain +
+      CLIMATE_WEIGHTS.dark * n.dark;
+
+    const overall =
+      OVERALL_WEIGHTS.money   * n.money   +
+      OVERALL_WEIGHTS.balance * n.balance +
+      OVERALL_WEIGHTS.rent    * n.rent    +
+      OVERALL_WEIGHTS.family  * n.family  +
+      OVERALL_WEIGHTS.climate * climate;
+
+    r.scores = {
+      overall: Math.round(overall * 100),
+      balance: r.raw.balance,
+      money:   r.raw.money,
+      taxi:    r.raw.taxi,
+      rent:    r.raw.rent,
+      family:  r.raw.family,
+      climate: Math.round(climate * 100),
+      wind:    r.raw.wind
+    };
+    r.climatePct = Math.round(climate * 100);
+  });
+
+  return rows;
 }
 
 /** Стойността както се показва на картата. */
-export function display(dim, city, key, m, h) {
+export function display(dim, r) {
+  const s = r.scores;
   switch (dim) {
-    case 'sun':    return city.sun;
-    case 'money':  return Math.round(m.profit) + '€';
-    case 'rent':   return Math.round(city.rentAvg) + '€';
-    case 'family': return (FAMILY[key] || 3) + '/5';
-    case 'taxi':   return m.netPerHour.toFixed(1) + '€';
-    default:       return (h.balance >= 0 ? '+' : '') + Math.round(h.balance) + '€';
+    case 'overall': return s.overall;
+    case 'money':   return Math.round(s.money) + '€';
+    case 'taxi':    return s.taxi.toFixed(1) + '€';
+    case 'rent':    return Math.round(r.c.rentAvg) + '€';
+    case 'family':  return s.family + '/5';
+    case 'climate': return s.climate;
+    case 'wind':    return r.climateData.wind.toFixed(1);
+    default:        return (s.balance >= 0 ? '+' : '') + Math.round(s.balance) + '€';
   }
 }
 
-/**
- * Кои икони заслужава всеки град: горната трета по всяко измерение,
- * което подлежи на значка.
- */
+/** Икони: горната трета по всяко измерение със значка. */
 export function badgeMap(rows) {
   const out = {};
   rows.forEach(r => { out[r.k] = []; });
