@@ -14,8 +14,7 @@
 // ha/hc       здравно осигуряване €/мес възрастен / дете
 // cb          детски надбавки €/мес на дете
 // cd          данъчна квота на дете €/год
-// sun         слънчеви часа годишно — климатът НЕ е в сметката, но
-//             при семейство от петима е реален фактор
+// sun         слънчеви часа годишно
 // note        кратко защо градът е в списъка
 //
 // src:'V' проверена тарифа (авг. 2026) · src:'D' изведена, НЕПРОВЕРЕНА
@@ -74,14 +73,17 @@ export const CITIES = {
 
   // ---------- Скандинавия ----------
   oslo:{flag:'no',name:{bg:'Осло',en:'Oslo'},dt:2.07,src:'D',baseFee:5.00,callFee:0,timeFee:2.80,avgTrip:7,maxJobsHour:1.8,avgSpeed:24,sun:1670,
-    note:'добро съотношение доход/наем, но 3 месеца тъмнина',
+    note:'на завет във фиорд — по-малко вятър от норвежкото крайбрежие',
     rentAvg:3400,rentMin:1700,rentMax:6200,budget:1700,cb:310,cd:11064,tr:30,sc:10.8,kmRate:0.31,ha:0,hc:0},
   stavanger:{flag:'no',name:{bg:'Ставангер',en:'Stavanger'},dt:2.20,src:'D',baseFee:5.50,callFee:0,timeFee:3.00,avgTrip:8,maxJobsHour:1.6,avgSpeed:28,sun:1400,
-    note:'★ най-доброто съотношение доход/наем в списъка — но дъжд 200 дни',
+    note:'★ най-доброто съотношение доход/наем в списъка — но открит бряг, силен вятър',
     rentAvg:1900,rentMin:950,rentMax:3600,budget:1650,cb:310,cd:11064,tr:30,sc:10.8,kmRate:0.31,ha:0,hc:0},
   trondheim:{flag:'no',name:{bg:'Трондхайм',en:'Trondheim'},dt:2.15,src:'D',baseFee:5.50,callFee:0,timeFee:2.90,avgTrip:7.5,maxJobsHour:1.6,avgSpeed:28,sun:1420,
     note:'университетски, евтин за Норвегия, полярна нощ',
     rentAvg:1750,rentMin:900,rentMax:3400,budget:1600,cb:310,cd:11064,tr:29,sc:10.8,kmRate:0.31,ha:0,hc:0},
+  kristiansand:{flag:'no',name:{bg:'Кристиансанд',en:'Kristiansand'},dt:2.15,src:'D',baseFee:5.30,callFee:0,timeFee:2.85,avgTrip:7.5,maxJobsHour:1.6,avgSpeed:27,sun:1650,
+    note:'⚠ най-слънчевото крайбрежие на Норвегия, но постоянни бури от Скагерак — изключен заради вятъра',
+    rentAvg:1800,rentMin:900,rentMax:3500,budget:1600,cb:310,cd:11064,tr:29,sc:10.8,kmRate:0.31,ha:0,hc:0},
   copenhagen:{flag:'dk',name:{bg:'Копенхаген',en:'Copenhagen'},dt:1.96,src:'D',baseFee:5.00,callFee:0,timeFee:2.50,avgTrip:7,maxJobsHour:1.8,avgSpeed:23,sun:1780,
     rentAvg:3200,rentMin:1600,rentMax:5800,budget:1650,cb:290,cd:10872,tr:36,sc:0,kmRate:0.45,ha:0,hc:0},
   stockholm:{flag:'se',name:{bg:'Стокхолм',en:'Stockholm'},dt:1.95,src:'D',baseFee:4.50,callFee:0,timeFee:2.50,avgTrip:7,maxJobsHour:1.8,avgSpeed:24,sun:1820,
