@@ -8,7 +8,7 @@ const FLAGS = 'https://flagcdn.com/';
 const S = {
   sel: 'sofia',
   platform: 'taxime',
-  commissionPct: 0, commissionFixed: 120,
+  commissionPct: 15, commissionFixed: 0,
   adults: 2, kids: 3,
   rent: 900, budget: 1040,
   hours: 10, workDays: 22,
@@ -44,8 +44,7 @@ function render() {
   $('vComfort').textContent  = Math.round(S.comfort * 100) + '%';
   $('vFlow').textContent     = Math.round(S.flow * 100) + '%';
   $('vStrategy').textContent = strategyLabel(S.strategy);
-  $('vComm').textContent     = S.commissionPct > 0
-    ? S.commissionPct + '%' : (S.commissionFixed > 0 ? S.commissionFixed + '€/мес' : 'няма');
+  $('vComm').textContent     = S.commissionPct + '%';
 
   $('shiftOut').innerHTML = `
     <div class="row"><span>Курсове</span><b>${m.day.jobs.toFixed(1)}</b></div>
@@ -55,7 +54,7 @@ function render() {
     <div class="row"><span>Натовареност</span><b>${(m.day.occupancy*100).toFixed(0)}%</b></div>
     <div class="row"><span>Оборот на апарата</span><b>${fmt(m.day.gross)}€</b></div>
     <div class="row hi"><span>% от тарифата</span><b>${(m.day.tariffPct*100).toFixed(0)}%</b></div>
-    <div class="row hi"><span>В твоя джоб €/км</span><b>${m.netPerKm.toFixed(2)}</b></div>`;
+    <div class="row hi"><span>В джоба за смяна</span><b>${fmt(m.netPerShift)}€</b></div>`;
 
   const best = bestStrategy(c, S);
   const diff = best.profit - m.profit;
@@ -64,7 +63,7 @@ function render() {
     : `Стратегията ти е близо до оптималната за ${c.name.bg}.`;
 
   const commLine = m.commission > 0
-    ? `<div class="row"><span>Комисионна ${PLATFORMS[S.platform].name}</span><b class="bad">-${fmt(m.commission)}€</b></div>`
+    ? `<div class="row"><span>Комисионна ${S.commissionPct}%</span><b class="bad">-${fmt(m.commission)}€</b></div>`
     : '';
 
   const cls = h.balance < -300 ? 'bad' : (h.balance < 300 ? 'warn' : 'good');
@@ -103,8 +102,12 @@ function renderGrid() {
   g.innerHTML = '';
   CITY_KEYS.map(k => {
     const c = CITIES[k];
-    const p = Object.assign({}, S, { sel: k, rent: c.rentAvg,
-      budget: Math.round(c.budget * familyMultiplier(S.adults + S.kids)) });
+    const pf = PLATFORMS[defaultPlatform(k)];
+    const p = Object.assign({}, S, {
+      sel: k, rent: c.rentAvg,
+      commissionPct: pf.pct, commissionFixed: pf.fixed,
+      budget: Math.round(c.budget * familyMultiplier(S.adults + S.kids))
+    });
     const m = month(c, p);
     return { k, c, bal: household(c, p, m).balance };
   }).sort((a, b) => b.bal - a.bal).forEach(r => {
@@ -124,6 +127,7 @@ function setPlatform(key) {
   S.commissionPct = PLATFORMS[key].pct;
   S.commissionFixed = PLATFORMS[key].fixed;
   $('sPlatform').value = key;
+  $('sComm').value = S.commissionPct;
 }
 
 function selectCity(k) {
@@ -156,9 +160,7 @@ export function init() {
   PLATFORM_KEYS.forEach(k => {
     const o = document.createElement('option');
     o.value = k;
-    o.textContent = PLATFORMS[k].name +
-      (PLATFORMS[k].pct ? ` — ${PLATFORMS[k].pct}%` :
-       PLATFORMS[k].fixed ? ` — ${PLATFORMS[k].fixed}€/мес` : ' — 0%');
+    o.textContent = PLATFORMS[k].name + ' — ' + PLATFORMS[k].pct + '%';
     sel.appendChild(o);
   });
   sel.addEventListener('change', e => { setPlatform(e.target.value); render(); });
@@ -171,6 +173,7 @@ export function init() {
   bind('sDays', 'workDays');
   bind('sCar', 'carCost');
   bind('sTips', 'tips');
+  bind('sComm', 'commissionPct');
   bind('sStrategy', 'strategy', v => v / 100);
   bind('sFlow', 'flow', v => v / 100);
   bind('sComfort', 'comfort', v => v / 100);
