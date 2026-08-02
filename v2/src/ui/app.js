@@ -3,6 +3,7 @@ import { applyTax } from '../data/tax.js';
 import { PLATFORMS, PLATFORM_KEYS, defaultPlatform } from '../data/platforms.js';
 import { PRESETS, PRESET_KEYS } from '../data/presets.js';
 import { TIPS, GENERIC_TIPS } from '../data/tips.js';
+import { DIMS, DIM_KEYS, score, display, badgeMap } from '../data/scores.js';
 import { t, tx, setLang, getLang } from '../data/i18n.js';
 import { month, bestStrategy } from '../core/economics.js';
 import { household, familyMultiplier } from '../core/household.js';
@@ -11,12 +12,12 @@ const FLAGS = 'https://flagcdn.com/';
 applyTax(CITIES);
 
 const S = {
-  sel: 'sofia', platform: 'taxime',
-  commissionPct: 15, commissionFixed: 0,
-  adults: 2, kids: 3, rent: 900, budget: 1040,
-  hours: 10, commitHours: 12, workDays: 26, peakFocus: 0.60,
-  maxKmDay: 250, strategy: 0.80, flow: 0.20, comfort: 0.50,
-  carCost: 200, tips: 150
+  sel:'sofia', platform:'taxime', sortBy:'balance',
+  commissionPct:15, commissionFixed:0,
+  adults:2, kids:3, rent:900, budget:1040,
+  hours:10, commitHours:12, workDays:26, peakFocus:0.60,
+  maxKmDay:250, strategy:0.80, flow:0.20, comfort:0.50,
+  carCost:200, tips:150
 };
 
 const $ = id => document.getElementById(id);
@@ -34,10 +35,10 @@ function syncSliders() {
     sHours:'hours', sCommit:'commitHours', sDays:'workDays', sKm:'maxKmDay',
     sCar:'carCost', sTips:'tips', sComm:'commissionPct' };
   Object.keys(map).forEach(id => { if ($(id)) $(id).value = S[map[id]]; });
-  $('sPeak').value     = Math.round(S.peakFocus * 100);
-  $('sStrategy').value = Math.round(S.strategy * 100);
-  $('sFlow').value     = Math.round(S.flow * 100);
-  $('sComfort').value  = Math.round(S.comfort * 100);
+  $('sPeak').value = Math.round(S.peakFocus*100);
+  $('sStrategy').value = Math.round(S.strategy*100);
+  $('sFlow').value = Math.round(S.flow*100);
+  $('sComfort').value = Math.round(S.comfort*100);
 }
 
 function applyPreset(key) {
@@ -61,63 +62,101 @@ function strategyLabel(s) {
   return t('alwaysMove');
 }
 
-function sunClass(sun) {
-  return sun >= 2400 ? 'sun-hi' : sun >= 1750 ? 'sun-mid' : 'sun-lo';
+function cityRows() {
+  return CITY_KEYS.map(k => {
+    const c = CITIES[k];
+    const pf = PLATFORMS[defaultPlatform(k)];
+    const p = Object.assign({}, S, {
+      sel:k, rent:c.rentAvg,
+      commissionPct:pf.pct, commissionFixed:pf.fixed,
+      budget: Math.round(c.budget * familyMultiplier(S.adults + S.kids))
+    });
+    const m = month(c, p);
+    const h = household(c, p, m);
+    const scores = {};
+    DIM_KEYS.forEach(d => { scores[d] = score(d, c, k, m, h); });
+    return { k, c, m, h, scores };
+  });
+}
+
+function renderFilters() {
+  const bar = $('filters');
+  bar.innerHTML = '';
+  DIM_KEYS.forEach(d => {
+    const b = document.createElement('button');
+    b.className = 'fbtn' + (S.sortBy === d ? ' on' : '');
+    b.innerHTML = `<span class="fi">${DIMS[d].icon}</span><span class="fl">${tx(DIMS[d].label)}</span>`;
+    b.onclick = () => { S.sortBy = d; render(); };
+    bar.appendChild(b);
+  });
+}
+
+function renderGrid() {
+  const rows = cityRows();
+  const badges = badgeMap(rows);
+  rows.sort((a, b) => b.scores[S.sortBy] - a.scores[S.sortBy]);
+
+  const g = $('grid');
+  g.innerHTML = '';
+  rows.forEach(r => {
+    const bal = r.h.balance;
+    const cls = bal < -300 ? 'bad' : (bal < 300 ? 'warn' : 'good');
+    const d = document.createElement('div');
+    d.className = 'city' + (S.sel === r.k ? ' sel' : '');
+    const main = display(S.sortBy, r.c, r.k, r.m, r.h);
+    const sub = S.sortBy === 'balance'
+      ? `<div class="cs">☀ ${r.c.sun}</div>`
+      : `<div class="cs ${cls}">${bal >= 0 ? '+' : ''}${fmt(bal)}€</div>`;
+    d.innerHTML = `<div class="cb">${badges[r.k].join('')}</div>
+      <img src="${FLAGS}${r.c.flag}.svg" alt="">
+      <div class="cn">${tx(r.c.name)}</div>
+      <div class="cv ${S.sortBy === 'balance' ? cls : ''}">${main}</div>${sub}`;
+    d.onclick = () => selectCity(r.k);
+    g.appendChild(d);
+  });
+  $('gridUnit').textContent = tx(DIMS[S.sortBy].unit);
 }
 
 function renderTips() {
-  const { c, h } = compute();
+  const { c } = compute();
   const list = (TIPS[S.sel] || []).slice();
-  const box = $('tipsOut');
   let html = '';
-
   list.forEach((tip, i) => {
-    const gain = tip.gain ? `<span class="${tip.gain > 0 ? 'good' : 'bad'}">${tip.gain > 0 ? '+' : ''}${fmt(tip.gain)}€</span>` : '';
-    const btn = tip.apply
-      ? `<button class="tipBtn" data-tip="${i}">${t('apply')}</button>` : '';
-    html += `<div class="tip"><div class="tipTxt">${tx(tip)}</div>
-             <div class="tipFoot">${gain}${btn}</div></div>`;
+    const gain = tip.gain ? `<span class="${tip.gain>0?'good':'bad'}">${tip.gain>0?'+':''}${fmt(tip.gain)}€</span>` : '<span></span>';
+    const btn = tip.apply ? `<button class="tipBtn" data-tip="${i}">${t('apply')}</button>` : '';
+    html += `<div class="tip"><div class="tipTxt">${tx(tip)}</div><div class="tipFoot">${gain}${btn}</div></div>`;
   });
-
-  if (!list.length) {
-    GENERIC_TIPS.forEach(g => {
-      html += `<div class="tip"><div class="tipTxt">${tx(g)}</div></div>`;
-    });
-  }
-
-  // винаги: състояние на данъчните данни
+  if (!list.length) GENERIC_TIPS.forEach(g => {
+    html += `<div class="tip"><div class="tipTxt">${tx(g)}</div></div>`;
+  });
   const verKey = c.taxVer === 'V' ? 'taxVerV' : c.taxVer === 'P' ? 'taxVerP' : 'taxVerE';
-  html += `<div class="tip ver-${c.taxVer}"><div class="tipTxt">
-           <b>${t(verKey)}</b><br><span class="src">${c.taxSrc || ''}</span></div></div>`;
-
+  html += `<div class="tip ver-${c.taxVer}"><div class="tipTxt"><b>${t(verKey)}</b><br>
+           <span class="src">${tx(c.taxSrc)}</span></div></div>`;
+  const box = $('tipsOut');
   box.innerHTML = html;
   box.querySelectorAll('.tipBtn').forEach(b => {
-    b.onclick = () => {
-      Object.assign(S, list[+b.dataset.tip].apply);
-      syncSliders(); render();
-    };
+    b.onclick = () => { Object.assign(S, list[+b.dataset.tip].apply); syncSliders(); render(); };
   });
 }
 
 function render() {
   const { c, m, h } = compute();
-  const L = getLang();
 
   $('vAdults').textContent = S.adults;
-  $('vKids').textContent   = S.kids;
-  $('vRent').textContent   = '-' + fmt(S.rent) + '€';
+  $('vKids').textContent = S.kids;
+  $('vRent').textContent = '-' + fmt(S.rent) + '€';
   $('vBudget').textContent = '-' + fmt(S.budget) + '€';
-  $('vHours').textContent  = S.hours + 'h';
+  $('vHours').textContent = S.hours + 'h';
   $('vCommit').textContent = Math.max(S.commitHours, S.hours) + 'h';
-  $('vPeak').textContent   = Math.round(S.peakFocus * 100) + '%';
-  $('vDays').textContent   = S.workDays;
-  $('vKm').textContent     = S.maxKmDay + ' km';
-  $('vCar').textContent    = '-' + fmt(S.carCost) + '€';
-  $('vTips').textContent   = '+' + fmt(S.tips) + '€';
-  $('vComfort').textContent = Math.round(S.comfort * 100) + '%';
-  $('vFlow').textContent   = Math.round(S.flow * 100) + '%';
+  $('vPeak').textContent = Math.round(S.peakFocus*100) + '%';
+  $('vDays').textContent = S.workDays;
+  $('vKm').textContent = S.maxKmDay + ' km';
+  $('vCar').textContent = '-' + fmt(S.carCost) + '€';
+  $('vTips').textContent = '+' + fmt(S.tips) + '€';
+  $('vComfort').textContent = Math.round(S.comfort*100) + '%';
+  $('vFlow').textContent = Math.round(S.flow*100) + '%';
   $('vStrategy').textContent = strategyLabel(S.strategy);
-  $('vComm').textContent   = S.commissionPct + '%';
+  $('vComm').textContent = S.commissionPct + '%';
 
   const d = m.day;
   const callRow = d.callPart > 0
@@ -153,7 +192,7 @@ function render() {
 
   const commLine = m.commission > 0
     ? `<div class="row"><span>${t('commission')} ${S.commissionPct}%</span><b class="bad">-${fmt(m.commission)}€</b></div>` : '';
-  const socLabel = h.socialFixed > 0 && !c.sc
+  const socLabel = (h.socialFixed > 0 && !c.sc)
     ? `${t('social')} (${fmt(h.socialFixed)}€/mo)` : `${t('social')} ${c.sc}%`;
 
   const cls = h.balance < -300 ? 'bad' : (h.balance < 300 ? 'warn' : 'good');
@@ -176,7 +215,7 @@ function render() {
     : `<div class="row"><span>${t('carActual')}</span><b class="good">${t('alreadyIn')}</b></div>`;
 
   $('taxOut').innerHTML = `
-    <div class="row"><span>${t('mileage')}</span><b>${fmt(m.km)} km/mo · ${fmt(h.kmYear)} km/yr</b></div>
+    <div class="row"><span>${t('mileage')}</span><b>${fmt(m.km)} km/mo</b></div>
     <div class="row"><span>${t('profitPre')}</span><b>${fmt(m.profit*12)}€/yr</b></div>
     <div class="row"><span>${t('social')}</span><b class="good">-${fmt(h.social*12)}€</b></div>
     ${vehLine}
@@ -195,35 +234,9 @@ function render() {
      <div class="sub">${t('yearly')} ${fmt(h.balanceYear)}€<br>
      ${t('breakEven')}: <b>${h.breakEvenKm} ${t('perDay')}</b></div>`;
 
+  renderFilters();
   renderGrid();
   renderTips();
-}
-
-function renderGrid() {
-  const g = $('grid');
-  g.innerHTML = '';
-  CITY_KEYS.map(k => {
-    const c = CITIES[k];
-    const pf = PLATFORMS[defaultPlatform(k)];
-    const p = Object.assign({}, S, {
-      sel: k, rent: c.rentAvg,
-      commissionPct: pf.pct, commissionFixed: pf.fixed,
-      budget: Math.round(c.budget * familyMultiplier(S.adults + S.kids))
-    });
-    const m = month(c, p);
-    return { k, c, bal: household(c, p, m).balance };
-  }).sort((a, b) => b.bal - a.bal).forEach(r => {
-    const cls = r.bal < -300 ? 'bad' : (r.bal < 300 ? 'warn' : 'good');
-    const d = document.createElement('div');
-    d.className = 'city' + (S.sel === r.k ? ' sel' : '') + (r.c.note ? ' star' : '');
-    d.innerHTML = `<img src="${FLAGS}${r.c.flag}.svg" alt="">
-      <div class="cn">${tx(r.c.name)}</div>
-      <div class="cv ${cls}">${r.bal >= 0 ? '+' : ''}${fmt(r.bal)}€</div>
-      <div class="cs ${sunClass(r.c.sun)}">☀ ${r.c.sun}</div>`;
-    d.title = tx(r.c.note ? { bg:r.c.note, en:r.c.note } : {}) || '';
-    d.onclick = () => selectCity(r.k);
-    g.appendChild(d);
-  });
 }
 
 function setPlatform(key) {
@@ -232,6 +245,31 @@ function setPlatform(key) {
   S.commissionFixed = PLATFORMS[key].fixed;
   $('sPlatform').value = key;
   $('sComm').value = S.commissionPct;
+}
+
+function fillPlatforms() {
+  const sel = $('sPlatform');
+  const cur = sel.value;
+  sel.innerHTML = '';
+  PLATFORM_KEYS.forEach(k => {
+    const o = document.createElement('option');
+    o.value = k;
+    o.textContent = tx(PLATFORMS[k].name) + ' — ' + PLATFORMS[k].pct + '%';
+    sel.appendChild(o);
+  });
+  if (cur) sel.value = cur;
+}
+
+function fillPresets() {
+  const ps = $('sPreset');
+  const cur = ps.value;
+  ps.innerHTML = '';
+  PRESET_KEYS.forEach(k => {
+    const o = document.createElement('option');
+    o.value = k; o.textContent = tx(PRESETS[k].name);
+    ps.appendChild(o);
+  });
+  if (cur) ps.value = cur;
 }
 
 function selectCity(k, quiet) {
@@ -244,7 +282,7 @@ function selectCity(k, quiet) {
   $('sBudget').value = S.budget;
   $('cityName').innerHTML =
     `<img src="${FLAGS}${c.flag}.svg" alt=""> ${tx(c.name)}
-     <small>${t('tariff')} ${c.dt.toFixed(2)} €/km · ${t('ceiling')} ${c.maxJobsHour} ${t('jobsPerH')} · ☀ ${c.sun}${t('sunYear')}${c.src === 'D' ? ' · ' + t('unverified') : ''}</small>
+     <small>${t('tariff')} ${c.dt.toFixed(2)} €/km · ${t('ceiling')} ${c.maxJobsHour} ${t('jobsPerH')} · ☀ ${c.sun}${t('sunYear')}</small>
      ${c.note ? `<small class="note">${c.note}</small>` : ''}`;
   if (!quiet) render();
 }
@@ -268,34 +306,17 @@ function paintLabels() {
 }
 
 export function init() {
-  const sel = $('sPlatform');
-  PLATFORM_KEYS.forEach(k => {
-    const o = document.createElement('option');
-    o.value = k;
-    o.textContent = PLATFORMS[k].name + ' — ' + PLATFORMS[k].pct + '%';
-    sel.appendChild(o);
-  });
-  sel.addEventListener('change', e => { setPlatform(e.target.value); render(); });
+  fillPlatforms();
+  $('sPlatform').addEventListener('change', e => { setPlatform(e.target.value); render(); });
 
-  const ps = $('sPreset');
-  PRESET_KEYS.forEach(k => {
-    const o = document.createElement('option');
-    o.value = k; o.textContent = tx(PRESETS[k].name);
-    ps.appendChild(o);
-  });
-  ps.addEventListener('change', e => applyPreset(e.target.value));
+  fillPresets();
+  $('sPreset').addEventListener('change', e => applyPreset(e.target.value));
 
   $('langBtn').addEventListener('click', () => {
     setLang(getLang() === 'bg' ? 'en' : 'bg');
     $('langBtn').textContent = getLang() === 'bg' ? '🇬🇧 EN' : '🇧🇬 BG';
-    ps.innerHTML = '';
-    PRESET_KEYS.forEach(k => {
-      const o = document.createElement('option');
-      o.value = k; o.textContent = tx(PRESETS[k].name);
-      ps.appendChild(o);
-    });
-    ps.value = $('sPreset').value;
-    paintLabels();
+    fillPlatforms(); fillPresets(); paintLabels();
+    $('presetDesc').textContent = tx(PRESETS[$('sPreset').value].desc);
     selectCity(S.sel);
   });
 
@@ -303,7 +324,7 @@ export function init() {
   $('lockBtn').addEventListener('click', () => {
     locked = !locked;
     document.body.classList.toggle('locked', locked);
-    $('lockBtn').textContent = locked ? t('locked') : t('unlocked');
+    $('lockBtn').textContent = locked ? '🔒' : '🔓';
     $('lockBtn').classList.toggle('on', locked);
   });
 
@@ -319,7 +340,6 @@ export function init() {
   bind('sComfort','comfort', v => v/100);
 
   paintLabels();
-  $('lockBtn').textContent = t('unlocked');
-  ps.value = 'sofia_now';
+  $('sPreset').value = 'sofia_now';
   applyPreset('sofia_now');
 }
