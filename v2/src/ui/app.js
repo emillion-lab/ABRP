@@ -83,7 +83,6 @@ function renderFilters() {
   bar.innerHTML = '';
   DIM_KEYS.forEach(d => {
     const b = document.createElement('button');
-    // Единствената значка за "избран" е класа .on — виж бележката в CSS.
     b.className = 'fbtn' + (S.sortBy === d ? ' on' : '');
     b.innerHTML = `<span class="fi">${DIMS[d].icon}</span><span class="fl">${tx(DIMS[d].label)}</span>`;
     b.onclick = () => { S.sortBy = d; render(); };
@@ -295,6 +294,22 @@ function fillPresets() {
   if (cur) ps.value = cur;
 }
 
+// Слага плъзгачите на разумно "най-добро" за текущия град: пълен комфорт,
+// максимална концентрация в пиковете, оптималната посока движение
+// (изчислена, не позната предварително) и всеки съвет с положителен ефект.
+function optimizeCity() {
+  const c = CITIES[S.sel];
+  S.comfort = 0.9;
+  S.peakFocus = 0.85;
+  S.workDays = 26;
+  S.strategy = bestStrategy(c, S).strategy;
+  (TIPS[S.sel] || []).forEach(tip => {
+    if (tip.apply && tip.gain > 0) Object.assign(S, tip.apply);
+  });
+  syncSliders();
+  render();
+}
+
 function selectCity(k, quiet) {
   const c = CITIES[k];
   S.sel = k;
@@ -305,6 +320,7 @@ function selectCity(k, quiet) {
   $('sBudget').value = S.budget;
   $('cityName').innerHTML =
     `<img src="${FLAGS}${c.flag}.svg" alt=""> ${tx(c.name)}
+     <button id="optBtn">⚡ ${t('optimize')}</button>
      <small>${t('tariff')} ${c.dt.toFixed(2)} €/km · ${t('ceiling')} ${c.maxJobsHour} ${t('jobsPerH')} · ☀ ${c.sun}${t('sunYear')}</small>
      ${c.note ? `<small class="note">${c.note}</small>` : ''}`;
   if (!quiet) render();
@@ -340,6 +356,11 @@ export function init() {
     fillPlatforms(); fillPresets(); paintLabels();
     $('presetDesc').textContent = tx(PRESETS[$('sPreset').value].desc);
     selectCity(S.sel);
+  });
+
+  // Делегация на клика, защото #cityName се пренаписва при всеки render.
+  $('cityName').addEventListener('click', e => {
+    if (e.target.closest('#optBtn')) optimizeCity();
   });
 
   let locked = false;
