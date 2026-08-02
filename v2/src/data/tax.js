@@ -1,18 +1,10 @@
 // ABRP v2 — данъчен слой.
 //
-// Отделен файл нарочно: данъчните данни имат различен жизнен цикъл от
-// тарифите и различна степен на достоверност.
-//
 // ver: 'V' проверено срещу източник, авг. 2026
 //      'P' частично — структурата е проверена, числото е приблизително
 //      'E' оценка, НЕ Е ПРОВЕРЕНО
-//
-// sc      осигуровки като % от печалбата
-// scFixed осигуровки като фиксирана сума €/мес (Испания работи така)
-// Общата тежест = печалба × sc% + scFixed
 
 export const TAX = {
-  // ---------- ПРОВЕРЕНИ ----------
   CH: { sc:11.5, scFixed:0, ver:'V', src:{
     bg:'AHV/IV/EO 10.0% за самонаети (пълна ставка над CHF 60 500, дегресивна от 5.371% под това, минимум CHF 530/год) + Familienausgleichskasse ~1.45%. ALV не е достъпна за самонаети.',
     en:'AHV/IV/EO 10.0% for self-employed (full rate above CHF 60,500, sliding from 5.371% below, minimum CHF 530/yr) + family compensation fund ~1.45%. Unemployment insurance is unavailable to the self-employed.' } },
@@ -26,7 +18,6 @@ export const TAX = {
     bg:'Cuota de autónomos 2026: 15 групи, ~200–590€/мес според нетния доход. Вноските са замразени спрямо 2025. Tarifa plana 80€/мес първата година. Тук е взета средна група.',
     en:'Spanish self-employed quota 2026: 15 brackets, roughly 200–590€/mo by net income. Rates frozen versus 2025. Flat rate of 80€/mo in the first year. A mid bracket is used here.' } },
 
-  // ---------- ЧАСТИЧНО ----------
   AT: { sc:26.8, scFixed:0, ver:'P', src:{
     bg:'SVS за самонаети: пенсионно 18.5% + здравно 6.8% + Selbständigenvorsorge 1.53%. Структурата е сигурна, базата и таваните не са проверени за 2026.',
     en:'Austrian self-employed insurance: 18.5% pension + 6.8% health + 1.53% provision. The structure is solid; the base and caps are unverified for 2026.' } },
@@ -34,7 +25,6 @@ export const TAX = {
     bg:'Zvw-bijdrage за ZZP. Няма задължително пенсионно. Ставката за 2026 не е проверена.',
     en:'Dutch health contribution for freelancers. No mandatory pension. The 2026 rate is unverified.' } },
 
-  // ---------- ОЦЕНКИ ----------
   IT: { sc:25.7, scFixed:0, ver:'E', src:{ bg:'Gestione Separata INPS, приблизително', en:'INPS separate scheme, approximate' } },
   FR: { sc:22.0, scFixed:0, ver:'E', src:{ bg:'Micro-entrepreneur, приблизително', en:'Micro-entrepreneur regime, approximate' } },
   BE: { sc:20.5, scFixed:0, ver:'E', src:{ bg:'INASTI, приблизително', en:'Self-employed institute, approximate' } },
@@ -62,7 +52,7 @@ export const CITY_TAX = {
   winterthur:'CH', koeniz:'CH', baden:'CH', zug:'CH', lugano:'CH',
   munich:'DE', berlin:'DE', frankfurt:'DE', hamburg:'DE',
   vienna:'AT', graz:'AT', salzburg:'AT',
-  oslo:'NO', stavanger:'NO', trondheim:'NO',
+  oslo:'NO', stavanger:'NO', trondheim:'NO', kristiansand:'NO',
   copenhagen:'DK', stockholm:'SE', helsinki:'FI', reykjavik:'IS',
   amsterdam:'NL', brussels:'BE', luxembourg:'LU', paris:'FR',
   london:'GB', dublin:'IE',
