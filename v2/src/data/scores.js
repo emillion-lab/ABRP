@@ -10,14 +10,12 @@
 import { climateOf, CLIMATE_WEIGHTS } from './climate.js';
 
 // Оценка за живот със семейство, 1–5. ПРЕЦЕНКА, НЕ ДАННИ.
-// Критерии: безопасност, училища и извънкласни, зеленина, пешеходност,
-// здравеопазване, натиск на разходите.
 export const FAMILY = {
   zurich:4, geneva:4, basel:4, bern:5,
   winterthur:5, koeniz:5, baden:5, zug:5, lugano:4,
   munich:5, berlin:3, frankfurt:3, hamburg:4,
   vienna:4, graz:5, salzburg:5,
-  oslo:5, stavanger:5, trondheim:5,
+  oslo:5, stavanger:5, trondheim:5, kristiansand:4,
   copenhagen:5, stockholm:5, helsinki:5, reykjavik:4,
   amsterdam:4, brussels:3, luxembourg:4, paris:2, london:2, dublin:3,
   madrid:3, barcelona:3, valencia:4, malaga:4,
@@ -25,13 +23,12 @@ export const FAMILY = {
   ljubljana:5, warsaw:3, prague:4, budapest:3, bucharest:2, sofia:3
 };
 
-// Тежести на общия рейтинг. Парите тежат най-много, но не решават сами.
 export const OVERALL_WEIGHTS = {
-  money:   0.28,   // печалба след разходи по таксито
-  balance: 0.17,   // какво остава след семейството
-  rent:    0.13,   // достъпност на жилището
-  family:  0.20,   // условия за деца
-  climate: 0.22    // слънце, вятър, дъжд, зимна светлина
+  money:   0.28,
+  balance: 0.17,
+  rent:    0.13,
+  family:  0.20,
+  climate: 0.22
 };
 
 export const DIMS = {
@@ -57,9 +54,7 @@ export const DIM_KEYS = Object.keys(DIMS);
 
 function norm(v, lo, hi) { return hi > lo ? (v - lo) / (hi - lo) : 0.5; }
 
-/** Изчислява всички измерения за списък градове. Мутира rows. */
 export function computeScores(rows) {
-  // сурови стойности
   rows.forEach(r => {
     const cl = climateOf(r.k);
     r.raw = {
@@ -115,7 +110,6 @@ export function computeScores(rows) {
   return rows;
 }
 
-/** Стойността както се показва на картата. */
 export function display(dim, r) {
   const s = r.scores;
   switch (dim) {
@@ -130,7 +124,6 @@ export function display(dim, r) {
   }
 }
 
-/** Икони: горната трета по всяко измерение със значка. */
 export function badgeMap(rows) {
   const out = {};
   rows.forEach(r => { out[r.k] = []; });
