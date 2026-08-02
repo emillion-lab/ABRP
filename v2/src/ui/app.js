@@ -12,10 +12,10 @@ const S = {
   adults: 2, kids: 3,
   rent: 900, budget: 1040,
   hours: 10, workDays: 22,
-  strategy: 0.80,   // 0 = чакам, 1 = търся
-  flow: 0.20,       // бронзов партньор
+  strategy: 0.80,
+  flow: 0.20,
   comfort: 0.50,
-  carCost: 200,     // ток + гуми + застраховка, всичко
+  carCost: 200,
   tips: 150
 };
 
@@ -46,14 +46,17 @@ function render() {
   $('vStrategy').textContent = strategyLabel(S.strategy);
   $('vComm').textContent     = S.commissionPct + '%';
 
+  const d = m.day;
   $('shiftOut').innerHTML = `
-    <div class="row"><span>Курсове</span><b>${m.day.jobs.toFixed(1)}</b></div>
-    <div class="row"><span>Натоварени км</span><b>${fmt(m.day.loadedKm)}</b></div>
-    <div class="row"><span>Празни км</span><b class="bad">${fmt(m.day.emptyKm)}</b></div>
-    <div class="row"><span>Общо км/ден</span><b>${fmt(m.day.totalKm)}</b></div>
-    <div class="row"><span>Натовареност</span><b>${(m.day.occupancy*100).toFixed(0)}%</b></div>
-    <div class="row"><span>Оборот на апарата</span><b>${fmt(m.day.gross)}€</b></div>
-    <div class="row hi"><span>% от тарифата</span><b>${(m.day.tariffPct*100).toFixed(0)}%</b></div>
+    <div class="row"><span>Курсове</span><b>${d.jobs.toFixed(1)}</b></div>
+    <div class="row"><span>Среден курс</span><b>${c.avgTrip} км · ${d.avgFare.toFixed(2)}€</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;от километри</span><b>${fmt(d.kmPart)}€</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;такса + престой</span><b>${fmt(d.jobPart)}€</b></div>
+    <div class="row"><span>Натоварени км</span><b>${fmt(d.loadedKm)}</b></div>
+    <div class="row"><span>Празни км</span><b class="bad">${fmt(d.emptyKm)}</b></div>
+    <div class="row"><span>Общо км/ден</span><b>${fmt(d.totalKm)}</b></div>
+    <div class="row"><span>Натовареност</span><b>${(d.occupancy*100).toFixed(0)}%</b></div>
+    <div class="row"><span>Оборот на апарата</span><b>${fmt(d.gross)}€</b></div>
     <div class="row hi"><span>В джоба за смяна</span><b>${fmt(m.netPerShift)}€</b></div>`;
 
   const best = bestStrategy(c, S);
