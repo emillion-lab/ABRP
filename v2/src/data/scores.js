@@ -6,6 +6,11 @@
 //
 // Нормализацията е min–max спрямо текущия списък градове, тоест
 // рейтингът е ОТНОСИТЕЛЕН — 100 значи "най-добрият тук", не "идеален".
+//
+// Значки на картите: само overall/family/climate имат badge:true.
+// Money/taxi/rent също се подреждат чрез филтрите, но не получават
+// отделна иконка на картата — при 6 възможни значки върху карта от
+// 104px те буквално се застъпваха с флага и името.
 
 import { climateOf, CLIMATE_WEIGHTS } from './climate.js';
 
@@ -37,11 +42,11 @@ export const DIMS = {
   balance: { icon:'⚖', label:{ bg:'Остатък', en:'Surplus' },
              unit:{ bg:'€/мес', en:'€/mo' }, badge:false },
   money:   { icon:'💲', label:{ bg:'Доход', en:'Income' },
-             unit:{ bg:'€/мес печалба', en:'€/mo profit' }, badge:true },
+             unit:{ bg:'€/мес печалба', en:'€/mo profit' }, badge:false },
   taxi:    { icon:'🚕', label:{ bg:'Доход от такси', en:'Taxi income' },
-             unit:{ bg:'€/ч зад волана', en:'€/h at the wheel' }, badge:true },
+             unit:{ bg:'€/ч зад волана', en:'€/h at the wheel' }, badge:false },
   rent:    { icon:'🏠', label:{ bg:'Нисък наем', en:'Low rent' },
-             unit:{ bg:'€/мес', en:'€/mo' }, badge:true },
+             unit:{ bg:'€/мес', en:'€/mo' }, badge:false },
   family:  { icon:'👨‍👩‍👧‍👦', label:{ bg:'За семейство', en:'For family' },
              unit:{ bg:'от 5', en:'of 5' }, badge:true },
   climate: { icon:'☀', label:{ bg:'Климат', en:'Climate' },
