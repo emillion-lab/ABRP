@@ -12,6 +12,7 @@ const S = {
   adults: 2, kids: 3,
   rent: 900, budget: 1040,
   hours: 10, workDays: 22,
+  maxKmDay: 250,
   strategy: 0.80,
   flow: 0.20,
   comfort: 0.50,
@@ -39,6 +40,7 @@ function render() {
   $('vBudget').textContent   = '-' + fmt(S.budget) + '€';
   $('vHours').textContent    = S.hours + 'ч';
   $('vDays').textContent     = S.workDays;
+  $('vKm').textContent       = S.maxKmDay + ' км';
   $('vCar').textContent      = '-' + fmt(S.carCost) + '€';
   $('vTips').textContent     = '+' + fmt(S.tips) + '€';
   $('vComfort').textContent  = Math.round(S.comfort * 100) + '%';
@@ -48,22 +50,24 @@ function render() {
 
   const d = m.day;
   const callRow = d.callPart > 0
-    ? `<div class="row sub2"><span>&nbsp;&nbsp;повикване (${fmt(d.dispatchedJobs)} от ${fmt(d.jobs)})</span><b>${fmt(d.callPart)}€</b></div>`
-    : '';
+    ? `<div class="row sub2"><span>&nbsp;&nbsp;повикване</span><b>${fmt(d.callPart)}€</b></div>` : '';
+  const kmWarn = d.kmLimited
+    ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ опряло в тавана за км</span><b></b></div>` : '';
 
   $('shiftOut').innerHTML = `
-    <div class="row"><span>Курсове</span><b>${d.jobs.toFixed(1)}</b></div>
+    <div class="row"><span>Курсове</span><b>${d.jobs.toFixed(1)} · ${d.jobsPerHour.toFixed(2)}/ч</b></div>
     <div class="row"><span>Среден курс</span><b>${c.avgTrip} км · ${d.avgFare.toFixed(2)}€</b></div>
     <div class="row sub2"><span>&nbsp;&nbsp;километри</span><b>${fmt(d.kmPart)}€</b></div>
     <div class="row sub2"><span>&nbsp;&nbsp;начална такса + престой</span><b>${fmt(d.basePart)}€</b></div>
     ${callRow}
-    <div class="row"><span>От улицата</span><b>${(d.streetShare*100).toFixed(0)}%</b></div>
     <div class="row"><span>Натоварени км</span><b>${fmt(d.loadedKm)}</b></div>
     <div class="row"><span>Празни км</span><b class="bad">${fmt(d.emptyKm)}</b></div>
     <div class="row"><span>Общо км/ден</span><b>${fmt(d.totalKm)}</b></div>
+    ${kmWarn}
     <div class="row"><span>Натовареност</span><b>${(d.occupancy*100).toFixed(0)}%</b></div>
     <div class="row"><span>Оборот на апарата</span><b>${fmt(d.gross)}€</b></div>
-    <div class="row hi"><span>В джоба за смяна</span><b>${fmt(m.netPerShift)}€</b></div>`;
+    <div class="row hi"><span>В джоба за смяна</span><b>${fmt(m.netPerShift)}€</b></div>
+    <div class="row hi"><span>В джоба на час</span><b>${m.netPerHour.toFixed(2)}€</b></div>`;
 
   const best = bestStrategy(c, S);
   const diff = best.profit - m.profit;
@@ -72,8 +76,7 @@ function render() {
     : `Стратегията ти е близо до оптималната за ${c.name.bg}.`;
 
   const commLine = m.commission > 0
-    ? `<div class="row"><span>Комисионна ${S.commissionPct}%</span><b class="bad">-${fmt(m.commission)}€</b></div>`
-    : '';
+    ? `<div class="row"><span>Комисионна ${S.commissionPct}%</span><b class="bad">-${fmt(m.commission)}€</b></div>` : '';
 
   const cls = h.balance < -300 ? 'bad' : (h.balance < 300 ? 'warn' : 'good');
   $('monthOut').innerHTML = `
@@ -99,11 +102,11 @@ function render() {
 }
 
 function strategyLabel(s) {
-  if (s < 0.2) return 'Чакам на място';
-  if (s < 0.45) return 'Предимно чакам';
+  if (s < 0.2) return 'Стоя на място';
+  if (s < 0.45) return 'Предимно стоя';
   if (s < 0.7) return 'Смесено';
-  if (s < 0.9) return 'Предимно търся';
-  return 'Търся активно';
+  if (s < 0.9) return 'Предимно се местя';
+  return 'Местя се постоянно';
 }
 
 function renderGrid() {
@@ -149,7 +152,7 @@ function selectCity(k) {
   $('sBudget').value = S.budget;
   $('cityName').innerHTML =
     `<img src="${FLAGS}${c.flag}.svg" alt=""> ${c.name.bg}
-     <small>тарифа ${c.dt.toFixed(2)} €/км${c.src === 'D' ? ' (непроверена)' : ''}</small>`;
+     <small>тарифа ${c.dt.toFixed(2)} €/км · таван ${c.maxJobsHour} курса/ч${c.src === 'D' ? ' · непроверено' : ''}</small>`;
   render();
 }
 
@@ -180,6 +183,7 @@ export function init() {
   bind('sBudget', 'budget');
   bind('sHours', 'hours');
   bind('sDays', 'workDays');
+  bind('sKm', 'maxKmDay');
   bind('sCar', 'carCost');
   bind('sTips', 'tips');
   bind('sComm', 'commissionPct');
