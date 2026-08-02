@@ -10,13 +10,14 @@
 body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--t);font-size:14px;padding:12px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;
   position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:50}
-h1{font-size:.9rem;color:var(--g);text-transform:uppercase;letter-spacing:1px}
+h1{font-size:.88rem;color:var(--g);text-transform:uppercase;letter-spacing:1px}
 .topBtns{display:flex;gap:6px}
 .topBtns button{background:transparent;border:1px solid var(--bd);color:#8b9eb8;border-radius:8px;
   padding:8px 10px;font-size:.72rem;font-weight:700;cursor:pointer;white-space:nowrap}
 .topBtns button.on{border-color:var(--o);color:var(--o);background:rgba(251,146,60,.12)}
 h3{font-size:.8rem;color:var(--b);text-transform:uppercase;margin-bottom:10px;
-   border-bottom:1px solid var(--bd);padding-bottom:6px}
+   border-bottom:1px solid var(--bd);padding-bottom:6px;display:flex;justify-content:space-between;gap:8px}
+h3 small{color:#475569;font-weight:400;text-transform:none;font-size:.68rem}
 .wrap{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:340px 1fr 360px;gap:14px}
 @media(max-width:1100px){.wrap{grid-template-columns:1fr}}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:12px}
@@ -50,17 +51,26 @@ body.locked input[type=range],body.locked select{pointer-events:none;opacity:.45
 .balance.warn .num{color:var(--o)}.balance.bad .num{color:var(--r)}
 .balance .sub{font-size:.7rem;color:#94a3b8;line-height:1.6}
 #presetDesc{font-size:.72rem;color:#64748b;margin-top:6px;line-height:1.5}
+
+#filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.fbtn{background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:8px;
+  padding:7px 10px;cursor:pointer;color:#8b9eb8;display:flex;align-items:center;gap:6px;
+  font-size:.7rem;font-weight:700;transition:.15s}
+.fbtn:hover{border-color:var(--b)}
+.fbtn.on{border-color:var(--y);background:rgba(251,191,36,.12);color:var(--y)}
+.fi{font-size:1rem;line-height:1}
+@media(max-width:520px){.fl{display:none}.fbtn{padding:9px 12px}}
+
 #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
 .city{background:rgba(255,255,255,.02);border:1px solid var(--bd);border-radius:6px;
-  padding:10px 6px;text-align:center;cursor:pointer;transition:.15s;position:relative}
+  padding:8px 6px 10px;text-align:center;cursor:pointer;transition:.15s;position:relative}
 .city:hover{border-color:var(--b);transform:translateY(-2px)}
 .city.sel{border:2px solid var(--g);box-shadow:0 0 16px rgba(74,222,128,.4)}
-.city.star::after{content:'★';position:absolute;top:4px;right:6px;color:var(--y);font-size:.7rem}
+.cb{height:14px;font-size:.62rem;letter-spacing:1px;margin-bottom:2px;opacity:.95}
 .city img{width:26px;height:19px;object-fit:cover;border-radius:2px}
-.cn{font-weight:800;font-size:.75rem;margin:5px 0 3px}
-.cv{font-family:monospace;font-weight:800;font-size:.8rem}
-.cs{font-size:.62rem;margin-top:3px;font-family:monospace}
-.sun-hi{color:var(--y)}.sun-mid{color:#94a3b8}.sun-lo{color:#475569}
+.cn{font-weight:800;font-size:.74rem;margin:4px 0 3px}
+.cv{font-family:monospace;font-weight:800;font-size:.82rem;color:var(--t)}
+.cs{font-size:.62rem;margin-top:2px;font-family:monospace;color:#64748b}
 #cityName{display:flex;align-items:center;gap:8px;font-size:.95rem;font-weight:800;margin-bottom:10px;flex-wrap:wrap}
 #cityName img{width:28px;height:21px;border-radius:3px}
 #cityName small{color:#64748b;font-weight:400;font-size:.7rem;width:100%}
@@ -158,7 +168,11 @@ body.locked input[type=range],body.locked select{pointer-events:none;opacity:.45
   </div>
 
   <div>
-    <div class="card"><h3 data-t="cities">Градове</h3><div id="grid"></div></div>
+    <div class="card">
+      <h3><span data-t="cities">Градове</span><small id="gridUnit"></small></h3>
+      <div id="filters"></div>
+      <div id="grid"></div>
+    </div>
     <div class="card"><h3 data-t="optimise">Оптимизация</h3><div id="tipsOut"></div></div>
   </div>
 
