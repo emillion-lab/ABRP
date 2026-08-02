@@ -1,20 +1,17 @@
 // ABRP v2 — домакинство: разходи, надбавки, осигуровки, данък.
 //
-// Ред на смятане (важен и в Швейцария, и в Норвегия):
-//   оборот → минус кола → печалба → минус осигуровки
-//          → минус квоти → облагаема основа → данък → в джоба
+// Ред: оборот → минус кола → печалба → минус осигуровки
+//      → минус квоти → облагаема основа → данък → в джоба
 //
-// ВАЖНО ЗА КОЛАТА — не се вади два пъти:
-//   carCost е реалният паричен поток и вече е извадeн от печалбата.
-//   Километричната квота е стандартен разход ВМЕСТО доказване на реалните.
-//   В почти всички данъчни системи се избира ЕДНОТО, не и двете.
-//   Затова тук се признава по-голямото от двете, а не сборът.
+// Осигуровките имат две форми:
+//   sc      процент от печалбата (Швейцария, Норвегия, Австрия…)
+//   scFixed фиксирана сума на месец (Испания: 200–590€ според група)
+// Общата тежест е сборът — държавите ползват едната или другата.
 //
-//   За професионален таксиметров шофьор обикновено важат реалните разходи;
-//   плоската километрична ставка е по-скоро за служебно ползване на лична
-//   кола. Ако при теб е приложима квотата, тя ще е по-голямата и ще се вземе.
+// Колата не се вади два пъти: carCost вече е в печалбата, затова от
+// километричната квота се признава само превишението над реалните.
 //
-// Наемът НЕ е бизнес разход. Вади се от остатъка, но не от основата.
+// Наемът НЕ е бизнес разход и не намалява основата.
 
 export function familyMultiplier(size) {
   if (size <= 2) return 0.85;
@@ -26,9 +23,7 @@ export function familyMultiplier(size) {
 
 export function household(city, p, monthResult) {
   const adults = p.adults, kids = p.kids;
-  const size   = adults + kids;
 
-  // --- лични разходи (не намаляват данъчната основа) ---
   const rent     = p.rent;
   const budget   = p.budget;
   const health   = adults * city.ha + kids * city.hc;
@@ -37,20 +32,18 @@ export function household(city, p, monthResult) {
 
   const benefits = kids * city.cb;
 
-  // --- осигуровки: върху печалбата след разходите за колата ---
-  const profit = Math.max(0, monthResult.profit);
-  const social = Math.round(profit * (city.sc / 100));
+  const profit      = Math.max(0, monthResult.profit);
+  const socialPct   = profit * ((city.sc || 0) / 100);
+  const socialFixed = profit > 0 ? (city.scFixed || 0) : 0;
+  const social      = Math.round(socialPct + socialFixed);
 
-  // --- данъчни квоти ---
   const profitYear  = monthResult.profit * 12;
   const socialYear  = social * 12;
   const kmYear      = monthResult.km * 12;
 
-  const carYear     = monthResult.carCost * 12;   // реални разходи, вече в печалбата
-  const kmDeduct    = kmYear * city.kmRate;       // алтернатива: плоска квота
-  const useKmRate   = kmDeduct > carYear;
-  // признава се по-голямото; реалните вече са отчетени, затова добавяме
-  // само превишението на квотата над тях
+  const carYear      = monthResult.carCost * 12;
+  const kmDeduct     = kmYear * city.kmRate;
+  const useKmRate    = kmDeduct > carYear;
   const vehicleExtra = useKmRate ? (kmDeduct - carYear) : 0;
 
   const childDeduct = kids * city.cd;
@@ -66,12 +59,12 @@ export function household(city, p, monthResult) {
   const balance = monthResult.profit + benefits - expenses - social - tax;
 
   return {
-    size, rent, budget, health, basic, expenses,
-    benefits, social, tax, balance,
+    rent, budget, health, basic, expenses,
+    benefits, social, socialPct, socialFixed, tax, balance,
     kmYear, kmDeduct, carYear, useKmRate, vehicleExtra,
     childDeduct, deductions,
     taxableYear, taxYear,
-    reliefYear, reliefMonth: reliefYear / 12,
+    reliefYear,
     effectiveRate: profitYear > 0 ? taxYear / profitYear * 100 : 0,
     balanceYear: balance * 12,
     breakEvenKm: monthResult.day.perKm > 0
