@@ -14,18 +14,19 @@
 // Опорна точка: София, бронзов партньор (flow 0.20), активно търсене (0.80),
 // 10ч смяна, комфорт 50%, TaxiMe 15%, кола 200€/мес, среден курс 4 км.
 //
-//   ~200 км/смяна · ~18 курса · оборот по апарата ~105€
-//   след комисионна ~89€ · след колата ~80€ в джоба
+//   ~204 км/смяна · ~16 курса · оборот по апарата ~106€
+//   след комисионна ~90€ · след колата ~81€ в джоба
 //     ← измерената типична смяна, август 2026
 //
 // Ако реална смяна не съвпадне, тези числа се пипат ПЪРВИ.
 
 const FLOW_JOBS   = 2.40; // курса/час при пълен пасивен поток
-const SEARCH_JOBS = 2.00; // допълнителни курсове/час от активно търсене
+const SEARCH_JOBS = 1.80; // допълнителни курсове/час от активно търсене
 const CRUISE_KMH  = 29;   // км, изгорени на час активно обикаляне
 const PICKUP_KM   = 2.0;  // среден пробег до клиента
 const SAT_JOBS    = 3.0;  // над този брой курсове/час обикалянето е излишно
 const COMFORT_MAX = 0.30; // Model S / повече място за крака → +30% тарифен микс
+const STREET_MAX  = 0.35; // максимален дял курсове от улицата при пълно търсене
 
 /**
  * Една смяна.
@@ -54,18 +55,25 @@ export function shift(city, p) {
 
   const totalKm = loadedKm + emptyKm;
 
-  // Оборот на апарата, ПРЕДИ комисионна. Три пера:
-  //   километрично + начална такса + престой/време.
-  // При къс градски курс последните две носят повече от първото.
-  const mix     = 1 + comfort * COMFORT_MAX;
-  const kmPart  = loadedKm * city.dt;
-  const jobPart = jobs * (city.baseFee + (city.timeFee || 0));
-  const gross   = (kmPart + jobPart) * mix;
+  // Колкото повече обикаляш, толкова повече хора те махват от улицата.
+  // Такса повикване пада само на диспечираните курсове.
+  const streetShare    = s * STREET_MAX;
+  const dispatchedJobs = jobs * (1 - streetShare);
+
+  // Оборот на апарата, ПРЕДИ комисионна. Четири пера:
+  //   километрично + начална такса + престой + повикване
+  const mix      = 1 + comfort * COMFORT_MAX;
+  const kmPart   = loadedKm * city.dt;
+  const basePart = jobs * (city.baseFee + (city.timeFee || 0));
+  const callPart = dispatchedJobs * (city.callFee || 0);
+  const gross    = (kmPart + basePart + callPart) * mix;
 
   return {
-    jobs, loadedKm, emptyKm, totalKm, gross,
-    kmPart: kmPart * mix,
-    jobPart: jobPart * mix,
+    jobs, dispatchedJobs, streetShare,
+    loadedKm, emptyKm, totalKm, gross,
+    kmPart:   kmPart * mix,
+    basePart: basePart * mix,
+    callPart: callPart * mix,
     avgFare:   jobs ? gross / jobs : 0,
     occupancy: totalKm ? loadedKm / totalKm : 0,
     perKm:     totalKm ? gross / totalKm : 0,
