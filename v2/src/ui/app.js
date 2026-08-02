@@ -105,7 +105,7 @@ function render() {
     ? `<div class="row"><span>Квота ${c.kmRate.toFixed(2)}€/км над реалните</span><b class="good">-${fmt(h.vehicleExtra)}€</b></div>
        <div class="row sub2"><span>&nbsp;&nbsp;квота ${fmt(h.kmDeduct)}€ вместо реални ${fmt(h.carYear)}€</span><b></b></div>`
     : `<div class="row"><span>Кола — реални разходи</span><b class="good">вече в печалбата</b></div>
-       <div class="row sub2"><span>&nbsp;&nbsp;реални ${fmt(h.carYear)}€ &gt; квота ${fmt(h.kmDeduct)}€ — квотата не помага</span><b></b></div>`;
+       <div class="row sub2"><span>&nbsp;&nbsp;реални ${fmt(h.carYear)}€ &gt; квота ${fmt(h.kmDeduct)}€</span><b></b></div>`;
 
   $('taxOut').innerHTML = `
     <div class="row"><span>Пробег</span><b>${fmt(m.km)} км/мес · ${fmt(h.kmYear)} км/год</b></div>
@@ -117,7 +117,7 @@ function render() {
     <div class="row hi"><span>Квотите спестяват</span><b class="good">${fmt(h.reliefYear)}€/год</b></div>
     <div class="row hi"><span>Ефективна ставка</span><b>${h.effectiveRate.toFixed(1)}%</b></div>
     <div class="row sub2"><span>&nbsp;&nbsp;ℹ наемът е личен разход и не намалява основата</span><b></b></div>
-    ${h.taxableYear <= 0 ? '<div class="row sub2"><span>&nbsp;&nbsp;ℹ квотите надвишават печалбата — данъкът вече е нула</span><b></b></div>' : ''}
+    ${h.taxableYear <= 0 ? '<div class="row sub2"><span>&nbsp;&nbsp;ℹ квотите надвишават печалбата — данъкът е нула</span><b></b></div>' : ''}
     ${c.kmRate === 0 ? '<div class="row sub2"><span>&nbsp;&nbsp;⚠ няма километрична квота в тази държава</span><b></b></div>' : ''}`;
 
   $('balance').className = 'balance ' + cls;
@@ -138,6 +138,12 @@ function strategyLabel(s) {
   return 'Местя се постоянно';
 }
 
+function sunClass(sun) {
+  if (sun >= 2400) return 'sun-hi';
+  if (sun >= 1750) return 'sun-mid';
+  return 'sun-lo';
+}
+
 function renderGrid() {
   const g = $('grid');
   g.innerHTML = '';
@@ -154,10 +160,12 @@ function renderGrid() {
   }).sort((a, b) => b.bal - a.bal).forEach(r => {
     const cls = r.bal < -300 ? 'bad' : (r.bal < 300 ? 'warn' : 'good');
     const d = document.createElement('div');
-    d.className = 'city' + (S.sel === r.k ? ' sel' : '');
+    d.className = 'city' + (S.sel === r.k ? ' sel' : '') + (r.c.note ? ' star' : '');
     d.innerHTML = `<img src="${FLAGS}${r.c.flag}.svg" alt="">
-      <div class="cn">${r.c.name.bg}${r.c.src === 'D' ? '<i title="тарифа непроверена">~</i>' : ''}</div>
-      <div class="cv ${cls}">${r.bal >= 0 ? '+' : ''}${fmt(r.bal)}€</div>`;
+      <div class="cn">${r.c.name.bg}${r.c.src === 'D' ? '<i title="непроверено">~</i>' : ''}</div>
+      <div class="cv ${cls}">${r.bal >= 0 ? '+' : ''}${fmt(r.bal)}€</div>
+      <div class="cs ${sunClass(r.c.sun)}">☀ ${r.c.sun}ч</div>`;
+    d.title = r.c.note || '';
     d.onclick = () => selectCity(r.k);
     g.appendChild(d);
   });
@@ -181,7 +189,8 @@ function selectCity(k) {
   $('sBudget').value = S.budget;
   $('cityName').innerHTML =
     `<img src="${FLAGS}${c.flag}.svg" alt=""> ${c.name.bg}
-     <small>тарифа ${c.dt.toFixed(2)} €/км · таван ${c.maxJobsHour} курса/ч${c.src === 'D' ? ' · непроверено' : ''}</small>`;
+     <small>тарифа ${c.dt.toFixed(2)} €/км · таван ${c.maxJobsHour} курса/ч · ☀ ${c.sun}ч/год${c.src === 'D' ? ' · непроверено' : ''}</small>
+     ${c.note ? `<small class="note">${c.note}</small>` : ''}`;
   render();
 }
 
