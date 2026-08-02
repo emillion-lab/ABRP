@@ -58,6 +58,7 @@ body.locked input[type=range],body.locked select{pointer-events:none;opacity:.45
   font-size:.7rem;font-weight:700;transition:.15s}
 .fbtn:hover{border-color:var(--b)}
 .fbtn.on{border-color:var(--y);background:rgba(251,191,36,.12);color:var(--y)}
+.fbtn.star{border-width:2px}
 .fi{font-size:1rem;line-height:1}
 @media(max-width:520px){.fl{display:none}.fbtn{padding:9px 12px}}
 
@@ -66,7 +67,8 @@ body.locked input[type=range],body.locked select{pointer-events:none;opacity:.45
   padding:8px 6px 10px;text-align:center;cursor:pointer;transition:.15s;position:relative}
 .city:hover{border-color:var(--b);transform:translateY(-2px)}
 .city.sel{border:2px solid var(--g);box-shadow:0 0 16px rgba(74,222,128,.4)}
-.cb{height:14px;font-size:.62rem;letter-spacing:1px;margin-bottom:2px;opacity:.95}
+.city.top{background:rgba(251,191,36,.06);border-color:rgba(251,191,36,.45)}
+.cb{min-height:14px;font-size:.62rem;letter-spacing:1px;margin-bottom:2px;opacity:.95}
 .city img{width:26px;height:19px;object-fit:cover;border-radius:2px}
 .cn{font-weight:800;font-size:.74rem;margin:4px 0 3px}
 .cv{font-family:monospace;font-weight:800;font-size:.82rem;color:var(--t)}
@@ -178,6 +180,7 @@ body.locked input[type=range],body.locked select{pointer-events:none;opacity:.45
 
   <div>
     <div class="card"><div id="cityName"></div><h3 data-t="oneShift">Една смяна</h3><div id="shiftOut"></div></div>
+    <div class="card"><h3 data-t="climate">Климат и рейтинг</h3><div id="climateOut"></div></div>
     <div class="card"><h3 data-t="monthly">Месечно</h3><div id="monthOut"></div><div id="balance" class="balance"></div></div>
     <div class="card"><h3 data-t="taxes">Данъци</h3><div id="taxOut"></div></div>
   </div>
