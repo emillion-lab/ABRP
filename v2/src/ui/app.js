@@ -11,7 +11,8 @@ const S = {
   commissionPct: 15, commissionFixed: 0,
   adults: 2, kids: 3,
   rent: 900, budget: 1040,
-  hours: 10, workDays: 22,
+  hours: 8, commitHours: 12, workDays: 22,
+  peakFocus: 0.70,
   maxKmDay: 250,
   strategy: 0.80,
   flow: 0.20,
@@ -39,6 +40,8 @@ function render() {
   $('vRent').textContent     = '-' + fmt(S.rent) + '€';
   $('vBudget').textContent   = '-' + fmt(S.budget) + '€';
   $('vHours').textContent    = S.hours + 'ч';
+  $('vCommit').textContent   = Math.max(S.commitHours, S.hours) + 'ч';
+  $('vPeak').textContent     = Math.round(S.peakFocus * 100) + '%';
   $('vDays').textContent     = S.workDays;
   $('vKm').textContent       = S.maxKmDay + ' км';
   $('vCar').textContent      = '-' + fmt(S.carCost) + '€';
@@ -53,9 +56,12 @@ function render() {
     ? `<div class="row sub2"><span>&nbsp;&nbsp;повикване</span><b>${fmt(d.callPart)}€</b></div>` : '';
   const kmWarn = d.kmLimited
     ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ опряло в тавана за км</span><b></b></div>` : '';
+  const peakNote = S.peakFocus > d.peakShare + 0.02
+    ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ смяната е по-дълга от пиковете — реално ${Math.round(d.peakShare*100)}%</span><b></b></div>` : '';
 
   $('shiftOut').innerHTML = `
     <div class="row"><span>Курсове</span><b>${d.jobs.toFixed(1)} · ${d.jobsPerHour.toFixed(2)}/ч</b></div>
+    ${peakNote}
     <div class="row"><span>Среден курс</span><b>${c.avgTrip} км · ${d.avgFare.toFixed(2)}€</b></div>
     <div class="row sub2"><span>&nbsp;&nbsp;километри</span><b>${fmt(d.kmPart)}€</b></div>
     <div class="row sub2"><span>&nbsp;&nbsp;начална такса + престой</span><b>${fmt(d.basePart)}€</b></div>
@@ -67,7 +73,8 @@ function render() {
     <div class="row"><span>Натовареност</span><b>${(d.occupancy*100).toFixed(0)}%</b></div>
     <div class="row"><span>Оборот на апарата</span><b>${fmt(d.gross)}€</b></div>
     <div class="row hi"><span>В джоба за смяна</span><b>${fmt(m.netPerShift)}€</b></div>
-    <div class="row hi"><span>В джоба на час</span><b>${m.netPerHour.toFixed(2)}€</b></div>`;
+    <div class="row hi"><span>На час зад волана</span><b>${m.netPerHour.toFixed(2)}€</b></div>
+    <div class="row hi"><span>На час извън дома</span><b>${m.netPerCommitHour.toFixed(2)}€</b></div>`;
 
   const best = bestStrategy(c, S);
   const diff = best.profit - m.profit;
@@ -89,7 +96,8 @@ function render() {
     <div class="row"><span>Детски</span><b class="good">+${fmt(h.benefits)}€</b></div>
     <div class="row"><span>Наем + бюджет</span><b class="bad">-${fmt(h.rent+h.budget)}€</b></div>
     ${h.health ? `<div class="row"><span>Здравно</span><b class="bad">-${fmt(h.health)}€</b></div>` : ''}
-    <div class="row"><span>Основни</span><b class="bad">-${fmt(h.basic)}€</b></div>`;
+    <div class="row"><span>Основни</span><b class="bad">-${fmt(h.basic)}€</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;${fmt(m.monthHours)}ч зад волана · ${fmt(m.monthCommit)}ч извън дома</span><b></b></div>`;
 
   $('balance').className = 'balance ' + cls;
   $('balance').innerHTML =
@@ -182,6 +190,8 @@ export function init() {
   bind('sRent', 'rent');
   bind('sBudget', 'budget');
   bind('sHours', 'hours');
+  bind('sCommit', 'commitHours');
+  bind('sPeak', 'peakFocus', v => v / 100);
   bind('sDays', 'workDays');
   bind('sKm', 'maxKmDay');
   bind('sCar', 'carCost');
