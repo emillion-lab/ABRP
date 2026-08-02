@@ -7,16 +7,13 @@
 // ЧАСОВЕТЕ СА ДВА ВИДА:
 //   hours       — часове зад волана, генерират курсове
 //   commitHours — часове извън дома; при разделена смяна са повече.
-//                 Ако наемът е близо до зоната, чакаш вкъщи и разликата пада.
 //
-// ПИКОВЕ: city.maxJobsHour е УСРЕДНЕН за денонощието. Ако караш само
-// в пиковете, реалният таван е по-висок. Но пиковете са ~7 часа общо —
-// колкото по-дълга е смяната, толкова повече мъртви часове влизат в нея.
+// ПИКОВЕ: city.maxJobsHour е УСРЕДНЕН за денонощието. Каране само в
+// пиковете вдига тавана с до 50%. Но пиковете са ~7 часа общо —
+// дълга смяна разрежда концентрацията.
+//   Цюрих: 1.0 средно → 1.5 при пълна концентрация (полево усещане).
 //
-// ТРИ ОГРАНИЧЕНИЯ, всяко от които може да е обвързващото:
-//   1. ТЪРСЕНЕ  — таван на града, коригиран за пикове
-//   2. ВРЕМЕ    — колко трае един курс при местната скорост
-//   3. КИЛОМЕТРИ— p.maxKmDay
+// ТРИ ОГРАНИЧЕНИЯ: търсене · време на курс · таван километри
 
 const SEARCH_EFF   = 0.58; // каква част от тавана добира местенето при нулев поток
 const CRUISE_KMH   = 29;   // км, изгорени на час активно местене
@@ -24,7 +21,7 @@ const PICKUP_KM    = 2.0;  // среден пробег до клиента
 const SERVICE_MIN  = 5;    // мин/курс: качване, плащане, чакане
 const COMFORT_MAX  = 0.30; // Model S / място за крака → +30% тарифен микс
 const STREET_MAX   = 0.10; // дял качвания от улицата — рядкост
-const PEAK_BONUS   = 0.60; // с колко пикът е над дневната средна
+const PEAK_BONUS   = 0.50; // с колко пикът е над дневната средна
 const PEAK_HOURS   = 7;    // общо часове пик на ден (сутрин + вечер)
 
 export function shift(city, p) {
@@ -33,15 +30,12 @@ export function shift(city, p) {
   const flow    = clamp01(p.flow);
   const comfort = clamp01(p.comfort);
 
-  // (1) Търсене, коригирано за концентрация в пиковете.
-  //     Дълга смяна разрежда пика — не можеш да си 12 часа в пик от 7.
   const wantPeak  = clamp01(p.peakFocus);
   const peakShare = Math.min(wantPeak, PEAK_HOURS / Math.max(hours, 1));
   const ceiling   = city.maxJobsHour * (1 + peakShare * PEAK_BONUS);
 
   let jobsPerHour = ceiling * (flow + s * SEARCH_EFF * (1 - flow));
 
-  // (2) Време: един курс трае толкова, колкото трае
   const speed       = city.avgSpeed || 24;
   const hoursPerJob = (city.avgTrip + PICKUP_KM) / speed + SERVICE_MIN / 60;
   jobsPerHour = Math.min(jobsPerHour, 1 / hoursPerJob);
@@ -53,7 +47,6 @@ export function shift(city, p) {
   let cruiseKm = s * CRUISE_KMH * hours * (1 - saturation);
   let totalKm  = loadedKm + pickupKm + cruiseKm;
 
-  // (3) Километри: реже се обикалянето първо, после курсовете
   const capKm = p.maxKmDay || Infinity;
   let kmLimited = false;
   if (totalKm > capKm) {
@@ -100,9 +93,9 @@ export function month(city, p) {
   const commission = fares * ((p.commissionPct || 0) / 100)
                    + (p.commissionFixed || 0);
 
-  const net       = fares - commission + tips;
-  const perShift  = (net - p.carCost) / p.workDays;
-  const commit    = Math.max(p.commitHours || p.hours, p.hours);
+  const net      = fares - commission + tips;
+  const perShift = (net - p.carCost) / p.workDays;
+  const commit   = Math.max(p.commitHours || p.hours, p.hours);
 
   return {
     day: d, fares, tips, commission,
@@ -112,8 +105,8 @@ export function month(city, p) {
     profit: net - p.carCost,
     netPerKm: d.totalKm ? (net / p.workDays) / d.totalKm : 0,
     netPerShift: perShift,
-    netPerHour: p.hours ? perShift / p.hours : 0,          // на час зад волана
-    netPerCommitHour: commit ? perShift / commit : 0,      // на час извън дома
+    netPerHour: p.hours ? perShift / p.hours : 0,
+    netPerCommitHour: commit ? perShift / commit : 0,
     commitHours: commit,
     monthHours: p.hours * p.workDays,
     monthCommit: commit * p.workDays
