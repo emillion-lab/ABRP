@@ -27,10 +27,10 @@ const COMFORT_MAX = 0.30; // Model S / повече място за крака �
  * @param {object} p     {hours, strategy 0..1, flow 0..1, comfort 0..1}
  */
 export function shift(city, p) {
-  const hours    = p.hours;
-  const s        = clamp01(p.strategy);
-  const flow     = clamp01(p.flow);
-  const comfort  = clamp01(p.comfort);
+  const hours   = p.hours;
+  const s       = clamp01(p.strategy);
+  const flow    = clamp01(p.flow);
+  const comfort = clamp01(p.comfort);
 
   // Колко курса намираш на час.
   // Търсенето помага толкова повече, колкото по-слаб е пасивният поток.
@@ -48,29 +48,43 @@ export function shift(city, p) {
 
   const totalKm = loadedKm + emptyKm;
 
-  // Приход: тарифа по натоварени км + начални такси, вдигнати от комфорт сегмента
-  const mix     = 1 + comfort * COMFORT_MAX;
-  const revenue = (loadedKm * city.dt + jobs * city.baseFee) * mix;
+  // Оборот на апарата: тарифа по натоварени км + начални такси,
+  // вдигнати от дела на комфорт сегмента. ПРЕДИ комисионна.
+  const mix   = 1 + comfort * COMFORT_MAX;
+  const gross = (loadedKm * city.dt + jobs * city.baseFee) * mix;
 
   return {
-    jobs, loadedKm, emptyKm, totalKm, revenue,
+    jobs, loadedKm, emptyKm, totalKm, gross,
     occupancy: totalKm ? loadedKm / totalKm : 0,   // дял платени км
-    perKm:     totalKm ? revenue / totalKm : 0,    // €/изминат км, БРУТО
-    perHour:   hours ? revenue / hours : 0,
-    tariffPct: totalKm ? revenue / totalKm / city.dt : 0  // % от дневната тарифа
+    perKm:     totalKm ? gross / totalKm : 0,      // €/изминат км, бруто
+    perHour:   hours ? gross / hours : 0,
+    tariffPct: totalKm ? gross / totalKm / city.dt : 0  // % от дневната тарифа
   };
 }
 
-/** Месечен оборот. carCost е ВСИЧКО за колата: ток/гориво, лизинг, застраховки, гуми. */
+/**
+ * Месечен резултат.
+ * carCost е ВСИЧКО за колата: ток/гориво, лизинг, застраховки, гуми, ремонти.
+ * Комисионната се удържа от оборота, но НЕ от бакшишите.
+ */
 export function month(city, p) {
-  const d = shift(city, p);
-  const revenue = d.revenue * p.workDays + (p.tips || 0);
+  const d     = shift(city, p);
+  const fares = d.gross * p.workDays;
+  const tips  = p.tips || 0;
+
+  const commission = fares * ((p.commissionPct || 0) / 100)
+                   + (p.commissionFixed || 0);
+
+  const net = fares - commission + tips;
+
   return {
     day: d,
-    revenue,
+    fares, tips, commission,
+    revenue: net,                    // след платформата, преди колата
     km: d.totalKm * p.workDays,
     carCost: p.carCost,
-    profit: revenue - p.carCost          // печалба преди осигуровки и данък
+    profit: net - p.carCost,         // печалба преди осигуровки и данък
+    netPerKm: d.totalKm ? (net / p.workDays) / d.totalKm : 0
   };
 }
 
