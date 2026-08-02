@@ -101,16 +101,23 @@ function render() {
     <div class="row"><span>Основни</span><b class="bad">-${fmt(h.basic)}€</b></div>
     <div class="row sub2"><span>&nbsp;&nbsp;${fmt(m.monthHours)}ч зад волана · ${fmt(m.monthCommit)}ч извън дома</span><b></b></div>`;
 
-  const zeroTax = h.taxableYear <= 0;
+  const vehLine = h.useKmRate
+    ? `<div class="row"><span>Квота ${c.kmRate.toFixed(2)}€/км над реалните</span><b class="good">-${fmt(h.vehicleExtra)}€</b></div>
+       <div class="row sub2"><span>&nbsp;&nbsp;квота ${fmt(h.kmDeduct)}€ вместо реални ${fmt(h.carYear)}€</span><b></b></div>`
+    : `<div class="row"><span>Кола — реални разходи</span><b class="good">вече в печалбата</b></div>
+       <div class="row sub2"><span>&nbsp;&nbsp;реални ${fmt(h.carYear)}€ &gt; квота ${fmt(h.kmDeduct)}€ — квотата не помага</span><b></b></div>`;
+
   $('taxOut').innerHTML = `
     <div class="row"><span>Пробег</span><b>${fmt(m.km)} км/мес · ${fmt(h.kmYear)} км/год</b></div>
     <div class="row"><span>Печалба преди квоти</span><b>${fmt(m.profit*12)}€/год</b></div>
-    <div class="row"><span>Километрична квота ${c.kmRate.toFixed(2)}€/км</span><b class="good">-${fmt(h.kmDeduct)}€</b></div>
+    <div class="row"><span>Осигуровки</span><b class="good">-${fmt(h.social*12)}€</b></div>
+    ${vehLine}
     <div class="row"><span>Квота ${S.kids} деца × ${fmt(c.cd)}€</span><b class="good">-${fmt(h.childDeduct)}€</b></div>
     <div class="row"><span>Облагаема основа</span><b>${fmt(h.taxableYear)}€/год</b></div>
     <div class="row hi"><span>Квотите спестяват</span><b class="good">${fmt(h.reliefYear)}€/год</b></div>
     <div class="row hi"><span>Ефективна ставка</span><b>${h.effectiveRate.toFixed(1)}%</b></div>
-    ${zeroTax ? '<div class="row sub2"><span>&nbsp;&nbsp;ℹ квотите надвишават печалбата — данъкът вече е нула и повече не могат да спестят</span><b></b></div>' : ''}
+    <div class="row sub2"><span>&nbsp;&nbsp;ℹ наемът е личен разход и не намалява основата</span><b></b></div>
+    ${h.taxableYear <= 0 ? '<div class="row sub2"><span>&nbsp;&nbsp;ℹ квотите надвишават печалбата — данъкът вече е нула</span><b></b></div>' : ''}
     ${c.kmRate === 0 ? '<div class="row sub2"><span>&nbsp;&nbsp;⚠ няма километрична квота в тази държава</span><b></b></div>' : ''}`;
 
   $('balance').className = 'balance ' + cls;
@@ -189,6 +196,18 @@ function bind(id, key, transform) {
   });
 }
 
+function initLock() {
+  const btn = $('lockBtn');
+  let locked = false;
+  const apply = () => {
+    document.body.classList.toggle('locked', locked);
+    btn.textContent = locked ? '🔒 Заключено' : '🔓 Отключено';
+    btn.classList.toggle('on', locked);
+  };
+  btn.addEventListener('click', () => { locked = !locked; apply(); });
+  apply();
+}
+
 export function init() {
   const sel = $('sPlatform');
   PLATFORM_KEYS.forEach(k => {
@@ -215,5 +234,6 @@ export function init() {
   bind('sFlow', 'flow', v => v / 100);
   bind('sComfort', 'comfort', v => v / 100);
 
+  initLock();
   selectCity(S.sel);
 }
