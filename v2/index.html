@@ -1,0 +1,125 @@
+&lt;!DOCTYPE html&gt;
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ABRP v2</title>
+<style>
+:root{--bg:#050a15;--card:#0d1525;--bd:#1e293b;--g:#4ade80;--b:#38bdf8;--r:#dc2626;--o:#fb923c;--t:#e2e8f0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--t);font-size:14px;padding:12px}
+h1{font-size:1rem;color:var(--g);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+h3{font-size:.8rem;color:var(--b);text-transform:uppercase;margin-bottom:10px;
+   border-bottom:1px solid var(--bd);padding-bottom:6px}
+.wrap{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:340px 1fr 360px;gap:14px}
+@media(max-width:1100px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:12px}
+.inp{margin-bottom:14px}
+.ih{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.lb{color:#8b9eb8;font-size:.78rem;font-weight:600}
+.vl{font-family:monospace;font-weight:900;color:var(--b)}
+input[type=range]{width:100%;height:6px;background:var(--bd);-webkit-appearance:none;
+  border-radius:3px;outline:none;margin:8px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;
+  background:var(--b);border-radius:4px;cursor:pointer;box-shadow:0 0 10px var(--b)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;background:var(--b);
+  border-radius:4px;cursor:pointer;border:none}
+.ends{display:flex;justify-content:space-between;font-size:.65rem;color:#64748b}
+.row{display:flex;justify-content:space-between;padding:5px 0;
+  border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem}
+.row b{font-family:monospace}
+.row.hi{background:rgba(56,189,248,.08);padding:6px;border-radius:4px;border:none}
+.good{color:var(--g)}.bad{color:var(--r)}.warn{color:var(--o)}
+.balance{text-align:center;padding:18px;border-radius:12px;border:3px solid var(--g);margin-top:12px;
+  background:linear-gradient(135deg,rgba(74,222,128,.15),rgba(56,189,248,.1))}
+.balance.warn{border-color:var(--o);background:rgba(251,146,60,.12)}
+.balance.bad{border-color:var(--r);background:rgba(220,38,38,.12)}
+.balance .lbl{font-size:.7rem;text-transform:uppercase;color:#94a3b8;letter-spacing:1px}
+.balance .num{font-size:2rem;font-weight:900;font-family:monospace;color:var(--g);margin:6px 0}
+.balance.warn .num{color:var(--o)}.balance.bad .num{color:var(--r)}
+.balance .sub{font-size:.7rem;color:#94a3b8;line-height:1.6}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.city{background:rgba(255,255,255,.02);border:1px solid var(--bd);border-radius:6px;
+  padding:10px 6px;text-align:center;cursor:pointer;transition:.15s}
+.city:hover{border-color:var(--b);transform:translateY(-2px)}
+.city.sel{border:2px solid var(--g);box-shadow:0 0 16px rgba(74,222,128,.4)}
+.city img{width:26px;height:19px;object-fit:cover;border-radius:2px}
+.cn{font-weight:800;font-size:.75rem;margin:5px 0 3px}
+.cn i{color:var(--o);font-style:normal}
+.cv{font-family:monospace;font-weight:800;font-size:.8rem}
+#cityName{display:flex;align-items:center;gap:8px;font-size:.95rem;font-weight:800;margin-bottom:10px}
+#cityName img{width:28px;height:21px;border-radius:3px}
+#cityName small{color:#64748b;font-weight:400;font-size:.7rem}
+#advice{font-size:.75rem;color:#94a3b8;background:rgba(251,146,60,.1);
+  border:1px dashed var(--o);border-radius:6px;padding:9px;margin-top:8px;line-height:1.5}
+#advice b{color:var(--o)}
+</style>
+</head>
+<body>
+<h1>ABRP v2 — план за преместване</h1>
+<div class="wrap">
+
+  <div>
+    <div class="card">
+      <h3>Семейство и жилище</h3>
+      <div class="inp"><div class="ih"><span class="lb">Възрастни</span><span class="vl" id="vAdults"></span></div>
+        <input type="range" id="sAdults" min="1" max="4" value="2"></div>
+      <div class="inp"><div class="ih"><span class="lb">Деца</span><span class="vl" id="vKids"></span></div>
+        <input type="range" id="sKids" min="0" max="5" value="3"></div>
+      <div class="inp"><div class="ih"><span class="lb">Наем</span><span class="vl bad" id="vRent"></span></div>
+        <input type="range" id="sRent" min="450" max="2200" step="50" value="900"></div>
+      <div class="inp"><div class="ih"><span class="lb">Бюджет</span><span class="vl bad" id="vBudget"></span></div>
+        <input type="range" id="sBudget" min="400" max="5000" step="50" value="1040"></div>
+    </div>
+
+    <div class="card">
+      <h3>Стратегия зад волана</h3>
+      <div class="inp">
+        <div class="ih"><span class="lb">Как карам</span><span class="vl" id="vStrategy"></span></div>
+        <input type="range" id="sStrategy" min="0" max="100" step="5" value="80">
+        <div class="ends"><span>чакам на място</span><span>търся активно</span></div>
+      </div>
+      <div class="inp">
+        <div class="ih"><span class="lb">Поток от приложението</span><span class="vl" id="vFlow"></span></div>
+        <input type="range" id="sFlow" min="0" max="100" step="5" value="20">
+        <div class="ends"><span>бронз / нов</span><span>топ партньор</span></div>
+      </div>
+      <div class="inp">
+        <div class="ih"><span class="lb">Комфорт сегмент</span><span class="vl" id="vComfort"></span></div>
+        <input type="range" id="sComfort" min="0" max="100" step="5" value="50">
+      </div>
+      <div id="advice"></div>
+    </div>
+
+    <div class="card">
+      <h3>Смяна и разходи</h3>
+      <div class="inp"><div class="ih"><span class="lb">Часове/ден</span><span class="vl" id="vHours"></span></div>
+        <input type="range" id="sHours" min="6" max="14" value="10"></div>
+      <div class="inp"><div class="ih"><span class="lb">Дни/месец</span><span class="vl" id="vDays"></span></div>
+        <input type="range" id="sDays" min="15" max="28" value="22"></div>
+      <div class="inp">
+        <div class="ih"><span class="lb">Кола — всичко</span><span class="vl bad" id="vCar"></span></div>
+        <input type="range" id="sCar" min="100" max="2500" step="50" value="200">
+        <div class="ends"><span>ток, гориво, лизинг, застраховки, гуми, ремонти</span></div>
+      </div>
+      <div class="inp"><div class="ih"><span class="lb">Бакшиши</span><span class="vl good" id="vTips"></span></div>
+        <input type="range" id="sTips" min="0" max="1000" step="25" value="150"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card"><h3>Градове — остатък месечно</h3><div id="grid"></div></div>
+  </div>
+
+  <div>
+    <div class="card"><div id="cityName"></div><h3>Една смяна</h3><div id="shiftOut"></div></div>
+    <div class="card"><h3>Месечно</h3><div id="monthOut"></div><div id="balance" class="balance"></div></div>
+  </div>
+
+</div>
+<script type="module">
+  import { init } from './src/ui/app.js';
+  init();
+</script>
+</body>
+</html>
