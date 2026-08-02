@@ -83,7 +83,8 @@ function renderFilters() {
   bar.innerHTML = '';
   DIM_KEYS.forEach(d => {
     const b = document.createElement('button');
-    b.className = 'fbtn' + (S.sortBy === d ? ' on' : '') + (d === 'overall' ? ' star' : '');
+    // Единствената значка за "избран" е класа .on — виж бележката в CSS.
+    b.className = 'fbtn' + (S.sortBy === d ? ' on' : '');
     b.innerHTML = `<span class="fi">${DIMS[d].icon}</span><span class="fl">${tx(DIMS[d].label)}</span>`;
     b.onclick = () => { S.sortBy = d; render(); };
     bar.appendChild(b);
