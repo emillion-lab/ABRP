@@ -47,11 +47,17 @@ function render() {
   $('vComm').textContent     = S.commissionPct + '%';
 
   const d = m.day;
+  const callRow = d.callPart > 0
+    ? `<div class="row sub2"><span>&nbsp;&nbsp;повикване (${fmt(d.dispatchedJobs)} от ${fmt(d.jobs)})</span><b>${fmt(d.callPart)}€</b></div>`
+    : '';
+
   $('shiftOut').innerHTML = `
     <div class="row"><span>Курсове</span><b>${d.jobs.toFixed(1)}</b></div>
     <div class="row"><span>Среден курс</span><b>${c.avgTrip} км · ${d.avgFare.toFixed(2)}€</b></div>
-    <div class="row sub2"><span>&nbsp;&nbsp;от километри</span><b>${fmt(d.kmPart)}€</b></div>
-    <div class="row sub2"><span>&nbsp;&nbsp;такса + престой</span><b>${fmt(d.jobPart)}€</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;километри</span><b>${fmt(d.kmPart)}€</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;начална такса + престой</span><b>${fmt(d.basePart)}€</b></div>
+    ${callRow}
+    <div class="row"><span>От улицата</span><b>${(d.streetShare*100).toFixed(0)}%</b></div>
     <div class="row"><span>Натоварени км</span><b>${fmt(d.loadedKm)}</b></div>
     <div class="row"><span>Празни км</span><b class="bad">${fmt(d.emptyKm)}</b></div>
     <div class="row"><span>Общо км/ден</span><b>${fmt(d.totalKm)}</b></div>
