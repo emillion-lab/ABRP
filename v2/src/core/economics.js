@@ -2,74 +2,74 @@
 //
 // Плъзгачът за стратегия НЕ е "приложение срещу улица".
 // И в двата края поръчката идва от приложението. Разликата е:
+//   strategy = 0 → стоя където ме оставят;  1 → местя се към работата
 //
-//   strategy = 0  → стоя където ме е оставил клиентът и чакам
-//   strategy = 1  → местя се към зоната, в която има работа
+// ЧАСОВЕТЕ СА ДВА ВИДА:
+//   hours       — часове зад волана, генерират курсове
+//   commitHours — часове извън дома; при разделена смяна са повече.
+//                 Ако наемът е близо до зоната, чакаш вкъщи и разликата пада.
+//
+// ПИКОВЕ: city.maxJobsHour е УСРЕДНЕН за денонощието. Ако караш само
+// в пиковете, реалният таван е по-висок. Но пиковете са ~7 часа общо —
+// колкото по-дълга е смяната, толкова повече мъртви часове влизат в нея.
 //
 // ТРИ ОГРАНИЧЕНИЯ, всяко от които може да е обвързващото:
-//   1. ТЪРСЕНЕ  — city.maxJobsHour: колко курса пазарът изобщо дава
+//   1. ТЪРСЕНЕ  — таван на града, коригиран за пикове
 //   2. ВРЕМЕ    — колко трае един курс при местната скорост
-//   3. КИЛОМЕТРИ— p.maxKmDay: колко си готов да изминеш
-//
-// Без (1) моделът произвежда безсмислици: софийските 2.4 курса/час,
-// приложени към 8-километров цюрихски курс, дават 192 натоварени км
-// и над 1200€ на смяна. Проверка: 30 CHF/час при ~43 CHF курс и 30%
-// комисионна означава ОКОЛО ЕДИН курс на час в Цюрих.
+//   3. КИЛОМЕТРИ— p.maxKmDay
 
 const SEARCH_EFF   = 0.58; // каква част от тавана добира местенето при нулев поток
 const CRUISE_KMH   = 29;   // км, изгорени на час активно местене
 const PICKUP_KM    = 2.0;  // среден пробег до клиента
-const SERVICE_MIN  = 5;    // мин/курс: качване, плащане, чакане на клиента
+const SERVICE_MIN  = 5;    // мин/курс: качване, плащане, чакане
 const COMFORT_MAX  = 0.30; // Model S / място за крака → +30% тарифен микс
-const STREET_MAX   = 0.10; // дял качвания от улицата — рядкост, не стратегия
+const STREET_MAX   = 0.10; // дял качвания от улицата — рядкост
+const PEAK_BONUS   = 0.60; // с колко пикът е над дневната средна
+const PEAK_HOURS   = 7;    // общо часове пик на ден (сутрин + вечер)
 
-/**
- * Една смяна.
- * @param {object} city  запис от CITIES
- * @param {object} p     {hours, strategy, flow, comfort, maxKmDay}
- */
 export function shift(city, p) {
   const hours   = p.hours;
   const s       = clamp01(p.strategy);
   const flow    = clamp01(p.flow);
   const comfort = clamp01(p.comfort);
 
-  // (1) Търсене: таванът е свойство на града
-  const ceiling  = city.maxJobsHour;
+  // (1) Търсене, коригирано за концентрация в пиковете.
+  //     Дълга смяна разрежда пика — не можеш да си 12 часа в пик от 7.
+  const wantPeak  = clamp01(p.peakFocus);
+  const peakShare = Math.min(wantPeak, PEAK_HOURS / Math.max(hours, 1));
+  const ceiling   = city.maxJobsHour * (1 + peakShare * PEAK_BONUS);
+
   let jobsPerHour = ceiling * (flow + s * SEARCH_EFF * (1 - flow));
 
   // (2) Време: един курс трае толкова, колкото трае
-  const speed      = city.avgSpeed || 24;
+  const speed       = city.avgSpeed || 24;
   const hoursPerJob = (city.avgTrip + PICKUP_KM) / speed + SERVICE_MIN / 60;
   jobsPerHour = Math.min(jobsPerHour, 1 / hoursPerJob);
 
-  let jobs       = jobsPerHour * hours;
-  let loadedKm   = jobs * city.avgTrip;
+  let jobs     = jobsPerHour * hours;
+  let loadedKm = jobs * city.avgTrip;
   const saturation = Math.min(1, jobsPerHour / ceiling);
-  let pickupKm   = jobs * PICKUP_KM;
-  let cruiseKm   = s * CRUISE_KMH * hours * (1 - saturation);
-  let totalKm    = loadedKm + pickupKm + cruiseKm;
+  let pickupKm = jobs * PICKUP_KM;
+  let cruiseKm = s * CRUISE_KMH * hours * (1 - saturation);
+  let totalKm  = loadedKm + pickupKm + cruiseKm;
 
-  // (3) Километри: ако таванът е под нужното, реже се обикалянето първо,
-  //     после и курсовете
+  // (3) Километри: реже се обикалянето първо, после курсовете
   const capKm = p.maxKmDay || Infinity;
   let kmLimited = false;
   if (totalKm > capKm) {
     kmLimited = true;
     const need = loadedKm + pickupKm;
     if (need <= capKm) {
-      cruiseKm = capKm - need;          // стига да режем празното обикаляне
+      cruiseKm = capKm - need;
     } else {
-      cruiseKm = 0;                     // не стига — режем и курсове
+      cruiseKm = 0;
       const scale = capKm / need;
       jobs *= scale; loadedKm *= scale; pickupKm *= scale;
     }
     totalKm = loadedKm + pickupKm + cruiseKm;
   }
 
-  const emptyKm = pickupKm + cruiseKm;
-
-  // Почти всички курсове са диспечирани → таксата повикване е почти винаги там.
+  const emptyKm        = pickupKm + cruiseKm;
   const streetShare    = s * STREET_MAX;
   const dispatchedJobs = jobs * (1 - streetShare);
 
@@ -81,24 +81,17 @@ export function shift(city, p) {
 
   return {
     jobs, dispatchedJobs, streetShare, kmLimited,
+    peakShare, ceiling,
     jobsPerHour: hours ? jobs / hours : 0,
     loadedKm, emptyKm, totalKm, gross,
-    kmPart:   kmPart * mix,
-    basePart: basePart * mix,
-    callPart: callPart * mix,
+    kmPart: kmPart * mix, basePart: basePart * mix, callPart: callPart * mix,
     avgFare:   jobs ? gross / jobs : 0,
     occupancy: totalKm ? loadedKm / totalKm : 0,
     perKm:     totalKm ? gross / totalKm : 0,
-    perHour:   hours ? gross / hours : 0,
     tariffPct: totalKm ? gross / totalKm / city.dt : 0
   };
 }
 
-/**
- * Месечен резултат.
- * carCost е ВСИЧКО за колата: ток/гориво, лизинг, застраховки, гуми, ремонти.
- * Комисионната се удържа от оборота, но НЕ от бакшишите.
- */
 export function month(city, p) {
   const d     = shift(city, p);
   const fares = d.gross * p.workDays;
@@ -107,18 +100,23 @@ export function month(city, p) {
   const commission = fares * ((p.commissionPct || 0) / 100)
                    + (p.commissionFixed || 0);
 
-  const net = fares - commission + tips;
+  const net       = fares - commission + tips;
+  const perShift  = (net - p.carCost) / p.workDays;
+  const commit    = Math.max(p.commitHours || p.hours, p.hours);
 
   return {
-    day: d,
-    fares, tips, commission,
+    day: d, fares, tips, commission,
     revenue: net,
     km: d.totalKm * p.workDays,
     carCost: p.carCost,
     profit: net - p.carCost,
     netPerKm: d.totalKm ? (net / p.workDays) / d.totalKm : 0,
-    netPerShift: (net - p.carCost) / p.workDays,
-    netPerHour: p.hours ? ((net - p.carCost) / p.workDays) / p.hours : 0
+    netPerShift: perShift,
+    netPerHour: p.hours ? perShift / p.hours : 0,          // на час зад волана
+    netPerCommitHour: commit ? perShift / commit : 0,      // на час извън дома
+    commitHours: commit,
+    monthHours: p.hours * p.workDays,
+    monthCommit: commit * p.workDays
   };
 }
 
