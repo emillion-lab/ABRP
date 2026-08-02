@@ -1,7 +1,13 @@
 // ABRP v2 — домакинство: разходи, надбавки, осигуровки, данък.
 //
 // Ред на смятане (важен и в Швейцария, и в Норвегия):
-//   оборот → минус кола → печалба → минус осигуровки → минус данък → в джоба
+//   оборот → минус кола → печалба → минус осигуровки
+//          → минус данъчни квоти → облагаема основа → данък → в джоба
+//
+// Километричната квота (kmRate) е стандартно признат разход на изминат км.
+// В повечето държави се ползва ВМЕСТО доказване на реалните разходи —
+// затова е легитимно да съществува паралелно с carCost, който е
+// реалният паричен поток. Квотата не е приход, а намалява данъка.
 
 export function familyMultiplier(size) {
   if (size <= 2) return 0.85;
@@ -16,10 +22,10 @@ export function household(city, p, monthResult) {
   const size   = adults + kids;
 
   // --- разходи ---
-  const rent    = p.rent;
-  const budget  = p.budget;
-  const health  = adults * city.ha + kids * city.hc;
-  const basic   = adults * 300;
+  const rent     = p.rent;
+  const budget   = p.budget;
+  const health   = adults * city.ha + kids * city.hc;
+  const basic    = adults * 300;
   const expenses = rent + budget + health + basic;
 
   // --- надбавки ---
@@ -29,35 +35,35 @@ export function household(city, p, monthResult) {
   const profit = Math.max(0, monthResult.profit);
   const social = Math.round(profit * (city.sc / 100));
 
-  // --- данъчни облекчения (годишни, показват се отделно) ---
-  const kmYear      = monthResult.km * 12;
-  const kmRelief    = kmYear * city.kmRate * (city.tr / 100);
-  const childRelief = kids * city.cd * (city.tr / 100);
-  const reliefYear  = kmRelief + childRelief;
+  // --- данък върху дохода ---
+  const profitYear   = monthResult.profit * 12;
+  const socialYear   = social * 12;
+  const kmYear       = monthResult.km * 12;
+  const kmDeduct     = kmYear * city.kmRate;      // километрична квота
+  const childDeduct  = kids * city.cd;            // квота на дете
+  const deductions   = kmDeduct + childDeduct;
 
-  const balance = monthResult.profit + benefits - expenses - social;
+  const taxableYear  = Math.max(0, profitYear - socialYear - deductions);
+  const taxYear      = taxableYear * (city.tr / 100);
+  const tax          = Math.round(taxYear / 12);
+
+  // колко данък пестят квотите — вече РЕАЛНО, не декоративно
+  const taxNoDeduct  = Math.max(0, profitYear - socialYear) * (city.tr / 100);
+  const reliefYear   = Math.max(0, taxNoDeduct - taxYear);
+
+  const balance = monthResult.profit + benefits - expenses - social - tax;
 
   return {
     size, rent, budget, health, basic, expenses,
-    benefits, social, balance,
-    reliefYear,
-    reliefMonth: reliefYear / 12,
+    benefits, social, tax, balance,
+    kmYear, kmDeduct, childDeduct, deductions,
+    taxableYear, taxYear,
+    reliefYear, reliefMonth: reliefYear / 12,
+    effectiveRate: profitYear > 0 ? taxYear / profitYear * 100 : 0,
     balanceYear: balance * 12,
-    // колко км на ден са нужни само за да се покрият разходите
     breakEvenKm: monthResult.day.perKm > 0
-      ? Math.ceil((expenses + social - benefits + monthResult.carCost)
+      ? Math.ceil((expenses + social + tax - benefits + monthResult.carCost)
           / (monthResult.day.perKm * p.workDays))
       : 0
   };
-}
-
-/** Най-евтиният наем, при който балансът е поне `target`. */
-export function affordableRent(city, p, computeFn, target) {
-  const step = Math.max(50, Math.round((city.rentMax - city.rentMin) / 60));
-  let best = null;
-  for (let r = city.rentMin; r <= city.rentMax; r += step) {
-    const h = computeFn(Object.assign({}, p, { rent: r }));
-    if (h.balance >= target) { best = r; break; }
-  }
-  return best;
 }
