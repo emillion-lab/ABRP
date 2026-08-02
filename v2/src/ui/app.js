@@ -57,10 +57,11 @@ function render() {
   const kmWarn = d.kmLimited
     ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ опряло в тавана за км</span><b></b></div>` : '';
   const peakNote = S.peakFocus > d.peakShare + 0.02
-    ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ смяната е по-дълга от пиковете — реално ${Math.round(d.peakShare*100)}%</span><b></b></div>` : '';
+    ? `<div class="row sub2"><span>&nbsp;&nbsp;⚠ смяната надхвърля пиковете — реално ${Math.round(d.peakShare*100)}%</span><b></b></div>` : '';
 
   $('shiftOut').innerHTML = `
     <div class="row"><span>Курсове</span><b>${d.jobs.toFixed(1)} · ${d.jobsPerHour.toFixed(2)}/ч</b></div>
+    <div class="row sub2"><span>&nbsp;&nbsp;таван при тези настройки</span><b>${d.ceiling.toFixed(2)}/ч</b></div>
     ${peakNote}
     <div class="row"><span>Среден курс</span><b>${c.avgTrip} км · ${d.avgFare.toFixed(2)}€</b></div>
     <div class="row sub2"><span>&nbsp;&nbsp;километри</span><b>${fmt(d.kmPart)}€</b></div>
@@ -93,17 +94,28 @@ function render() {
     <div class="row"><span>Кола (всичко)</span><b class="bad">-${fmt(m.carCost)}€</b></div>
     <div class="row"><span>Печалба</span><b>${fmt(m.profit)}€</b></div>
     <div class="row"><span>Осигуровки ${c.sc}%</span><b class="bad">-${fmt(h.social)}€</b></div>
+    <div class="row"><span>Данък ${c.tr}%</span><b class="bad">-${fmt(h.tax)}€</b></div>
     <div class="row"><span>Детски</span><b class="good">+${fmt(h.benefits)}€</b></div>
     <div class="row"><span>Наем + бюджет</span><b class="bad">-${fmt(h.rent+h.budget)}€</b></div>
     ${h.health ? `<div class="row"><span>Здравно</span><b class="bad">-${fmt(h.health)}€</b></div>` : ''}
     <div class="row"><span>Основни</span><b class="bad">-${fmt(h.basic)}€</b></div>
     <div class="row sub2"><span>&nbsp;&nbsp;${fmt(m.monthHours)}ч зад волана · ${fmt(m.monthCommit)}ч извън дома</span><b></b></div>`;
 
+  $('taxOut').innerHTML = `
+    <div class="row"><span>Пробег</span><b>${fmt(m.km)} км/мес · ${fmt(h.kmYear)} км/год</b></div>
+    <div class="row"><span>Километрична квота ${c.kmRate.toFixed(2)}€/км</span><b class="good">-${fmt(h.kmDeduct)}€</b></div>
+    <div class="row"><span>Квота ${S.kids} деца × ${fmt(c.cd)}€</span><b class="good">-${fmt(h.childDeduct)}€</b></div>
+    <div class="row"><span>Облагаема основа</span><b>${fmt(h.taxableYear)}€/год</b></div>
+    <div class="row"><span>Данък ${c.tr}%</span><b class="bad">${fmt(h.taxYear)}€/год</b></div>
+    <div class="row hi"><span>Квотите спестяват</span><b class="good">${fmt(h.reliefYear)}€/год</b></div>
+    <div class="row hi"><span>Ефективна ставка</span><b>${h.effectiveRate.toFixed(1)}%</b></div>
+    ${c.kmRate === 0 ? '<div class="row sub2"><span>&nbsp;&nbsp;⚠ няма километрична квота в тази държава</span><b></b></div>' : ''}`;
+
   $('balance').className = 'balance ' + cls;
   $('balance').innerHTML =
     `<div class="lbl">Остава месечно</div>
      <div class="num">${h.balance >= 0 ? '+' : ''}${fmt(h.balance)} €</div>
-     <div class="sub">Годишно ${fmt(h.balanceYear)}€ · данъчни облекчения +${fmt(h.reliefYear)}€/год<br>
+     <div class="sub">Годишно ${fmt(h.balanceYear)}€<br>
      Праг на рентабилност: <b>${h.breakEvenKm} км/ден</b></div>`;
 
   renderGrid();
