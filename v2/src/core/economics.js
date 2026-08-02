@@ -4,40 +4,29 @@
 // И в двата края поръчката идва от приложението. Разликата е:
 //
 //   strategy = 0  → стоя където ме е оставил клиентът и чакам
-//   strategy = 1  → местя се към зоната, в която има работа,
-//                   за да ми даде приложението адрес
+//   strategy = 1  → местя се към зоната, в която има работа
 //
-// Уличните качвания са рядкост (STREET_MAX) — бонус, не стратегия.
-// Затова таксата повикване пада на почти всички курсове.
+// ТРИ ОГРАНИЧЕНИЯ, всяко от които може да е обвързващото:
+//   1. ТЪРСЕНЕ  — city.maxJobsHour: колко курса пазарът изобщо дава
+//   2. ВРЕМЕ    — колко трае един курс при местната скорост
+//   3. КИЛОМЕТРИ— p.maxKmDay: колко си готов да изминеш
 //
-// Кое от двете печели зависи от FLOW — пасивния поток поръчки.
-// Висок ранг = адресите идват сами = движението е загуба на гуми.
-// Бронзов ранг = малко адреси = местенето е единственият лост.
+// Без (1) моделът произвежда безсмислици: софийските 2.4 курса/час,
+// приложени към 8-километров цюрихски курс, дават 192 натоварени км
+// и над 1200€ на смяна. Проверка: 30 CHF/час при ~43 CHF курс и 30%
+// комисионна означава ОКОЛО ЕДИН курс на час в Цюрих.
 
-// --- калибровъчни константи -------------------------------------------
-// Опорна точка: София, бронзов партньор (flow 0.20), местене (0.80),
-// 10ч смяна, комфорт 50%, TaxiMe 15%, кола 200€/мес, среден курс 4 км.
-//
-//   ~204 км/смяна · ~16 курса · оборот по апарата ~106€
-//   след комисионна ~90€ · след колата ~81€ в джоба
-//     ← измерената типична смяна, август 2026
-//
-// ВАЖНО: опорната точка е ДНЕВНИЯТ сбор. Разбивката по пера
-// (км / начална / престой / повикване) е разпределение вътре в него,
-// не четири независими измервания.
-
-const FLOW_JOBS   = 2.40; // курса/час при пълен пасивен поток
-const SEARCH_JOBS = 1.75; // допълнителни курсове/час от местене към работата
-const CRUISE_KMH  = 29;   // км, изгорени на час активно местене
-const PICKUP_KM   = 2.0;  // среден пробег до клиента
-const SAT_JOBS    = 3.0;  // над този брой курсове/час местенето е излишно
-const COMFORT_MAX = 0.30; // Model S / повече място за крака → +30% тарифен микс
-const STREET_MAX  = 0.10; // дял качвания от улицата при пълно местене — рядкост
+const SEARCH_EFF   = 0.58; // каква част от тавана добира местенето при нулев поток
+const CRUISE_KMH   = 29;   // км, изгорени на час активно местене
+const PICKUP_KM    = 2.0;  // среден пробег до клиента
+const SERVICE_MIN  = 5;    // мин/курс: качване, плащане, чакане на клиента
+const COMFORT_MAX  = 0.30; // Model S / място за крака → +30% тарифен микс
+const STREET_MAX   = 0.10; // дял качвания от улицата — рядкост, не стратегия
 
 /**
  * Една смяна.
  * @param {object} city  запис от CITIES
- * @param {object} p     {hours, strategy 0..1, flow 0..1, comfort 0..1}
+ * @param {object} p     {hours, strategy, flow, comfort, maxKmDay}
  */
 export function shift(city, p) {
   const hours   = p.hours;
@@ -45,26 +34,45 @@ export function shift(city, p) {
   const flow    = clamp01(p.flow);
   const comfort = clamp01(p.comfort);
 
-  const jobsPerHour = flow * FLOW_JOBS + s * SEARCH_JOBS * (1 - flow);
-  const jobs        = jobsPerHour * hours;
+  // (1) Търсене: таванът е свойство на града
+  const ceiling  = city.maxJobsHour;
+  let jobsPerHour = ceiling * (flow + s * SEARCH_EFF * (1 - flow));
 
-  const loadedKm = jobs * city.avgTrip;
+  // (2) Време: един курс трае толкова, колкото трае
+  const speed      = city.avgSpeed || 24;
+  const hoursPerJob = (city.avgTrip + PICKUP_KM) / speed + SERVICE_MIN / 60;
+  jobsPerHour = Math.min(jobsPerHour, 1 / hoursPerJob);
 
-  // Празни километри: отиване до клиента + местене между зоните.
-  // Местенето е безполезно, когато поръчките и без това валят.
-  const saturation = Math.min(1, jobsPerHour / SAT_JOBS);
-  const pickupKm   = jobs * PICKUP_KM;
-  const cruiseKm   = s * CRUISE_KMH * hours * (1 - saturation);
-  const emptyKm    = pickupKm + cruiseKm;
+  let jobs       = jobsPerHour * hours;
+  let loadedKm   = jobs * city.avgTrip;
+  const saturation = Math.min(1, jobsPerHour / ceiling);
+  let pickupKm   = jobs * PICKUP_KM;
+  let cruiseKm   = s * CRUISE_KMH * hours * (1 - saturation);
+  let totalKm    = loadedKm + pickupKm + cruiseKm;
 
-  const totalKm = loadedKm + emptyKm;
+  // (3) Километри: ако таванът е под нужното, реже се обикалянето първо,
+  //     после и курсовете
+  const capKm = p.maxKmDay || Infinity;
+  let kmLimited = false;
+  if (totalKm > capKm) {
+    kmLimited = true;
+    const need = loadedKm + pickupKm;
+    if (need <= capKm) {
+      cruiseKm = capKm - need;          // стига да режем празното обикаляне
+    } else {
+      cruiseKm = 0;                     // не стига — режем и курсове
+      const scale = capKm / need;
+      jobs *= scale; loadedKm *= scale; pickupKm *= scale;
+    }
+    totalKm = loadedKm + pickupKm + cruiseKm;
+  }
+
+  const emptyKm = pickupKm + cruiseKm;
 
   // Почти всички курсове са диспечирани → таксата повикване е почти винаги там.
   const streetShare    = s * STREET_MAX;
   const dispatchedJobs = jobs * (1 - streetShare);
 
-  // Оборот на апарата, ПРЕДИ комисионна. Четири пера:
-  //   километрично + начална такса + престой + повикване
   const mix      = 1 + comfort * COMFORT_MAX;
   const kmPart   = loadedKm * city.dt;
   const basePart = jobs * (city.baseFee + (city.timeFee || 0));
@@ -72,7 +80,8 @@ export function shift(city, p) {
   const gross    = (kmPart + basePart + callPart) * mix;
 
   return {
-    jobs, dispatchedJobs, streetShare,
+    jobs, dispatchedJobs, streetShare, kmLimited,
+    jobsPerHour: hours ? jobs / hours : 0,
     loadedKm, emptyKm, totalKm, gross,
     kmPart:   kmPart * mix,
     basePart: basePart * mix,
@@ -108,14 +117,11 @@ export function month(city, p) {
     carCost: p.carCost,
     profit: net - p.carCost,
     netPerKm: d.totalKm ? (net / p.workDays) / d.totalKm : 0,
-    netPerShift: (net - p.carCost) / p.workDays
+    netPerShift: (net - p.carCost) / p.workDays,
+    netPerHour: p.hours ? ((net - p.carCost) / p.workDays) / p.hours : 0
   };
 }
 
-/**
- * Търси стратегията с най-висока печалба за дадения град и настройки.
- * Отговорът се обръща: при висок поток е по-добре да стоиш.
- */
 export function bestStrategy(city, p) {
   let best = { strategy: 0, profit: -Infinity };
   for (let s = 0; s <= 1.0001; s += 0.05) {
