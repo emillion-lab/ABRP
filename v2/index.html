@@ -103,14 +103,25 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;background:var(--b);
 
     <div class="card">
       <h3>Смяна и разходи</h3>
-      <div class="inp"><div class="ih"><span class="lb">Часове/ден</span><span class="vl" id="vHours"></span></div>
-        <input type="range" id="sHours" min="6" max="14" value="10"></div>
+      <div class="inp">
+        <div class="ih"><span class="lb">Часове зад волана</span><span class="vl" id="vHours"></span></div>
+        <input type="range" id="sHours" min="3" max="14" value="8">
+      </div>
+      <div class="inp">
+        <div class="ih"><span class="lb">Часове извън дома</span><span class="vl" id="vCommit"></span></div>
+        <input type="range" id="sCommit" min="3" max="16" value="12">
+        <div class="ends"><span>при разделена смяна е повече</span></div>
+      </div>
+      <div class="inp">
+        <div class="ih"><span class="lb">Каране в пиковете</span><span class="vl" id="vPeak"></span></div>
+        <input type="range" id="sPeak" min="0" max="100" step="5" value="70">
+        <div class="ends"><span>по всяко време</span><span>само сутрин и вечер</span></div>
+      </div>
       <div class="inp"><div class="ih"><span class="lb">Дни/месец</span><span class="vl" id="vDays"></span></div>
         <input type="range" id="sDays" min="15" max="28" value="22"></div>
       <div class="inp">
         <div class="ih"><span class="lb">Таван км/ден</span><span class="vl" id="vKm"></span></div>
         <input type="range" id="sKm" min="80" max="450" step="10" value="250">
-        <div class="ends"><span>колко си готов да изминеш</span></div>
       </div>
       <div class="inp">
         <div class="ih"><span class="lb">Кола — всичко</span><span class="vl bad" id="vCar"></span></div>
