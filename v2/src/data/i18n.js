@@ -43,6 +43,7 @@ export const T = {
   taxes:      { bg:'Данъци и квоти', en:'Taxes & allowances' },
   optimise:   { bg:'Какво може да се оптимизира', en:'What can be optimised' },
   climate:    { bg:'Климат и рейтинг', en:'Climate & rating' },
+  optimize:   { bg:'Оптимизирай', en:'Optimize' },
 
   jobs:       { bg:'Курсове', en:'Jobs' },
   util:       { bg:'натовареност', en:'utilisation' },
