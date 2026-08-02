@@ -37,11 +37,12 @@ export const T = {
                 en:'power, fuel, lease, insurance, tyres, repairs' },
   tips:       { bg:'Бакшиши', en:'Tips' },
 
-  cities:     { bg:'Градове — остатък месечно', en:'Cities — monthly surplus' },
+  cities:     { bg:'Градове', en:'Cities' },
   oneShift:   { bg:'Една смяна', en:'One shift' },
   monthly:    { bg:'Месечно', en:'Monthly' },
   taxes:      { bg:'Данъци и квоти', en:'Taxes & allowances' },
   optimise:   { bg:'Какво може да се оптимизира', en:'What can be optimised' },
+  climate:    { bg:'Климат и рейтинг', en:'Climate & rating' },
 
   jobs:       { bg:'Курсове', en:'Jobs' },
   util:       { bg:'натовареност', en:'utilisation' },
@@ -101,6 +102,17 @@ export const T = {
   taxVerV:    { bg:'данъци: проверени', en:'tax: verified' },
   taxVerP:    { bg:'данъци: частично', en:'tax: partial' },
   taxVerE:    { bg:'данъци: оценка', en:'tax: estimate' },
+
+  overallScore: { bg:'Общ рейтинг', en:'Overall rating' },
+  climateScore: { bg:'Климатична оценка', en:'Climate score' },
+  sunHours:     { bg:'Слънчеви часа', en:'Sunshine hours' },
+  windAvg:      { bg:'Вятър средно', en:'Average wind' },
+  stormDays:    { bg:'Дни силен вятър', en:'Strong-wind days' },
+  rainDays:     { bg:'Дъждовни дни', en:'Rainy days' },
+  janTemp:      { bg:'Януари средно', en:'January average' },
+  decLight:     { bg:'Светлина на 21.12', en:'Daylight on 21 Dec' },
+  climateEst:   { bg:'климатичните данни са оценки, не измервания',
+                  en:'climate figures are estimates, not measurements' },
 
   warnKmCap:  { bg:'опряло в тавана за км', en:'hit the km cap' },
   warnPeak:   { bg:'смяната надхвърля пиковете — реално',
