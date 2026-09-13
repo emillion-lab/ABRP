@@ -6,12 +6,26 @@
 export const PRESETS = {
   sofia_now: {
     name: { bg:'София днес', en:'Sofia today' },
-    desc: { bg:'Измерената реалност: бронз, местене, TaxiMe 15%, Tesla на ток',
-            en:'Measured reality: bronze tier, repositioning, TaxiMe 15%, electric Tesla' },
+    desc: { bg:'Измерената реалност: бронз, местене, TaxiMe 15%, Tesla на ток ~8 €/ден',
+            en:'Measured reality: bronze tier, repositioning, TaxiMe 15%, electric Tesla ~€8/day' },
     city: 'sofia',
     set: { hours:10, commitHours:12, workDays:26, peakFocus:0.6, flow:0.20,
            strategy:0.80, comfort:0.50, carCost:200, tips:150, maxKmDay:250,
            commissionPct:15 }
+  },
+
+  sofia_ice: {
+    name: { bg:'София — външен партньор, ДВГ', en:'Sofia — external partner, combustion' },
+    desc: { bg:'Полеви данни от колега, 09.2026. Среден шофьор прави 120 €/12ч; '
+                + 'колата струва ~75 €/ден — гориво, мивка, и 45 €/ден заделяне за '
+                + 'каско, гражданска, винетка, гуми, масла, ремонти, амортизация.',
+            en:'Field data from a colleague, 09/2026. An average driver grosses €120 '
+                + 'per 12h; the car costs ~€75/day — fuel, wash, and €45/day set aside '
+                + 'for insurance, vignette, tyres, oil, repairs, depreciation.' },
+    city: 'sofia',
+    set: { hours:12, commitHours:12, workDays:26, peakFocus:0.5, flow:0.35,
+           strategy:0.70, comfort:0, carCost:1960, tips:0, maxKmDay:400,
+           commissionPct:13 }
   },
 
   first_year: {
