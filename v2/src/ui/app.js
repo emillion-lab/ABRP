@@ -174,7 +174,8 @@ function render() {
   $('vPeak').textContent = Math.round(S.peakFocus*100) + '%';
   $('vDays').textContent = S.workDays;
   $('vKm').textContent = S.maxKmDay + ' km';
-  $('vCar').textContent = '-' + fmt(S.carCost) + '€';
+  $('vCar').textContent = '-' + fmt(S.carCost) + '€ · '
+    + (S.carCost / Math.max(S.workDays, 1)).toFixed(0) + ' ' + t('perDayEur');
   $('vTips').textContent = '+' + fmt(S.tips) + '€';
   $('vComfort').textContent = Math.round(S.comfort*100) + '%';
   $('vFlow').textContent = Math.round(S.flow*100) + '%';
