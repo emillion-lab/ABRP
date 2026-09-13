@@ -33,6 +33,7 @@ export const T = {
   days:       { bg:'Дни/месец', en:'Days per month' },
   kmCap:      { bg:'Таван км/ден', en:'Km/day cap' },
   car:        { bg:'Кола — всичко', en:'Car — everything' },
+  perDayEur:  { bg:'€/ден', en:'€/day' },
   carNote:    { bg:'ток, гориво, лизинг, застраховки, гуми, ремонти',
                 en:'power, fuel, lease, insurance, tyres, repairs' },
   tips:       { bg:'Бакшиши', en:'Tips' },
