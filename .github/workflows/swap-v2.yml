@@ -1,0 +1,26 @@
+name: Swap v2 → root (еднократно)
+# v2 става основната версия в корена; старите страници отиват в v1/ за справка.
+# Пуска се сам при качването на този файл. Идемпотентен: ако v2/src вече го няма, нищо не прави.
+on:
+  push:
+    paths: ['.github/workflows/swap-v2.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  swap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move files
+        run: |
+          set -e
+          if [ ! -d v2/src ]; then echo "вече е разменено — нищо за правене"; exit 0; fi
+          git config user.name abrp-bot
+          git config user.email abrp-bot@users.noreply.github.com
+          mkdir -p v1
+          git mv index.html index2.html index3.html "root-planner-2026-multilingual (1).html" v1/
+          git mv v2/index.html v2/PLAN.md v2/src .
+          git commit -q -m "swap: v2 е основната версия в корена; старите страници са в v1/"
+          git push
+          echo "разменено"
